@@ -33,7 +33,7 @@ BASE_HEADERS = {
 
 # Uses EDGAR API to get the CIK for company lookup
 # Kind of jank since it uses the method for a text field on the site
-def get_company_CIK(ticker):
+def get_company_CIK(ticker:str):
 	url = "https://efts.sec.gov/LATEST/search-index"
 	res = requests.post(url, headers=BASE_HEADERS, json={"keysTyped": ticker})
 	hits = res.json()["hits"]["hits"]
@@ -45,7 +45,7 @@ def get_company_CIK(ticker):
 
 # Standard CIK format
 # 10 characters
-def pad_CIK(CIK):
+def pad_CIK(CIK:str):
 	return "0" * (10 - len(CIK)) + CIK
 
 # Check if any string is equivalent to a target phrase
@@ -65,7 +65,7 @@ def str_startswith_mlt(buf, words):
 	return False
 
 # Retrieves all filings for a company
-def get_recent_filings(CIK):
+def get_recent_filings(CIK:str):
 	CIK = pad_CIK(CIK) 
 	url = f"https://data.sec.gov/submissions/CIK{CIK}.json"
 	res_json = json.loads(requests.get(url, headers=BASE_HEADERS).text)
@@ -73,7 +73,7 @@ def get_recent_filings(CIK):
 	recent = res_json["filings"]["recent"]
 	return recent
 
-def get_older_filings(CIK):
+def get_older_filings(CIK:str):
 	CIK = pad_CIK(CIK)
 	url = f"https://data.sec.gov/submissions/CIK{CIK}-submissions-001.json"
 	return json.loads(requests.get(url, headers=BASE_HEADERS).text)
@@ -91,7 +91,7 @@ class FormInfo:
 	primaryDocDescription: str
 
 # Goes through retrieved filings to find forms of a type
-def get_forms_of_type(master, form_type):
+def get_forms_of_type(master, form_type:str):
 	form_names = FORM_MAP[form_type]
 
 	accessionNumber = master['accessionNumber']
@@ -121,7 +121,7 @@ def get_forms_of_type(master, form_type):
 
 # Target URL for inline HTML
 def create_inline_html_url(ticker, CIK, form):
-	return "https://www.sec.gov/Archives/edgar/data/{}/{}/{}".format(CIK, form.accessionNumber.replace("-", ""), form.primaryDocDescription)
+	return "https://www.sec.gov/Archives/edgar/data/{}/{}/{}".format(CIK, form.accessionNumber.replace("-", ""), form.primaryDocument)
 
 # Target URL for instance data
 def create_xbrl_inst_url(CIK, form):
@@ -233,7 +233,7 @@ def save_all_forms(ticker, form_type, forms):
 def save_all_facts(ticker):
 	CIK = get_company_CIK(ticker)
 	factsurl = create_facts_url(CIK)
-	print("Retrieving json instance from:\n\t{}".format(factsurl))
+	print(f"Retrieving json instance from:\n\t{factsurl}")
 	res = requests.get(factsurl, headers=BASE_HEADERS, stream=True)
 	download_file(res,ticker)
 

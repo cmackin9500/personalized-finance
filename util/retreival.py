@@ -18,11 +18,6 @@ def get_and_extract_zip(url, dest):
 	zipfile = ZipFile(BytesIO(res.raw.read()))
 	zipfile.extractall(path=dest)
 
-# Creates the data directory based on the convention
-# ticker/form_type/form_date
-def dest_dir_name(ticker, form_type, form):
-	return "forms/{}/{}/{}".format(ticker, form_type, form.date)
-
 # Makes a directory if it doesn't exist
 def mkdir_if_NE(pathname):
 	if not os.path.isdir(pathname):
