@@ -29,7 +29,6 @@ class XBRLNode:
 # Given the list of classes, that contains the child and parent, it will take the child and return it as a list
 def PreData_children(elements:list) -> list:
 	children = list()
-	# family contains 
 	for relation in elements:
 		children.append(relation.child)
 	return children
@@ -49,7 +48,7 @@ def clean_statement(elements:list) -> list:
 	return statement
 
 # Given the table and the elements of the specified financial statement, it will return a percentage match of the table
-# This will take the percentage compared to the list elements found from pre file
+# This will take the percentage compared to the list of elements found from pre file
 def percentage(table:list, children:list) -> float:
 	if len(children) == 0: return 0
 	count = set()

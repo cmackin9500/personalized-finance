@@ -8,39 +8,23 @@ import sys
 @dataclass
 class XBRLNode:
 	tag: str
-	child: list
 	parent: str
+	child: list
 	val: float
 	weight: float
 	order: float
 	date: str
 	text: str
 
-	def	__init__(self,tag,child,parent):
+	def	__init__(self,tag,parent=None,child=None):
 		self.tag = tag
-		self.child = child
 		self.parent = parent
+		self.child = child
 		self.val = None
 		self.weight = None
 		self.order = None
 		self.date = None
 		self.text = None
-
-@dataclass
-class CompanyData:
-	balance_sheet: list()
-	income_statement: list()
-	cash_flow: list()
-
-@dataclass
-class PreData:
-	child: str
-	parent: str
-
-@dataclass
-class CalTags:
-	order: int
-	weight: int
 
 # Parses xsd file. It will return a list of all the statement URI.
 def get_URI(file_xsd:str) -> list:
@@ -54,7 +38,7 @@ def get_URI(file_xsd:str) -> list:
 			roleURI.append(e.get('roleuri'))
 	return roleURI
 
-def URI_from_statement(roleURI:str, statement:str, terms:dict) -> str:
+def URI_from_statement(roleURI:str, statement:str) -> str:
 	for uri in roleURI:
 		if any(s in uri.lower() for s in skip):
 			continue
@@ -122,8 +106,8 @@ def get_tag(ticker:str, full_tag:str) -> str:
 	return tag
 
 # Given the URI, we go through the pre file and find all the elements in the specified financial statement
-def find_statement(file_pre:str, ticker:str, fs_URI:str) -> list:
-	elements = list()
+# We want this to run first since the order of the tags is proper
+def pre_data(ticker:str, file_pre:str, fs_URI:str, fs_elements:dict) -> list:
 	ticker = ticker.lower()
 	soup = BeautifulSoup(file_pre, 'html.parser')
 	presentationLink = soup.find_all(['link:presentationlink','presentationlink'])
@@ -136,25 +120,31 @@ def find_statement(file_pre:str, ticker:str, fs_URI:str) -> list:
 			#if capture is None:
 
 	for e in capture:
-		child, parent = None, None
+		tag, parent = None, None
 
-    	# getting the child
-		child_tag = e.get('xlink:to')
-		child = get_tag(ticker,child_tag)
+    	# getting the tag
+		full_tag = e.get('xlink:to')
+		tag = get_tag(ticker,full_tag)
 
     	# getting the parent
-		parent_tag = e.get('xlink:from')
-		parent = get_tag(ticker,parent_tag)
+		parent_full_tag = e.get('xlink:from')
+		parent = get_tag(ticker,parent_full_tag)
 
-		elements.append(PreData(child,parent))
+		if tag is not None:
+			if tag in fs_elements:
+				if fs_elements[tag].parent is None:
+					fs_elements[tag].parent = parent
+			else:
+				fs_elements[tag] = XBRLNode(tag)
+				fs_elements[tag].parent = parent
 
-	return elements
+	return fs_elements
 
 
 # Gets the information from the cal file (order and the weight) and stores it with the tags
-def cal_data(ticker:str, file_cal:str, fs_URI:str):
-	cal_map = dict()
-
+# Cal file gives the info for parent, order, and weight
+# This might be better to take the presedence over pre_data since cal_data does the parent child relationship better
+def cal_data(ticker:str, file_cal:str, fs_URI:str, fs_elements):
 	soup = BeautifulSoup(file_cal, 'html.parser')
 	calculationLink = soup.find_all(['link:calculationlink','calculationlink'])
 
@@ -166,15 +156,47 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str):
 		if capture is None: continue
 		for e in capture:
 			tag = get_tag(ticker,e.get('xlink:to'))
-			#cal_map[tag] = CalTags(int(e.get('order')), float(e.get('weight')))
+			if tag is None:
+				continue
+
+			parent = get_tag(ticker,e.get('xlink:from'))
+
+			# if XBRLNode(tag) exists, add the tag to it, else create the node
+			if tag not in fs_elements:
+				fs_elements[tag] = XBRLNode(tag)
+
+			fs_elements[tag].parent = parent
 
 			# I JUST COMMENTED OUT THE LINE ABOVE AND MADE IT THE ONE BELOW CAUSE FOR MSFT, THE ORDER WAS A HUGE ASS FLOAT
 			# LIKE order="10310.00" SO I CHANGED IT.
 			if type(e.get('order')) is int:
-				cal_map[tag] = CalTags(int(e.get('order')), float(e.get('weight')))
+				fs_elements[tag].order = int(e.get('order'))
+				fs_elements[tag].weight = float(e.get('weight'))
+
 			elif type(e.get('order')) is float:
-				cal_map[tag] = CalTags(float(e.get('order')), float(e.get('weight')))
+				fs_elements[tag].order = float(e.get('order'))
+				fs_elements[tag].weight = float(e.get('weight'))
+
 			else:
 				# this is done for when type could be str. MRC is an example
-				cal_map[tag] = CalTags(float(e.get('order')), float(e.get('weight')))
-	return cal_map
+				fs_elements[tag].order = float(e.get('order'))
+				fs_elements[tag].weight = float(e.get('weight'))
+
+	return fs_elements
+
+if __name__ == "__main__":
+	ticker = sys.argv[1]
+	formType = sys.argv[2]
+	directory = find_latest_form_dir(ticker,formType)
+	cfiles = read_forms_from_dir(directory)
+
+
+	roleURI = get_URI(cfiles.xsd)
+	fs_URI = statement_URI(roleURI, 'bs')
+	fs_elements = {}
+	fs_elements = pre_data(ticker, cfiles.pre, fs_URI, fs_elements)
+	fs_elements = cal_data(ticker, cfiles.cal, fs_URI, fs_elements)
+
+	for key in fs_elements:
+		print(fs_elements[key])
+
