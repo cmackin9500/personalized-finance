@@ -138,7 +138,7 @@ def create_tags_url(CIK):
 # Creates the data directory based on the convention
 # ticker/form_type/form_date
 def dest_dir_name(ticker, form_type, form):
-	return f"forms/{ticker}/{form_type}/{form.reportDate}"
+	return f"./forms/{ticker}/{form_type}/{form.reportDate}"
 
 def save_form_data(ticker, form_type, date):
 	CIK = get_company_CIK(ticker)
