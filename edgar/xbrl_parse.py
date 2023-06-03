@@ -129,23 +129,23 @@ def pre_data(ticker:str, file_pre:str, fs_URI:str, fs_fields:dict) -> list:
 	ticker = ticker.lower()
 	soup = BeautifulSoup(file_pre, 'html.parser')
 	presentationLink = soup.find_all(['link:presentationlink','presentationlink'])
-	capture = None
+	all_presentation_arc = None
 
 	for link in presentationLink:
 		if link.attrs['xlink:role'] == fs_URI:
-			capture = link.find_all(['link:presentationarc','presentationarc'])
+			all_presentation_arc = link.find_all(['link:presentationarc','presentationarc'])
+	
+	assert all_presentation_arc != None, "pre_data not found"
 
-			#if capture is None:
-
-	for e in capture:
+	for presentation_arc in all_presentation_arc:
 		tag, parent = None, None
 
     	# getting the tag
-		full_tag = e.get('xlink:to')
+		full_tag = presentation_arc.get('xlink:to')
 		tag = get_tag(ticker,full_tag)
 
     	# getting the parent
-		parent_full_tag = e.get('xlink:from')
+		parent_full_tag = presentation_arc.get('xlink:from')
 		parent = get_tag(ticker,parent_full_tag)
 
 		if tag is not None:
@@ -167,17 +167,17 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str, fs_fields):
 	calculationLink = soup.find_all(['link:calculationlink','calculationlink'])
 
 	for link in calculationLink:
-		capture = None
+		all_calculation_arc = None
 		if link.attrs['xlink:role'] in fs_URI:
-			capture = link.find_all(['link:calculationarc','calculationarc'])
+			all_calculation_arc = link.find_all(['link:calculationarc','calculationarc'])
 
-		if capture is None: continue
-		for e in capture:
-			tag = get_tag(ticker,e.get('xlink:to'))
+		if all_calculation_arc is None: continue
+		for calculation_arc in all_calculation_arc:
+			tag = get_tag(ticker, calculation_arc.get('xlink:to'))
 			if tag is None:
 				continue
 
-			parent = get_tag(ticker,e.get('xlink:from'))
+			parent = get_tag(ticker, calculation_arc.get('xlink:from'))
 
 			# if XBRLNode(tag) exists, add the tag to it, else create the node
 			if tag not in fs_fields:
@@ -187,18 +187,18 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str, fs_fields):
 
 			# I JUST COMMENTED OUT THE LINE ABOVE AND MADE IT THE ONE BELOW CAUSE FOR MSFT, THE ORDER WAS A HUGE ASS FLOAT
 			# LIKE order="10310.00" SO I CHANGED IT.
-			if type(e.get('order')) is int:
-				fs_fields[tag].order = int(e.get('order'))
-				fs_fields[tag].weight = float(e.get('weight'))
+			if type(calculation_arc.get('order')) is int:
+				fs_fields[tag].order = int(calculation_arc.get('order'))
+				fs_fields[tag].weight = float(calculation_arc.get('weight'))
 
-			elif type(e.get('order')) is float:
-				fs_fields[tag].order = float(e.get('order'))
-				fs_fields[tag].weight = float(e.get('weight'))
+			elif type(calculation_arc.get('order')) is float:
+				fs_fields[tag].order = float(calculation_arc.get('order'))
+				fs_fields[tag].weight = float(calculation_arc.get('weight'))
 
 			else:
 				# this is done for when type could be str. MRC is an example
-				fs_fields[tag].order = float(e.get('order'))
-				fs_fields[tag].weight = float(e.get('weight'))
+				fs_fields[tag].order = float(calculation_arc.get('order'))
+				fs_fields[tag].weight = float(calculation_arc.get('weight'))
 
 	return fs_fields
 

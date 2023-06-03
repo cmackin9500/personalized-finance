@@ -5,27 +5,7 @@ import sys
 
 from html_parse import html_to_facts, Fact
 from files import read_forms_from_dir, find_latest_form_dir
-
-@dataclass
-class XBRLNode:
-	tag: str
-	child: list
-	parent: str
-	val: float
-	weight: float
-	order: float
-	date: str
-	text: str
-
-	def	__init__(self,tag,child,parent):
-		self.tag = tag
-		self.child = child
-		self.parent = parent
-		self.val = None
-		self.weight = None
-		self.order = None
-		self.date = None
-		self.text = None
+from xbrl_parse import XBRLNode, get_fs_fields
 
 # Given the list of classes, that contains the child and parent, it will take the child and return it as a list
 def PreData_children(elements:list) -> list:
