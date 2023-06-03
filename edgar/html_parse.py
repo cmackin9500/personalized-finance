@@ -7,7 +7,7 @@ from util import file_management as fm
 
 # Fundamental information holder
 @dataclass
-class Fact:
+class HTMLFact:
 	tag: str
 	parent: str
 	child: list()
@@ -49,7 +49,7 @@ def cell_to_float(cell, sign):
 
 
 # Converts an HTML table to rows of facts
-def tab_to_rows(tab, ctx_map, cal_map):
+def tab_to_rows(tab, ctx_map, fs_fields):
 	tbody = tab.find("tbody")
 	children = tbody if tbody else tab.contents 
 
@@ -77,16 +77,12 @@ def tab_to_rows(tab, ctx_map, cal_map):
 
 			# Determine sign of cell
 			sign = None
-			if ix["name"] in cal_map:
-				sign = cal_map[ix["name"]].weight
+			if ix["name"] in fs_fields:
+				sign = fs_fields[ix["name"]].weight
 			elif "sign" in ix:
 				sign = int(ix["sign"] + "1")
 
-
-			if ix["name"] == "us-gaap:GeneralAndAdministrativeExpense":
-				oprint("SIGN", sign)
-
-			data.append(Fact(ix["name"],
+			data.append(HTMLFact(ix["name"],
 					None,
 					[],
 					cell_to_float(cell, sign),
@@ -116,10 +112,10 @@ def contexts_to_map(context_list):
 
 	return ctx_map
 
-# Returns an list of tables which consists of a list of lists of Fact objects
+# Returns an list of tables which consists of a list of lists of HTMLFact objects
 # Requires the HTML version of the company form submission
 # Only the column data (ix:nonfraction) is extracted
-def html_to_facts(html,cal_map):
+def html_to_facts(html,fs_fields):
 	dom = BeautifulSoup(html, "lxml")
 	tables = dom.find_all("table")
 
@@ -127,15 +123,15 @@ def html_to_facts(html,cal_map):
 	contexts = dom.find_all("xbrli:context")
 	ctx_map = contexts_to_map(contexts)
 
-	facts = []
+	all_facts = []
 	for tab in tables:
-		new_facts = tab_to_rows(tab, ctx_map, cal_map)
+		new_facts = tab_to_rows(tab, ctx_map, fs_fields)
 		if len(new_facts) == 0:
 			continue
 
-		facts.append(new_facts)
+		all_facts.append(new_facts)
 
-	return facts
+	return all_facts
 
 	
 if __name__ == '__main__':

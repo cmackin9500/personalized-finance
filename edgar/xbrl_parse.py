@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 import sys
 from dataclasses import dataclass
 
-from html_parse import html_to_facts, Fact
 from files import read_forms_from_dir, find_latest_form_dir
 
 @dataclass
@@ -31,14 +30,14 @@ class XBRLNode:
 		child = []
 		if self.child is not None:
 			child = [child for chhild in self.child.tag]
-		return (f"tag = {self.tag},\n" + 
-				f"parent = {self.parent}:\n" +
-				f"child = {child},\n" +
-				f"val = {self.val},\n" +
-				f"weight = {self.weight},\n" +
-				f"order = {self.order},\n" +
-				f"date = {self.date},\n" +
-				f"text = {self.text}\n")
+		return (f"{self.tag},\n" + 
+				f"	parent = {self.parent}:\n" +
+				f"	child = {child},\n" +
+				f"	val = {self.val},\n" +
+				f"	weight = {self.weight},\n" +
+				f"	order = {self.order},\n" +
+				f"	date = {self.date},\n" +
+				f"	text = {self.text}\n")
 
 
 	def __repr__(self):
