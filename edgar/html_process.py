@@ -1,9 +1,10 @@
-from htmlparse import html_to_facts, Fact
 import os
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from files import read_forms_from_dir, find_latest_form_dir
 import sys
+
+from html_parse import html_to_facts, Fact
+from files import read_forms_from_dir, find_latest_form_dir
 
 @dataclass
 class XBRLNode:
