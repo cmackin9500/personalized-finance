@@ -16,7 +16,7 @@ class XBRLNode:
 	date: str
 	text: str
 
-	def	__init__(self,tag=None,parent=None,child=None):
+	def	__init__(self,tag=None,parent=None,child=[],weight=1):
 		self.tag = tag
 		self.parent = parent
 		self.child = child
@@ -28,8 +28,9 @@ class XBRLNode:
 
 	def __str__(self):
 		child = []
-		if self.child is not None:
-			child = [child for chhild in self.child.tag]
+		if self.child != []:
+			child = [c for c in self.child]
+		
 		return (f"{self.tag},\n" + 
 				f"	parent = {self.parent}:\n" +
 				f"	child = {child},\n" +
@@ -108,6 +109,7 @@ def statement_URI(roleURI:list, statement:str) -> str:
 
 # loops throught the string that is split into multiple sections. It will only pick up the tag
 def get_tag(ticker:str, full_tag:str) -> str:
+	ticker = ticker.lower()
 	split = full_tag.split('_')
 	tag = None
 	for i in range(len(split)):
@@ -172,11 +174,13 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str, fs_fields):
 
 		if all_calculation_arc is None: continue
 		for calculation_arc in all_calculation_arc:
-			tag = get_tag(ticker, calculation_arc.get('xlink:to'))
+			full_tag = calculation_arc.get('xlink:to')
+			tag = get_tag(ticker, full_tag)
 			if tag is None:
 				continue
-
-			parent = get_tag(ticker, calculation_arc.get('xlink:from'))
+			
+			parent_full_tag = calculation_arc.get('xlink:from')
+			parent = get_tag(ticker, parent_full_tag)
 
 			# if XBRLNode(tag) exists, add the tag to it, else create the node
 			if tag not in fs_fields:
@@ -218,8 +222,8 @@ if __name__ == "__main__":
 
 	fs = 'bs'
 	fs_fields = get_fs_fields(ticker, form_type, fs, cfiles)
-	for key in fs_fields:
-		print(fs_fields[key])
-		print()
+	#for key in fs_fields:
+	#	print(fs_fields[key])
+	#	print()
 
 
