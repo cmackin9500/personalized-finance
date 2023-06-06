@@ -1,4 +1,8 @@
 <script>
+	import { onMount } from "svelte";
+
+	let quillEditorElement;
+
 	let eqContent = `k = usgaap:PropertyPlantAndEquipmentNet(0) * 0.95
 myval = k / usgaap:Assets(0)`;
 
@@ -30,6 +34,7 @@ myval = k / usgaap:Assets(0)`;
 
 		const split = text.split(/[ \n\t]+/);
 		const tokens = tokenizeText(text);
+		console.log("Tokens", tokens);
 
 		let out = "";
 		let i = 0;
@@ -99,20 +104,6 @@ myval = k / usgaap:Assets(0)`;
 		return 6
 	}
 
-	//function parseEquation(text) {
-	//	const tokens = tokenizeText(text);
-	//	console.log(tokens);
-
-	//	const ast = {
-	//		type: "equation",
-	//		children: []
-	//	}
-
-	//	for (const t of tokens) {
-	//			
-	//	}
-	//}
-
 	function tokenizeText(text) {
 		const special = "()=+-*/^\n";
 		const skip = " \t";
@@ -148,6 +139,11 @@ myval = k / usgaap:Assets(0)`;
 
 		return tokens;
 	}
+
+	onMount(async => {
+		var quill = new Quill(quillEditorElement, {
+		});
+	})
 </script>
 
 
@@ -158,11 +154,19 @@ myval = k / usgaap:Assets(0)`;
 				<label class="label">Company Ticker</label>
 				<input class="input" bind:value={TICKER}/>
 			</div>
-			<textarea style="width: 100%; height: 20ch;"
+			<textarea class="textarea" style="width: 100%; height: 20ch;"
 		  	  	  	  bind:value={eqContent}
 		  	  	  	  on:keydown={keydownHandler}/>
 		</div>
 	</div>
+</div>
+
+<br>
+
+<div>
+<div id="quill-editor" bind:this={quillEditorElement} class="content">
+	<p>Hello</p>
+</div>
 </div>
 
 <br>
