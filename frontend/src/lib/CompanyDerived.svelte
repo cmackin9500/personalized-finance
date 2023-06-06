@@ -2,6 +2,7 @@
 	export let selectedCompany = "";
 </script>
 
+<br>
 <section class="hero is-link">
 	<div class="hero-body">
 		<p class="title">Derived values</p>
@@ -16,4 +17,6 @@
 		<p class="title">Models</p>
 	</div>
 </section>
+
+
 

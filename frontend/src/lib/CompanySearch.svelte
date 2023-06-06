@@ -1,5 +1,5 @@
 <script>
-	export let selectedCompany = ";"
+	export let selectedCompany;
 	let currentCompany = "";
 	let currentQuery = "";
 </script>
@@ -8,7 +8,7 @@
 	<div class="card"> 
 		<div id="search-bar" class="">
 			<label>Search:</label>
-			<input class="input" bind:value={currentQuery}/>
+			<input class="input" bind:value={selectedCompany}/>
 		</div>
 
 
