@@ -142,7 +142,6 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str):
 		if link.attrs['xlink:role'] in fs_URI:
 			capture = link.find_all(['link:calculationarc','calculationarc'])
 
-		#print(capture)
 		if capture is None: continue
 		for e in capture:
 			tag = get_tag(ticker,e.get('xlink:to'))
@@ -160,7 +159,7 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str):
 	return cal_map
 
 
-# given the list of classes, that contains the child and parent, it will take the child and return it as a list
+# Given the list of classes, that contains the child and parent, it will take the child and return it as a list
 def PreData_children(elements:list) -> list:
 	children = list()
 	# family contains 
@@ -171,7 +170,8 @@ def PreData_children(elements:list) -> list:
 # Given the list of all the financial statement elements, we get rid of the unneeded elements
 def clean_statement(elements:list) -> list:
 	statement = list()
-	skip = ['Abstract','Items','Axis','Member','Domain','Table']
+	#skip = ['Abstract','Items','Axis','Member','Domain','Table']
+	skip = ['Items','Axis','Member','Domain','Table']
 	for relation in elements:
 		if relation.child is None or relation.parent is None:
 			continue
@@ -243,9 +243,10 @@ def assign_parent(all_facts,fs1):
 					if e.child in f.tag:
 						f.parent = e.parent
 						break
+	return
 
 @dataclass
-class Family:
+class XBRLNode:
 	tag: str
 	child: list
 	parent: str
@@ -275,6 +276,25 @@ def PreData_to_dict(PreData_List):
 		hashmap[e.child] = e.parent
 	return hashmap
 
+def top_node_to_json(node,visited):
+	if not node or node.tag in visited:
+		return
+	else:
+		print(node.tag)
+		visited.add(node.tag)
+
+
+	if node.child is not None:
+		tmp = []
+		for child in node.child:
+			tmp.append(child.tag)
+		print(tmp)
+
+		for child in node.child:
+			top_node_to_json(child,visited)
+
+	return
+
 # This will return the top tag of the financial statement. Each tag will have a node assigned which will consist of its tag, a list of its children node, 
 # its parent node, and the value of the node.
 def assign_children(fs_elements):
@@ -295,11 +315,13 @@ def assign_children(fs_elements):
 	top_tag = fs_elements[0].parent if fs_elements[0].parent else fs_elements[0].child
 
 	# top_node will be the very top of the nodes
-	# eg) "us-gaap:StatementOfFinancialPositionAbstract" will have "us-gaap:AssetsAbstract" and "us-gaap:LiabilitiesAndStockholdersEquityAbstract" as child
+	# eg) "us-gaap:StatementOfFinancialPositionAbstract" will have pr"us-gaap:AssetsAbstract" and "us-gaap:LiabilitiesAndStockholdersEquityAbstract" as child
 	# fs_dict will return the node of the tag given the tag. Just another way to access the nodes easily.
 	fs_dict = dict()
-	top_node = tag_recursion(top_tag,None,family_dict,fs_dict)
-
+	top_node = tag_recursion(top_tag,None,family_dict,fs_dict) 		# top_node and all other nodes does not have any values assiged yet
+	
+	top_node_to_json(top_node,set())
+	
 	return top_node, fs_dict
 
 # Starting from the top tag, it will create the Family node and assign all the children and so on
@@ -307,7 +329,7 @@ def tag_recursion(tag,parent_node,family_dict,fs_dict):
 
 #TODO: add val, date, and text to the Family dataclass for each node
 
-	cur_node = Family(tag,None,parent_node)		# create a node for the current tag
+	cur_node = XBRLNode(tag,None,parent_node)		# create a node for the current tag
 
 	if family_dict[tag] == []:					# BASE CASE: if the current tag has no children, node.child will be none and the node will be returned
 		cur_node.child = None
@@ -348,6 +370,8 @@ def assign_node_values(fs_dict,FS,cal_map):
 			if tagAbstract in fs_dict:
 				fs_dict[tag].val = fs_dict[tagAbstract].val
 				fs_dict[tag].date = fs_dict[tagAbstract].date
+	
+	return fs_dict
 
 	# go through each node and assign value
 	# no value, we will take the sum of its children value
@@ -372,26 +396,28 @@ def retrieve_fs_table(ticker:str, fs, cfiles, roleURI):
 	# {fs}_dict is dict of all nodes of tags. {fs}_dict[tag] will return the node of the tag
 	fs_elements = find_statement(cfiles.pre,ticker,fs_URI)
 	fs_top_node, fs_dict = assign_children(fs_elements)
-	fs1 = clean_statement(fs_elements)
+	fs_elements = clean_statement(fs_elements)			# cleans the fs_elements with items that have Keywords that are not needed
 
-	assign_parent(all_facts,fs1)
+	assign_parent(all_facts,fs_elements)
 
 	# list (len of FS) of list (len(2)) containing each tags with parent, text, val, date
-	FS = combine_table(all_facts,fs1)										
+	FS = combine_table(all_facts,fs_elements)									
 
 	# assign the missing text, date, val, weight, and order in the nodes of the tags
 	assign_node_values(fs_dict,FS,cal_map)
 
-	return FS
+	return fs_dict
+	
 
 def retrieve_tables(ticker:str, cfiles):
 	roleURI = get_URI(cfiles.xsd)
 
-	BS = retrieve_fs_table(ticker, 'bs', cfiles, roleURI)
-	IS = retrieve_fs_table(ticker, 'is', cfiles, roleURI)
-	CF = retrieve_fs_table(ticker, 'cf', cfiles, roleURI)
+	BS_dict = retrieve_fs_table(ticker, 'bs', cfiles, roleURI)
+	print()
+	IS_dict = retrieve_fs_table(ticker, 'is', cfiles, roleURI)
+	CF_dict = retrieve_fs_table(ticker, 'cf', cfiles, roleURI)
 
-	return CompanyData(BS,IS,CF)
+	return CompanyData(BS_dict,IS_dict,CF_dict)
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3:
@@ -405,4 +431,4 @@ if __name__ == '__main__':
 	cfiles = read_forms_from_dir(directory)
 
 	data = retrieve_tables(ticker,cfiles)
-	print(data.balance_sheet)
+	#print(data.balance_sheet)
