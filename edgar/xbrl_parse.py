@@ -29,7 +29,7 @@ class XBRLNode:
 	def __str__(self):
 		child = []
 		if self.child != []:
-			child = [c for c in self.child]
+			child = [c.tag for c in self.child]
 		
 		return (f"{self.tag},\n" + 
 				f"	parent = {self.parent}:\n" +

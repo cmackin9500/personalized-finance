@@ -120,6 +120,9 @@ def top_tags(fs_fields):
 	return top_tags
 
 def fs_fields_to_json(fs_fields, fs_json, tag):
+	if tag in fs_json:
+		return fs_json[tag]
+
 	fs_json[tag] = {}
 	fs_json[tag]['tag'] = tag
 	fs_json[tag]['parent'] = fs_fields[tag].parent
@@ -132,8 +135,8 @@ def fs_fields_to_json(fs_fields, fs_json, tag):
 
 	for child_key in fs_fields[tag].child:
 		child = fs_fields[child_key]
-		fs_json[child.tag] = {}
-		child_fs = fs_fields_to_json(fs_fields, fs_json[child.tag], child.tag)
+		fs_json[tag]['child'][child.tag] = {}
+		child_fs = fs_fields_to_json(fs_fields, fs_json[tag]['child'][child.tag], child.tag)
 		fs_json[tag]['child'][child.tag] = child_fs
 
 	return fs_json[tag]
@@ -165,8 +168,8 @@ def ticker_to_json(ticker, form_type, fs):
 
 if __name__ == '__main__':
 	if len(sys.argv) != 4:
-		print("USAGE: python3 xbrl_functions.py <ticker> <form type> <financial statement type>")
-		print("\tex. python3 xbrl_functions.py AAPL 10-K bs")
+		print("USAGE: python3 html_process.py <ticker> <form type> <financial statement type>")
+		print("\tex. python3 html_process.py AAPL 10-K bs")
 		print("bs = balance sheet\nis = income statement\ncf = cashflow staement")
 		sys.exit(0)
 
