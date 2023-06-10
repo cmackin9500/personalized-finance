@@ -11,6 +11,10 @@
 					"us-gaap:PropertyPlantAndEquipment": {
 						"value": 60000,
 						"children": {}
+					},
+					"us-gaap:Goodwill": {
+						"value": 20000,
+						"children": {}
 					}
 				}
 			}
@@ -21,6 +25,10 @@
 				"children": {
 					"us-gaap:PropertyPlantAndEquipment": {
 						"value": 65000,
+						"children": {}
+					},
+					"us-gaap:Goodwill": {
+						"value": 20000,
 						"children": {}
 					}
 				}
@@ -192,7 +200,11 @@
 			  					on:change={updatePlot(cell)} />
 						</td>
 					{:else}
-						<td>{cell}</td>
+						{#if cell === undefined}
+							<td>-</td>
+						{:else}
+							<td>{cell}</td>
+						{/if}
 					{/if}
 				{/each}
 			</tr>
