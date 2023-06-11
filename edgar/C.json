@@ -95,28 +95,7 @@
                                         "order": null,
                                         "date": null,
                                         "text": null,
-                                        "child": {
-                                            "us-gaap:NotesReceivableGross": {
-                                                "tag": "us-gaap:NotesReceivableGross",
-                                                "parent": "us-gaap:NotesReceivableNetAbstract",
-                                                "val": 657221000000.0,
-                                                "weight": null,
-                                                "order": null,
-                                                "date": "2022-12-31",
-                                                "text": "Loans, net of unearned income",
-                                                "child": {}
-                                            },
-                                            "us-gaap:FinancingReceivableAllowanceForCreditLosses": {
-                                                "tag": "us-gaap:FinancingReceivableAllowanceForCreditLosses",
-                                                "parent": "us-gaap:NotesReceivableNetAbstract",
-                                                "val": -16974000000.0,
-                                                "weight": null,
-                                                "order": null,
-                                                "date": "2022-12-31",
-                                                "text": "Allowance for credit losses on loans (ACLL)",
-                                                "child": {}
-                                            }
-                                        }
+                                        "child": {}
                                     },
                                     "us-gaap:Assets": {
                                         "tag": "us-gaap:Assets",
@@ -226,7 +205,28 @@
                                                 "order": 7.0,
                                                 "date": "2022-12-31",
                                                 "text": "Total loans, net",
-                                                "child": {}
+                                                "child": {
+                                                    "us-gaap:NotesReceivableGross": {
+                                                        "tag": "us-gaap:NotesReceivableGross",
+                                                        "parent": "us-gaap:NotesReceivableNet",
+                                                        "val": 657221000000.0,
+                                                        "weight": 1.0,
+                                                        "order": 8.0,
+                                                        "date": "2022-12-31",
+                                                        "text": "Loans, net of unearned income",
+                                                        "child": {}
+                                                    },
+                                                    "us-gaap:FinancingReceivableAllowanceForCreditLosses": {
+                                                        "tag": "us-gaap:FinancingReceivableAllowanceForCreditLosses",
+                                                        "parent": "us-gaap:NotesReceivableNet",
+                                                        "val": -16974000000.0,
+                                                        "weight": -1.0,
+                                                        "order": 8.0,
+                                                        "date": "2022-12-31",
+                                                        "text": "Allowance for credit losses on loans (ACLL)",
+                                                        "child": {}
+                                                    }
+                                                }
                                             },
                                             "us-gaap:Goodwill": {
                                                 "tag": "us-gaap:Goodwill",

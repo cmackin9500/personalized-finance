@@ -160,7 +160,7 @@ def ticker_to_json(ticker, form_type, fs):
 	     		'is': 'us-gaap:IncomeStatementAbstract',
 		 		'cf': 'us-gaap:StatementOfCashFlowsAbstract'
 		 		}
-	
+		
 	fs_fields_to_json(fs_fields, fs_json, top_node[fs])
 	
 	with open(f"{ticker}.json", 'w') as output:
