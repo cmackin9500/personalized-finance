@@ -1,0 +1,478 @@
+{
+    "CurrentNotesAndLoansReceivable": [
+        "us-gaap:AccountsNotesAndLoansReceivableNetCurrent",
+        "us-gaap:NotesAndLoansReceivableGrossCurrent",
+        "us-gaap:NotesAndLoansReceivableNetCurrent"
+    ],
+    "CurrentAccountsPayableAndAccruedLiabilities": [
+        "us-gaap:AccountsPayableAndAccruedLiabilitiesCurrent",
+        "us-gaap:AccountsPayableAndOtherAccruedLiabilitiesCurrent"
+    ],
+    "TotalAccountsPayableAndAccruedLiabilities": [
+        "us-gaap:AccountsPayableAndAccruedLiabilitiesCurrentAndNoncurrent"
+    ],
+    "NoncurrentAccountsPayableAndAccruedLiabilities": [
+        "us-gaap:AccountsPayableAndAccruedLiabilitiesNoncurrent"
+    ],
+    "CurrentAccountsPayable": [
+        "us-gaap:AccountsPayableCurrent",
+        "us-gaap:AccountsPayableRelatedPartiesCurrent"
+    ],
+    "TotalAccountsPayable": [
+        "us-gaap:AccountsPayableCurrentAndNoncurrent"
+    ],
+    "NoncurrentAccountsReceivable": [
+        "us-gaap:AccountsReceivableAllowanceForCreditLossExcludingAccruedInterestNoncurrent",
+        "us-gaap:AccountsReceivableExcludingAccruedInterestAfterAllowanceForCreditLossNoncurrent",
+        "us-gaap:AccountsReceivableExcludingAccruedInterestBeforeAllowanceForCreditLossNoncurrent",
+        "us-gaap:AccountsReceivableGrossNoncurrent",
+        "us-gaap:AccountsReceivableNetNoncurrent",
+        "us-gaap:AccountsReceivableRelatedPartiesNoncurrent",
+        "us-gaap:AllowanceForDoubtfulAccountsReceivableNoncurrent"
+    ],
+    "TotalAccountsReceivable": [
+        "us-gaap:AccountsReceivableGross",
+        "us-gaap:AccountsReceivableNet",
+        "us-gaap:AllowanceForDoubtfulAccountsReceivable"
+    ],
+    "CurrentAccountsReceivable": [
+        "us-gaap:AccountsReceivableGrossCurrent",
+        "us-gaap:AccountsReceivableNetCurrent",
+        "us-gaap:AllowanceForDoubtfulAccountsReceivableCurrent"
+    ],
+    "CurrentAccruedLiabilities": [
+        "us-gaap:AccruedAdvertisingCurrent",
+        "us-gaap:AccruedExchangeFeeRebateCurrent",
+        "us-gaap:AccruedInsuranceCurrent",
+        "us-gaap:AccruedLiabilitiesCurrent",
+        "us-gaap:AccruedMarketingCostsCurrent",
+        "us-gaap:AccruedProfessionalFeesCurrent",
+        "us-gaap:AccruedRentCurrent",
+        "us-gaap:AccruedRoyaltiesCurrent",
+        "us-gaap:AccruedSalesCommissionCurrent",
+        "us-gaap:AccruedUtilitiesCurrent",
+        "us-gaap:OtherAccruedLiabilitiesCurrent",
+        "us-gaap:ProductWarrantyAccrualClassifiedCurrent"
+    ],
+    "TotalAccruedLiabilities": [
+        "us-gaap:AccruedLiabilitiesCurrentAndNoncurrent"
+    ],
+    "PropertyPlantAndEquipment": [
+        "us-gaap:AccumulatedDepreciationDepletionAndAmortizationPropertyPlantAndEquipment",
+        "us-gaap:BuildingsAndImprovementsGross",
+        "us-gaap:CapitalizedComputerSoftwareGross",
+        "us-gaap:ConstructionInProgressGross",
+        "us-gaap:DevelopmentInProcess",
+        "us-gaap:FixturesAndEquipmentGross",
+        "us-gaap:FurnitureAndFixturesGross",
+        "us-gaap:InvestmentBuildingAndBuildingImprovements",
+        "us-gaap:Land",
+        "us-gaap:LandAndLandImprovements",
+        "us-gaap:LandAvailableForDevelopment",
+        "us-gaap:LandAvailableForSale",
+        "us-gaap:LandImprovements",
+        "us-gaap:LeaseholdImprovementsGross",
+        "us-gaap:MachineryAndEquipmentGross",
+        "us-gaap:OilAndGasPropertyFullCostMethodNet",
+        "us-gaap:OilAndGasPropertySuccessfulEffortMethodNet",
+        "us-gaap:PropertyPlantAndEquipmentCollectionsNotCapitalized",
+        "us-gaap:PropertyPlantAndEquipmentExcludingLessorAssetUnderOperatingLeaseBeforeAccumulatedDepreciation",
+        "us-gaap:PropertyPlantAndEquipmentGross",
+        "us-gaap:PropertyPlantAndEquipmentNet",
+        "us-gaap:PropertyPlantAndEquipmentOther",
+        "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
+        "us-gaap:PropertySubjectToOrAvailableForOperatingLeaseGross",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentAccumulatedDepreciation",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentCommon",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentConstructionWorkInProgress",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentDistribution",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentEquipment",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentFuel",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentGenerationOrProcessing",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentLand",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentNet",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentOtherPropertyPlantAndEquipment",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentPlantInService",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentTransmission",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentTransmissionAndDistribution",
+        "us-gaap:PublicUtilitiesPropertyPlantAndEquipmentVehicles",
+        "us-gaap:RealEstateAcquiredThroughForeclosure",
+        "us-gaap:RealEstateHeldforsale",
+        "us-gaap:RealEstateInvestmentPropertyAccumulatedDepreciation",
+        "us-gaap:RealEstateInvestmentPropertyAtCost",
+        "us-gaap:RealEstateInvestmentPropertyNet",
+        "us-gaap:RealEstateInvestmentsOther",
+        "us-gaap:RentalProperties",
+        "us-gaap:TenantImprovements",
+        "us-gaap:TimberAndTimberlands"
+    ],
+    "AdditionalPaidInCapital": [
+        "us-gaap:AdditionalPaidInCapital",
+        "us-gaap:AdditionalPaidInCapitalCommonStock",
+        "us-gaap:AdditionalPaidInCapitalPreferredStock"
+    ],
+    "LongTermInvestments": [
+        "us-gaap:AdvancesToAffiliate",
+        "us-gaap:AuctionRateSecuritiesNoncurrent",
+        "us-gaap:AvailableForSaleSecuritiesDebtSecuritiesNoncurrent",
+        "us-gaap:DebtSecuritiesHeldToMaturityAllowanceForCreditLossNoncurrent",
+        "us-gaap:DebtSecuritiesHeldToMaturityAmortizedCostAfterAllowanceForCreditLossNoncurrent",
+        "us-gaap:DebtSecuritiesNoncurrent",
+        "us-gaap:EquityMethodInvestments",
+        "us-gaap:EquitySecuritiesFVNINoncurrent",
+        "us-gaap:HeldToMaturitySecuritiesNoncurrent",
+        "us-gaap:InvestmentInPhysicalCommodities",
+        "us-gaap:InvestmentsInAffiliatesSubsidiariesAssociatesAndJointVentures",
+        "us-gaap:LongTermInvestments",
+        "us-gaap:MarketableSecuritiesNoncurrent",
+        "us-gaap:OtherLongTermInvestments"
+    ],
+    "Inventory": [
+        "us-gaap:AirlineRelatedInventory",
+        "us-gaap:AirlineRelatedInventoryAircraftFuel",
+        "us-gaap:AirlineRelatedInventoryAircraftParts",
+        "us-gaap:InventoryOperativeBuilders",
+        "us-gaap:InventoryRealEstate",
+        "us-gaap:InventoryRealEstateConstructionInProcess",
+        "us-gaap:InventoryRealEstateHeldForSale",
+        "us-gaap:InventoryRealEstateImprovements",
+        "us-gaap:InventoryRealEstateLandAndLandDevelopmentCosts",
+        "us-gaap:InventoryRealEstateMortgageLoansHeldInInventory",
+        "us-gaap:InventoryRealEstateOther",
+        "us-gaap:InventoryRealEstateTimeshareAvailableForSale",
+        "us-gaap:OtherInventoriesSpareParts",
+        "us-gaap:OtherInventoryCapitalizedCosts",
+        "us-gaap:OtherInventoryDemo",
+        "us-gaap:OtherInventoryInTransit",
+        "us-gaap:OtherInventoryInventoryAtOffSitePremises",
+        "us-gaap:OtherInventoryMaterialsSuppliesAndMerchandiseUnderConsignment",
+        "us-gaap:OtherInventoryPurchasedGoods",
+        "us-gaap:OtherInventoryScrap",
+        "us-gaap:OtherInventoryWarehouse",
+        "us-gaap:PublicUtilitiesInventory"
+    ],
+    "Cash": [
+        "us-gaap:AssetBackedSecuritiesAtCarryingValue",
+        "us-gaap:Cash",
+        "us-gaap:CashAndCashEquivalentsAtCarryingValue",
+        "us-gaap:CashAndDueFromBanks",
+        "us-gaap:CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents",
+        "us-gaap:CashEquivalentsAtCarryingValue",
+        "us-gaap:CertificatesOfDepositAtCarryingValue",
+        "us-gaap:CommercialPaperAtCarryingValue",
+        "us-gaap:CreditAndDebitCardReceivablesAtCarryingValue",
+        "us-gaap:DueFromBanks",
+        "us-gaap:InterestBearingDepositsInBanks",
+        "us-gaap:MarketableSecurities",
+        "us-gaap:MoneyMarketFundsAtCarryingValue",
+        "us-gaap:MunicipalDebtSecuritiesAtCarryingValue",
+        "us-gaap:OtherCashEquivalentsAtCarryingValue",
+        "us-gaap:TimeDepositsAtCarryingValue",
+        "us-gaap:USGovernmentAgenciesSecuritiesAtCarryingValue",
+        "us-gaap:USGovernmentSecuritiesAtCarryingValue"
+    ],
+    "TotalAssets": [
+        "us-gaap:Assets"
+    ],
+    "TotalCurrentAssets": [
+        "us-gaap:AssetsCurrent"
+    ],
+    "TotalNoncurrentAssets": [
+        "us-gaap:AssetsNoncurrent"
+    ],
+    "ShortTermInvestments": [
+        "us-gaap:AvailableForSaleSecuritiesDebtSecuritiesCurrent",
+        "us-gaap:DebtSecuritiesCurrent",
+        "us-gaap:DebtSecuritiesHeldToMaturityAllowanceForCreditLossCurrent",
+        "us-gaap:DebtSecuritiesHeldToMaturityAmortizedCostAfterAllowanceForCreditLossCurrent",
+        "us-gaap:EquitySecuritiesFvNi",
+        "us-gaap:HeldToMaturitySecuritiesCurrent",
+        "us-gaap:MarketableSecuritiesCurrent",
+        "us-gaap:OtherShortTermInvestments",
+        "us-gaap:ShortTermInvestments",
+        "us-gaap:TradingSecuritiesDebt"
+    ],
+    "ShortTermDebt": [
+        "us-gaap:BankOverdrafts",
+        "us-gaap:BridgeLoan",
+        "us-gaap:CommercialPaper",
+        "us-gaap:ConstructionLoan",
+        "us-gaap:ConvertibleDebtCurrent",
+        "us-gaap:ConvertibleNotesPayableCurrent",
+        "us-gaap:ConvertibleSubordinatedDebtCurrent",
+        "us-gaap:FederalHomeLoanBankAdvancesCurrent",
+        "us-gaap:FederalHomeLoanBankAdvancesMaturitiesSummaryDueWithinOneYearOfBalanceSheetDate",
+        "us-gaap:JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrustCurrent",
+        "us-gaap:JuniorSubordinatedNotesCurrent",
+        "us-gaap:LinesOfCreditCurrent",
+        "us-gaap:LoansPayableCurrent",
+        "us-gaap:LoansPayableToBankCurrent",
+        "us-gaap:LongTermCommercialPaperCurrent",
+        "us-gaap:LongTermConstructionLoanCurrent",
+        "us-gaap:LongTermDebtCurrent",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInNextRollingTwelveMonths",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInNextTwelveMonths",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalRemainderOfFiscalYear",
+        "us-gaap:LongtermPollutionControlBondCurrent",
+        "us-gaap:LongtermTransitionBondCurrent",
+        "us-gaap:MediumtermNotesCurrent",
+        "us-gaap:NotesAndLoansPayableCurrent",
+        "us-gaap:NotesPayableCurrent",
+        "us-gaap:NotesPayableToBankCurrent",
+        "us-gaap:OtherLoansPayableCurrent",
+        "us-gaap:OtherLongTermDebtCurrent",
+        "us-gaap:OtherNotesPayableCurrent",
+        "us-gaap:OtherShortTermBorrowings",
+        "us-gaap:SecuredDebtCurrent",
+        "us-gaap:SecuritiesSoldUnderAgreementsToRepurchase",
+        "us-gaap:SeniorNotesCurrent",
+        "us-gaap:ShortTermBankLoansAndNotesPayable",
+        "us-gaap:ShortTermBorrowings",
+        "us-gaap:ShortTermDebtTextBlock",
+        "us-gaap:ShortTermNonBankLoansAndNotesPayable",
+        "us-gaap:SpecialAssessmentBondCurrent",
+        "us-gaap:SubordinatedDebtCurrent",
+        "us-gaap:UnsecuredDebtCurrent",
+        "us-gaap:WarehouseAgreementBorrowings"
+    ],
+    "CashAndShortTermInvestments": [
+        "us-gaap:CashCashEquivalentsAndShortTermInvestments"
+    ],
+    "CashAndRestrictedCash": [
+        "us-gaap:CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsDisposalGroupIncludingDiscontinuedOperations",
+        "us-gaap:CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations"
+    ],
+    "LongTermDebt": [
+        "us-gaap:CommercialPaperNoncurrent",
+        "us-gaap:ConstructionLoanNoncurrent",
+        "us-gaap:ConvertibleDebt",
+        "us-gaap:ConvertibleDebtNoncurrent",
+        "us-gaap:ConvertibleLongTermNotesPayable",
+        "us-gaap:ConvertibleNotesPayable",
+        "us-gaap:ConvertibleSubordinatedDebt",
+        "us-gaap:ConvertibleSubordinatedDebtNoncurrent",
+        "us-gaap:FederalHomeLoanBankAdvancesLongTerm",
+        "us-gaap:JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust",
+        "us-gaap:JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrustNoncurrent",
+        "us-gaap:JuniorSubordinatedLongTermNotes",
+        "us-gaap:JuniorSubordinatedNotes",
+        "us-gaap:LineOfCredit",
+        "us-gaap:LoansPayable",
+        "us-gaap:LoansPayableToBank",
+        "us-gaap:LongTermDebt",
+        "us-gaap:LongTermDebtAndCapitalLeaseObligationsIncludingCurrentMaturities",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalAfterYearFive",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingAfterYearFive",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearFive",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearFour",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearThree",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInRollingYearTwo",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInYearFive",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInYearFour",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInYearThree",
+        "us-gaap:LongTermDebtMaturitiesRepaymentsOfPrincipalInYearTwo",
+        "us-gaap:LongTermDebtNoncurrent",
+        "us-gaap:LongTermDebtTextBlock",
+        "us-gaap:LongTermLineOfCredit",
+        "us-gaap:LongTermLoansFromBank",
+        "us-gaap:LongTermLoansPayable",
+        "us-gaap:LongTermNotesAndLoans",
+        "us-gaap:LongTermNotesPayable",
+        "us-gaap:LongTermPollutionControlBond",
+        "us-gaap:LongTermTransitionBond",
+        "us-gaap:LongtermCommercialPaperCurrentAndNoncurrent",
+        "us-gaap:LongtermConstructionLoanCurrentAndNoncurrent",
+        "us-gaap:LongtermFederalHomeLoanBankAdvancesNoncurrent",
+        "us-gaap:LongtermPollutionControlBondCurrentAndNoncurrent",
+        "us-gaap:LongtermTransitionBondCurrentAndNoncurrent",
+        "us-gaap:MediumTermNotes",
+        "us-gaap:MediumtermNotesNoncurrent",
+        "us-gaap:NotesAndLoansPayable",
+        "us-gaap:NotesPayable",
+        "us-gaap:NotesPayableToBank",
+        "us-gaap:NotesPayableToBankNoncurrent",
+        "us-gaap:OtherLoansPayable",
+        "us-gaap:OtherLoansPayableLongTerm",
+        "us-gaap:OtherLongTermDebt",
+        "us-gaap:OtherLongTermDebtNoncurrent",
+        "us-gaap:OtherLongTermNotesPayable",
+        "us-gaap:OtherNotesPayable",
+        "us-gaap:SecuredDebt",
+        "us-gaap:SecuredLongTermDebt",
+        "us-gaap:SeniorLongTermNotes",
+        "us-gaap:SeniorNotes",
+        "us-gaap:SpecialAssessmentBond",
+        "us-gaap:SpecialAssessmentBondNoncurrent",
+        "us-gaap:SubordinatedDebt",
+        "us-gaap:SubordinatedLongTermDebt",
+        "us-gaap:UnsecuredDebt",
+        "us-gaap:UnsecuredLongTermDebt"
+    ],
+    "DeferredIncomeTaxAsset": [
+        "us-gaap:DeferredIncomeTaxAssetsNet"
+    ],
+    "DeferredIncomeTaxLiabilities": [
+        "us-gaap:DeferredIncomeTaxLiabilitiesNet"
+    ],
+    "CurrentDeferredTaxAssets": [
+        "us-gaap:DeferredTaxAssetsGrossCurrent",
+        "us-gaap:DeferredTaxAssetsNetCurrent",
+        "us-gaap:DeferredTaxAssetsValuationAllowanceCurrent"
+    ],
+    "NoncurrentDeferredTaxAssets": [
+        "us-gaap:DeferredTaxAssetsGrossNoncurrent",
+        "us-gaap:DeferredTaxAssetsNetNoncurrent",
+        "us-gaap:DeferredTaxAssetsValuationAllowanceNoncurrent"
+    ],
+    "CurrentDeferredTaxAssetsLiabilities": [
+        "us-gaap:DeferredTaxAssetsLiabilitiesNetCurrent"
+    ],
+    "NoncurrentDeferredTaxAssetsLiabilities": [
+        "us-gaap:DeferredTaxAssetsLiabilitiesNetNoncurrent"
+    ],
+    "DeferredTaxAssets": [
+        "us-gaap:DeferredTaxAssetsNet"
+    ],
+    "CurrentDeferredTaxLiabilities": [
+        "us-gaap:DeferredTaxLiabilitiesCurrent",
+        "us-gaap:DeferredTaxLiabilitiesGrossCurrent"
+    ],
+    "NoncurrentDeferredTaxLiabilities": [
+        "us-gaap:DeferredTaxLiabilitiesGrossNoncurrent",
+        "us-gaap:DeferredTaxLiabilitiesNoncurrent"
+    ],
+    "Deposits": [
+        "us-gaap:DemandDepositAccounts",
+        "us-gaap:Deposits",
+        "us-gaap:DepositsDomestic",
+        "us-gaap:DepositsForeign",
+        "us-gaap:DepositsMoneyMarketDeposits",
+        "us-gaap:DepositsMoneyMarketDepositsAndNegotiableOrderOfWithdrawalNOW",
+        "us-gaap:DepositsNegotiableOrderOfWithdrawalNOW",
+        "us-gaap:DepositsRetail",
+        "us-gaap:DepositsSavingsDeposits",
+        "us-gaap:DepositsWholesale",
+        "us-gaap:InterestBearingDepositLiabilities",
+        "us-gaap:InterestBearingDepositLiabilitiesDomestic",
+        "us-gaap:InterestBearingDepositLiabilitiesForeign",
+        "us-gaap:NoninterestBearingDepositLiabilities",
+        "us-gaap:NoninterestBearingDepositLiabilitiesDomestic",
+        "us-gaap:NoninterestBearingDepositLiabilitiesForeign",
+        "us-gaap:TimeDeposits"
+    ],
+    "OtherAssets": [
+        "us-gaap:FinanceLeaseRightOfUseAsset",
+        "us-gaap:FinancingReceivableAllowanceForCreditLosses",
+        "us-gaap:NotesReceivableGross",
+        "us-gaap:NotesReceivableNet",
+        "us-gaap:OperatingLeaseRightOfUseAsset",
+        "us-gaap:OtherAssets",
+        "us-gaap:OtherAssetsMiscellaneous",
+        "us-gaap:PrepaidExpenseAndOtherAssets",
+        "us-gaap:PrepaidExpenseCurrentAndNoncurrent"
+    ],
+    "IntangibleAssets": [
+        "us-gaap:FiniteLivedIntangibleAssetsAccumulatedAmortization",
+        "us-gaap:FiniteLivedIntangibleAssetsGross",
+        "us-gaap:FiniteLivedIntangibleAssetsNet",
+        "us-gaap:IndefiniteLivedContractualRights",
+        "us-gaap:IndefiniteLivedFranchiseRights",
+        "us-gaap:IndefiniteLivedIntangibleAssetsExcludingGoodwill",
+        "us-gaap:IndefiniteLivedLicenseAgreements",
+        "us-gaap:IndefiniteLivedTradeNames",
+        "us-gaap:IndefiniteLivedTrademarks",
+        "us-gaap:IntangibleAssetsCurrent",
+        "us-gaap:IntangibleAssetsGrossExcludingGoodwill",
+        "us-gaap:IntangibleAssetsNetExcludingGoodwill",
+        "us-gaap:OtherIndefiniteLivedIntangibleAssets",
+        "us-gaap:OtherIntangibleAssetsNet"
+    ],
+    "Goodwill": [
+        "us-gaap:Goodwill"
+    ],
+    "TotalInventory": [
+        "us-gaap:InventoryFinishedGoods",
+        "us-gaap:InventoryFinishedGoodsAndWorkInProcess",
+        "us-gaap:InventoryForLongTermContractsOrPrograms",
+        "us-gaap:InventoryGross",
+        "us-gaap:InventoryLIFOReserve",
+        "us-gaap:InventoryNet",
+        "us-gaap:InventoryRawMaterialsAndSupplies",
+        "us-gaap:InventoryValuationReserves",
+        "us-gaap:InventoryWorkInProcess",
+        "us-gaap:OtherInventory"
+    ],
+    "TotalLiabilities": [
+        "us-gaap:Liabilities"
+    ],
+    "LiabilitiesAndStockholdersEquity": [
+        "us-gaap:LiabilitiesAndStockholdersEquity"
+    ],
+    "TotalCurrentLiabilities": [
+        "us-gaap:LiabilitiesCurrent"
+    ],
+    "TotalNoncurrentLiabilities": [
+        "us-gaap:LiabilitiesNoncurrent"
+    ],
+    "NoncurrentOtherLiabilities": [
+        "us-gaap:LiabilitiesOtherThanLongtermDebtNoncurrent",
+        "us-gaap:OtherLiabilitiesNoncurrent"
+    ],
+    "NoncurrentNotesAndLoansReceivable": [
+        "us-gaap:LongTermAccountsNotesAndLoansReceivableNetNoncurrent"
+    ],
+    "TotalLongTermInvestmentsAndAccountsReceivable": [
+        "us-gaap:LongTermInvestmentsAndReceivablesNet"
+    ],
+    "NoninterestIncome": [
+        "us-gaap:NoninterestIncome"
+    ],
+    "CurrentNotesPayable": [
+        "us-gaap:NotesPayableRelatedPartiesClassifiedCurrent"
+    ],
+    "NoncurrentNotesReceivable": [
+        "us-gaap:NotesReceivableRelatedPartiesNoncurrent"
+    ],
+    "CurrentOtherAssets": [
+        "us-gaap:OtherAssetsCurrent",
+        "us-gaap:OtherAssetsMiscellaneousCurrent"
+    ],
+    "NoncurrentOtherAssets": [
+        "us-gaap:OtherAssetsMiscellaneousNoncurrent",
+        "us-gaap:OtherAssetsNoncurrent"
+    ],
+    "OtherLiabilities": [
+        "us-gaap:OtherLiabilities"
+    ],
+    "RestrictedCash": [
+        "us-gaap:RestrictedCash",
+        "us-gaap:RestrictedCashAndCashEquivalents",
+        "us-gaap:RestrictedCashAndCashEquivalentsAtCarryingValue",
+        "us-gaap:RestrictedCashAndCashEquivalentsNoncurrent",
+        "us-gaap:RestrictedCashCurrent",
+        "us-gaap:RestrictedCashEquivalents",
+        "us-gaap:RestrictedCashEquivalentsCurrent",
+        "us-gaap:RestrictedCashEquivalentsNoncurrent",
+        "us-gaap:RestrictedCashNoncurrent"
+    ],
+    "CurrentInvestments": [
+        "us-gaap:RestrictedInvestmentsCurrent"
+    ],
+    "RetainedEarnings": [
+        "us-gaap:RetainedEarningsAccumulatedDeficit",
+        "us-gaap:RetainedEarningsAppropriated",
+        "us-gaap:RetainedEarningsUnappropriated"
+    ],
+    "StockholdersEquity": [
+        "us-gaap:StockholdersEquity",
+        "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "TreasuryStock": [
+        "us-gaap:TreasuryStockCommonValue",
+        "us-gaap:TreasuryStockPreferredValue",
+        "us-gaap:TreasuryStockValue"
+    ],
+    "OperatingExpense": [
+        "us-gaap:UtilitiesOperatingExpense"
+    ]
+}

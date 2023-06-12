@@ -1,0 +1,459 @@
+{
+    "us-gaap:StatementOfFinancialPositionAbstract": {
+        "tag": "us-gaap:StatementOfFinancialPositionAbstract",
+        "parent": null,
+        "val": null,
+        "weight": null,
+        "order": null,
+        "date": null,
+        "text": null,
+        "child": {
+            "us-gaap:AssetsAbstract": {
+                "tag": "us-gaap:AssetsAbstract",
+                "parent": "us-gaap:StatementOfFinancialPositionAbstract",
+                "val": null,
+                "weight": null,
+                "order": null,
+                "date": null,
+                "text": null,
+                "child": {}
+            },
+            "us-gaap:Assets": {
+                "tag": "us-gaap:Assets",
+                "parent": "us-gaap:StatementOfFinancialPositionAbstract",
+                "val": 6111202000.0,
+                "weight": null,
+                "order": null,
+                "date": "2022-12-31",
+                "text": "Total assets",
+                "child": {
+                    "us-gaap:CashAndCashEquivalentsAtCarryingValue": {
+                        "tag": "us-gaap:CashAndCashEquivalentsAtCarryingValue",
+                        "parent": "us-gaap:Assets",
+                        "val": 268618000.0,
+                        "weight": 1.0,
+                        "order": 1.0,
+                        "date": "2022-12-31",
+                        "text": "Cash and cash equivalents",
+                        "child": {}
+                    },
+                    "us-gaap:RestrictedCashAndCashEquivalentsAtCarryingValue": {
+                        "tag": "us-gaap:RestrictedCashAndCashEquivalentsAtCarryingValue",
+                        "parent": "us-gaap:Assets",
+                        "val": 2308000.0,
+                        "weight": 1.0,
+                        "order": 2.0,
+                        "date": "2022-12-31",
+                        "text": "Restricted cash",
+                        "child": {}
+                    },
+                    "us-gaap:DueFromCorrespondentBrokers": {
+                        "tag": "us-gaap:DueFromCorrespondentBrokers",
+                        "parent": "us-gaap:Assets",
+                        "val": 48737000.0,
+                        "weight": 1.0,
+                        "order": 3.0,
+                        "date": "2022-12-31",
+                        "text": "Due from clearing brokers",
+                        "child": {}
+                    },
+                    "us-gaap:SecurityOwnedAndSoldNotYetPurchasedFairValueSecurityOwned": {
+                        "tag": "us-gaap:SecurityOwnedAndSoldNotYetPurchasedFairValueSecurityOwned",
+                        "parent": "us-gaap:Assets",
+                        "val": 1129268000.0,
+                        "weight": 1.0,
+                        "order": 4.0,
+                        "date": "2022-12-31",
+                        "text": "Securities and other investments owned, at fair value",
+                        "child": {}
+                    },
+                    "us-gaap:SecuritiesBorrowed": {
+                        "tag": "us-gaap:SecuritiesBorrowed",
+                        "parent": "us-gaap:Assets",
+                        "val": 2343327000.0,
+                        "weight": 1.0,
+                        "order": 5.0,
+                        "date": "2022-12-31",
+                        "text": "Securities borrowed",
+                        "child": {}
+                    },
+                    "us-gaap:AccountsReceivableNetCurrent": {
+                        "tag": "us-gaap:AccountsReceivableNetCurrent",
+                        "parent": "us-gaap:Assets",
+                        "val": 149110000.0,
+                        "weight": 1.0,
+                        "order": 6.0,
+                        "date": "2022-12-31",
+                        "text": "Accounts receivable, net",
+                        "child": {}
+                    },
+                    "us-gaap:DueFromRelatedParties": {
+                        "tag": "us-gaap:DueFromRelatedParties",
+                        "parent": "us-gaap:Assets",
+                        "val": 1081000.0,
+                        "weight": 1.0,
+                        "order": 7.0,
+                        "date": "2022-12-31",
+                        "text": "Due from related parties",
+                        "child": {}
+                    },
+                    "us-gaap:FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss": {
+                        "tag": "us-gaap:FinancingReceivableExcludingAccruedInterestAfterAllowanceForCreditLoss",
+                        "parent": "us-gaap:Assets",
+                        "val": 701652000.0,
+                        "weight": 1.0,
+                        "order": 8.0,
+                        "date": "2022-12-31",
+                        "text": "Loans receivable, at fair value (includes $98,729 and $167,744 from related parties as of December\u00a031, 2022 and 2021, respectively)",
+                        "child": {}
+                    },
+                    "us-gaap:PrepaidExpenseAndOtherAssetsCurrent": {
+                        "tag": "us-gaap:PrepaidExpenseAndOtherAssetsCurrent",
+                        "parent": "us-gaap:Assets",
+                        "val": 460696000.0,
+                        "weight": 1.0,
+                        "order": 9.0,
+                        "date": "2022-12-31",
+                        "text": "Prepaid expenses and other assets",
+                        "child": {}
+                    },
+                    "us-gaap:OperatingLeaseRightOfUseAsset": {
+                        "tag": "us-gaap:OperatingLeaseRightOfUseAsset",
+                        "parent": "us-gaap:Assets",
+                        "val": 88593000.0,
+                        "weight": 1.0,
+                        "order": 10.0,
+                        "date": "2022-12-31",
+                        "text": "Operating lease right-of-use assets",
+                        "child": {}
+                    },
+                    "us-gaap:PropertyPlantAndEquipmentNet": {
+                        "tag": "us-gaap:PropertyPlantAndEquipmentNet",
+                        "parent": "us-gaap:Assets",
+                        "val": 27141000.0,
+                        "weight": 1.0,
+                        "order": 11.0,
+                        "date": "2022-12-31",
+                        "text": "Property and equipment, net",
+                        "child": {}
+                    },
+                    "us-gaap:Goodwill": {
+                        "tag": "us-gaap:Goodwill",
+                        "parent": "us-gaap:Assets",
+                        "val": 512595000.0,
+                        "weight": 1.0,
+                        "order": 12.0,
+                        "date": "2022-12-31",
+                        "text": "Goodwill",
+                        "child": {}
+                    },
+                    "us-gaap:IntangibleAssetsNetExcludingGoodwill": {
+                        "tag": "us-gaap:IntangibleAssetsNetExcludingGoodwill",
+                        "parent": "us-gaap:Assets",
+                        "val": 374098000.0,
+                        "weight": 1.0,
+                        "order": 13.0,
+                        "date": "2022-12-31",
+                        "text": "Other intangible assets, net",
+                        "child": {}
+                    },
+                    "us-gaap:DeferredIncomeTaxesAndOtherAssetsCurrent": {
+                        "tag": "us-gaap:DeferredIncomeTaxesAndOtherAssetsCurrent",
+                        "parent": "us-gaap:Assets",
+                        "val": 3978000.0,
+                        "weight": 1.0,
+                        "order": 14.0,
+                        "date": "2022-12-31",
+                        "text": "Deferred income taxes",
+                        "child": {}
+                    }
+                }
+            },
+            "us-gaap:LiabilitiesAndStockholdersEquityAbstract": {
+                "tag": "us-gaap:LiabilitiesAndStockholdersEquityAbstract",
+                "parent": "us-gaap:StatementOfFinancialPositionAbstract",
+                "val": null,
+                "weight": null,
+                "order": null,
+                "date": null,
+                "text": null,
+                "child": {
+                    "us-gaap:LiabilitiesAbstract": {
+                        "tag": "us-gaap:LiabilitiesAbstract",
+                        "parent": "us-gaap:LiabilitiesAndStockholdersEquityAbstract",
+                        "val": null,
+                        "weight": null,
+                        "order": null,
+                        "date": null,
+                        "text": null,
+                        "child": {}
+                    },
+                    "us-gaap:StockholdersEquityAbstract": {
+                        "tag": "us-gaap:StockholdersEquityAbstract",
+                        "parent": "us-gaap:LiabilitiesAndStockholdersEquityAbstract",
+                        "val": null,
+                        "weight": null,
+                        "order": null,
+                        "date": null,
+                        "text": null,
+                        "child": {}
+                    },
+                    "us-gaap:LiabilitiesAndStockholdersEquity": {
+                        "tag": "us-gaap:LiabilitiesAndStockholdersEquity",
+                        "parent": "us-gaap:LiabilitiesAndStockholdersEquityAbstract",
+                        "val": 6111202000.0,
+                        "weight": null,
+                        "order": null,
+                        "date": "2022-12-31",
+                        "text": "Total liabilities and equity",
+                        "child": {
+                            "us-gaap:Liabilities": {
+                                "tag": "us-gaap:Liabilities",
+                                "parent": "us-gaap:LiabilitiesAndStockholdersEquity",
+                                "val": 5426687000.0,
+                                "weight": 1.0,
+                                "order": 1.0,
+                                "date": "2022-12-31",
+                                "text": "Total liabilities",
+                                "child": {
+                                    "us-gaap:AccountsPayableCurrent": {
+                                        "tag": "us-gaap:AccountsPayableCurrent",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 81384000.0,
+                                        "weight": 1.0,
+                                        "order": 1.0,
+                                        "date": "2022-12-31",
+                                        "text": "Accounts payable",
+                                        "child": {}
+                                    },
+                                    "us-gaap:OtherAccruedLiabilitiesCurrent": {
+                                        "tag": "us-gaap:OtherAccruedLiabilitiesCurrent",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 322974000.0,
+                                        "weight": 1.0,
+                                        "order": 2.0,
+                                        "date": "2022-12-31",
+                                        "text": "Accrued expenses and other liabilities",
+                                        "child": {}
+                                    },
+                                    "us-gaap:DeferredRevenue": {
+                                        "tag": "us-gaap:DeferredRevenue",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 85441000.0,
+                                        "weight": 1.0,
+                                        "order": 3.0,
+                                        "date": "2022-12-31",
+                                        "text": "Deferred revenue",
+                                        "child": {}
+                                    },
+                                    "us-gaap:DeferredIncomeTaxLiabilitiesNet": {
+                                        "tag": "us-gaap:DeferredIncomeTaxLiabilitiesNet",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 29548000.0,
+                                        "weight": 1.0,
+                                        "order": 4.0,
+                                        "date": "2022-12-31",
+                                        "text": "Deferred income taxes",
+                                        "child": {}
+                                    },
+                                    "us-gaap:DueToRelatedPartiesCurrent": {
+                                        "tag": "us-gaap:DueToRelatedPartiesCurrent",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 2210000.0,
+                                        "weight": 1.0,
+                                        "order": 5.0,
+                                        "date": "2022-12-31",
+                                        "text": "Due to related parties and partners",
+                                        "child": {}
+                                    },
+                                    "rily:DueToClearingBrokers": {
+                                        "tag": "rily:DueToClearingBrokers",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 19307000.0,
+                                        "weight": 1.0,
+                                        "order": 6.0,
+                                        "date": "2022-12-31",
+                                        "text": "Due to clearing brokers",
+                                        "child": {}
+                                    },
+                                    "us-gaap:SecurityOwnedAndSoldNotYetPurchasedFairValueSecuritySoldNotYetPurchased": {
+                                        "tag": "us-gaap:SecurityOwnedAndSoldNotYetPurchasedFairValueSecuritySoldNotYetPurchased",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 5897000.0,
+                                        "weight": 1.0,
+                                        "order": 7.0,
+                                        "date": "2022-12-31",
+                                        "text": "Securities sold not yet purchased",
+                                        "child": {}
+                                    },
+                                    "us-gaap:SecuritiesLoaned": {
+                                        "tag": "us-gaap:SecuritiesLoaned",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 2334031000.0,
+                                        "weight": 1.0,
+                                        "order": 8.0,
+                                        "date": "2022-12-31",
+                                        "text": "Securities loaned",
+                                        "child": {}
+                                    },
+                                    "us-gaap:OperatingLeaseLiability": {
+                                        "tag": "us-gaap:OperatingLeaseLiability",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 99124000.0,
+                                        "weight": 1.0,
+                                        "order": 9.0,
+                                        "date": "2022-12-31",
+                                        "text": "Operating lease liabilities",
+                                        "child": {}
+                                    },
+                                    "us-gaap:ConvertibleNotesPayable": {
+                                        "tag": "us-gaap:ConvertibleNotesPayable",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 25263000.0,
+                                        "weight": 1.0,
+                                        "order": 10.0,
+                                        "date": "2022-12-31",
+                                        "text": "Notes payable",
+                                        "child": {}
+                                    },
+                                    "us-gaap:LinesOfCreditCurrent": {
+                                        "tag": "us-gaap:LinesOfCreditCurrent",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 127678000.0,
+                                        "weight": 1.0,
+                                        "order": 11.0,
+                                        "date": "2022-12-31",
+                                        "text": "Revolving credit facility",
+                                        "child": {}
+                                    },
+                                    "us-gaap:OtherLongTermDebtNoncurrent": {
+                                        "tag": "us-gaap:OtherLongTermDebtNoncurrent",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 572079000.0,
+                                        "weight": 1.0,
+                                        "order": 12.0,
+                                        "date": "2022-12-31",
+                                        "text": "Term loans, net",
+                                        "child": {}
+                                    },
+                                    "us-gaap:SeniorLongTermNotes": {
+                                        "tag": "us-gaap:SeniorLongTermNotes",
+                                        "parent": "us-gaap:Liabilities",
+                                        "val": 1721751000.0,
+                                        "weight": 1.0,
+                                        "order": 13.0,
+                                        "date": "2022-12-31",
+                                        "text": "Senior notes payable, net",
+                                        "child": {}
+                                    }
+                                }
+                            },
+                            "us-gaap:CommitmentsAndContingencies": {
+                                "tag": "us-gaap:CommitmentsAndContingencies",
+                                "parent": "us-gaap:LiabilitiesAndStockholdersEquity",
+                                "val": 0,
+                                "weight": 1.0,
+                                "order": 2.0,
+                                "date": "2022-12-31",
+                                "text": "Commitments and contingencies (Note 19)",
+                                "child": {}
+                            },
+                            "us-gaap:RedeemableNoncontrollingInterestEquityCarryingAmount": {
+                                "tag": "us-gaap:RedeemableNoncontrollingInterestEquityCarryingAmount",
+                                "parent": "us-gaap:LiabilitiesAndStockholdersEquity",
+                                "val": 178622000.0,
+                                "weight": 1.0,
+                                "order": 3.0,
+                                "date": "2022-12-31",
+                                "text": "Redeemable noncontrolling interests in equity of subsidiaries",
+                                "child": {}
+                            },
+                            "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest": {
+                                "tag": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+                                "parent": "us-gaap:LiabilitiesAndStockholdersEquity",
+                                "val": 505893000.0,
+                                "weight": 1.0,
+                                "order": 4.0,
+                                "date": "2022-12-31",
+                                "text": "Total equity",
+                                "child": {
+                                    "us-gaap:StockholdersEquity": {
+                                        "tag": "us-gaap:StockholdersEquity",
+                                        "parent": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+                                        "val": 446514000.0,
+                                        "weight": 1.0,
+                                        "order": 1.0,
+                                        "date": "2022-12-31",
+                                        "text": "Total B. Riley Financial, Inc. stockholders\u2019 equity",
+                                        "child": {
+                                            "us-gaap:PreferredStockValue": {
+                                                "tag": "us-gaap:PreferredStockValue",
+                                                "parent": "us-gaap:StockholdersEquity",
+                                                "val": 0,
+                                                "weight": 1.0,
+                                                "order": 1.0,
+                                                "date": "2022-12-31",
+                                                "text": "Preferred stock, $0.0001 par value; 1,000,000 shares authorized; 4,545 and 4,512 shares issued and outstanding as of December\u00a031, 2022 and 2021, respectively; liquidation preference of $113,615 and $112,790 as of December\u00a031, 2022 and 2021, respectively.",
+                                                "child": {}
+                                            },
+                                            "us-gaap:CommonStockValue": {
+                                                "tag": "us-gaap:CommonStockValue",
+                                                "parent": "us-gaap:StockholdersEquity",
+                                                "val": 3000.0,
+                                                "weight": 1.0,
+                                                "order": 2.0,
+                                                "date": "2022-12-31",
+                                                "text": "Common stock, $0.0001 par value; 100,000,000 shares authorized; 28,523,764 and 27,591,028 shares issued and outstanding as of December\u00a031, 2022 and 2021, respectively.",
+                                                "child": {}
+                                            },
+                                            "us-gaap:AdditionalPaidInCapital": {
+                                                "tag": "us-gaap:AdditionalPaidInCapital",
+                                                "parent": "us-gaap:StockholdersEquity",
+                                                "val": 494201000.0,
+                                                "weight": 1.0,
+                                                "order": 3.0,
+                                                "date": "2022-12-31",
+                                                "text": "Additional paid-in capital",
+                                                "child": {}
+                                            },
+                                            "us-gaap:RetainedEarningsAccumulatedDeficit": {
+                                                "tag": "us-gaap:RetainedEarningsAccumulatedDeficit",
+                                                "parent": "us-gaap:StockholdersEquity",
+                                                "val": 45220000.0,
+                                                "weight": 1.0,
+                                                "order": 4.0,
+                                                "date": "2022-12-31",
+                                                "text": "(Accumulated deficit) retained earnings",
+                                                "child": {}
+                                            },
+                                            "us-gaap:AccumulatedOtherComprehensiveIncomeLossNetOfTax": {
+                                                "tag": "us-gaap:AccumulatedOtherComprehensiveIncomeLossNetOfTax",
+                                                "parent": "us-gaap:StockholdersEquity",
+                                                "val": 2470000.0,
+                                                "weight": 1.0,
+                                                "order": 5.0,
+                                                "date": "2022-12-31",
+                                                "text": "Accumulated other comprehensive loss",
+                                                "child": {}
+                                            }
+                                        }
+                                    },
+                                    "us-gaap:MinorityInterest": {
+                                        "tag": "us-gaap:MinorityInterest",
+                                        "parent": "us-gaap:StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+                                        "val": 59379000.0,
+                                        "weight": 1.0,
+                                        "order": 2.0,
+                                        "date": "2022-12-31",
+                                        "text": "Noncontrolling interests",
+                                        "child": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

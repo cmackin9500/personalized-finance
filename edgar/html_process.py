@@ -163,7 +163,7 @@ def ticker_to_json(ticker, form_type, fs):
 		
 	fs_fields_to_json(fs_fields, fs_json, top_node[fs])
 	
-	with open(f"{ticker}.json", 'w') as output:
+	with open(f"./store/{ticker}_{fs}.json", 'w') as output:
 		json.dump(fs_json, output, indent=4)
 
 if __name__ == '__main__':

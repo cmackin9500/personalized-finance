@@ -1,0 +1,225 @@
+{
+    "SellingGeneralAndAdministrative": [
+        "us-gaap:AdvertisingExpense",
+        "us-gaap:BusinessDevelopment",
+        "us-gaap:Communication",
+        "us-gaap:CommunicationsAndInformationTechnology",
+        "us-gaap:CommunicationsInformationTechnologyAndOccupancy",
+        "us-gaap:EquipmentExpense",
+        "us-gaap:CostsOfFranchisedOutlets",
+        "us-gaap:CostsOfFranchisorOwnedOutlets",
+        "us-gaap:FranchisorCosts",
+        "us-gaap:GeneralAndAdministrativeExpense",
+        "us-gaap:GeneralInsuranceExpense",
+        "us-gaap:InformationTechnologyAndDataProcessing",
+        "us-gaap:LaborAndRelatedExpense",
+        "us-gaap:MarketingAndAdvertisingExpense",
+        "us-gaap:MarketingExpense",
+        "us-gaap:OccupancyNet",
+        "us-gaap:LegalFees",
+        "us-gaap:OperatingCostsAndExpenses",
+        "us-gaap:OperatingLeaseExpense",
+        "us-gaap:OtherCostAndExpenseOperating",
+        "us-gaap:OtherGeneralAndAdministrativeExpense",
+        "us-gaap:OtherGeneralExpense",
+        "us-gaap:OtherSellingAndMarketingExpense",
+        "us-gaap:OtherSellingGeneralAndAdministrativeExpense",
+        "us-gaap:ProductWarrantyExpense",
+        "us-gaap:ProfessionalAndContractServicesExpense",
+        "us-gaap:RealEstateInsurance",
+        "us-gaap:RealEstateTaxExpense",
+        "us-gaap:RealEstateTaxesAndInsurance",
+        "us-gaap:SalesCommissionsAndFees",
+        "us-gaap:SellingAndMarketingExpense",
+        "us-gaap:SellingExpense",
+        "us-gaap:SellingGeneralAndAdministrativeExpense",
+        "us-gaap:TaxesExcludingIncomeAndExciseTaxes",
+        "us-gaap:TravelAndEntertainmentExpense"
+    ],
+    "CostOfRevenue": [
+        "us-gaap:AffiliateCosts",
+        "us-gaap:AircraftRentalAndLandingFees",
+        "us-gaap:CostDepletion",
+        "us-gaap:CostDepreciationAmortizationAndDepletion",
+        "us-gaap:CostDirectLabor",
+        "us-gaap:CostDirectMaterial",
+        "us-gaap:CostMaintenance",
+        "us-gaap:CostOfGoodsAndServiceExcludingDepreciationDepletionAndAmortization",
+        "us-gaap:CostOfGoodsAndServicesSold",
+        "us-gaap:CostOfGoodsAndServicesSoldAmortization",
+        "us-gaap:CostOfGoodsAndServicesSoldDepreciation",
+        "us-gaap:CostOfGoodsAndServicesSoldDepreciationAndAmortization",
+        "us-gaap:CostOfGoodsAndServicesSoldOverhead",
+        "us-gaap:CostOfGoodsSoldDirectFinancingLease",
+        "us-gaap:CostOfGoodsSoldSalesTypeLease",
+        "us-gaap:CostOfOtherPropertyOperatingExpense",
+        "us-gaap:CostOfPropertyRepairsAndMaintenance",
+        "us-gaap:CostOfPurchasedWater",
+        "us-gaap:CostOfRevenue",
+        "us-gaap:CostOfTrustAssetsSoldToPayExpenses",
+        "us-gaap:DirectCommunicationsAndUtilitiesCosts",
+        "us-gaap:DirectCostsOfLeasedAndRentedPropertyOrEquipment",
+        "us-gaap:DirectOperatingCommunicationsCosts",
+        "us-gaap:DirectOperatingCosts",
+        "us-gaap:DirectOperatingMaintenanceSuppliesCosts",
+        "us-gaap:DirectTaxesAndLicensesCosts",
+        "us-gaap:ExciseAndSalesTaxes",
+        "us-gaap:FinancingInterestExpense",
+        "us-gaap:FuelCosts",
+        "us-gaap:InventoryFirmPurchaseCommitmentLoss",
+        "us-gaap:InventoryWriteDown",
+        "us-gaap:LossOnContracts",
+        "us-gaap:ManufacturingCosts",
+        "us-gaap:MerchantMarineOperatingDifferentialSubsidy",
+        "us-gaap:OperatingInsuranceAndClaimsCostsProduction",
+        "us-gaap:OtherCostOfOperatingRevenue",
+        "us-gaap:ProductionRelatedImpairmentsOrCharges",
+        "us-gaap:RecoveryOfDirectCosts",
+        "us-gaap:WaterProductionCosts"
+    ],
+    "CommonStockDividendsPerShare": [
+        "us-gaap:CommonStockDividendsPerShareDeclared"
+    ],
+    "InterestExpense": [
+        "us-gaap:DebtRelatedCommitmentFeesAndDebtIssuanceCosts",
+        "us-gaap:DistributionsOnMandatorilyRedeemableSecurities",
+        "us-gaap:FinanceLeaseInterestExpense",
+        "us-gaap:GainLossOnNonRecourseDebt",
+        "us-gaap:GainLossOnRepurchaseOfDebtInstrument",
+        "us-gaap:GainsLossesOnExtinguishmentOfDebt",
+        "us-gaap:GainsLossesOnExtinguishmentOfDebtBeforeWriteOffOfDeferredDebtIssuanceCost",
+        "us-gaap:GainsLossesOnRecourseDebt",
+        "us-gaap:GainsLossesOnRestructuringOfDebt",
+        "us-gaap:InducedConversionOfConvertibleDebtExpense",
+        "us-gaap:InterestAndDebtExpense",
+        "us-gaap:InterestExpense",
+        "us-gaap:InterestExpenseBeneficialInterestsIssuedByConsolidatedVariableInterestEntities",
+        "us-gaap:InterestExpenseBorrowings",
+        "us-gaap:InterestExpenseCapitalSecurities",
+        "us-gaap:InterestExpenseCommercialPaper",
+        "us-gaap:InterestExpenseCustomerDeposits",
+        "us-gaap:InterestExpenseDebt",
+        "us-gaap:InterestExpenseDemandDepositAccounts",
+        "us-gaap:InterestExpenseDeposits",
+        "us-gaap:InterestExpenseDomesticDeposits",
+        "us-gaap:InterestExpenseFederalFundsPurchased",
+        "us-gaap:InterestExpenseFederalFundsPurchasedAndSecuritiesSoldUnderAgreementsToRepurchase",
+        "us-gaap:InterestExpenseFederalHomeLoanBankAndFederalReserveBankAdvancesLongTerm",
+        "us-gaap:InterestExpenseFederalHomeLoanBankAndFederalReserveBankAdvancesShortTerm",
+        "us-gaap:InterestExpenseForeignDeposits",
+        "us-gaap:InterestExpenseJuniorSubordinatedDebentures",
+        "us-gaap:InterestExpenseLongTermDebt",
+        "us-gaap:InterestExpenseLongTermDebtAndCapitalSecurities",
+        "us-gaap:InterestExpenseMediumTermNotes",
+        "us-gaap:InterestExpenseMoneyMarketDeposits",
+        "us-gaap:InterestExpenseNOWAccountsMoneyMarketAccountsAndSavingsDeposits",
+        "us-gaap:InterestExpenseNegotiableOrderOfWithdrawalNOWDeposits",
+        "us-gaap:InterestExpenseOther",
+        "us-gaap:InterestExpenseOtherDomesticDeposits",
+        "us-gaap:InterestExpenseOtherLongTermDebt",
+        "us-gaap:InterestExpenseOtherShortTermBorrowings",
+        "us-gaap:InterestExpenseRelatedParty",
+        "us-gaap:InterestExpenseSavingsDeposits",
+        "us-gaap:InterestExpenseSecuritiesSoldUnderAgreementsToRepurchase",
+        "us-gaap:InterestExpenseShortTermBorrowings",
+        "us-gaap:InterestExpenseShortTermBorrowingsExcludingFederalFundsAndSecuritiesSoldUnderAgreementsToRepurchase",
+        "us-gaap:InterestExpenseSubordinatedNotesAndDebentures",
+        "us-gaap:InterestExpenseTimeDeposits",
+        "us-gaap:InterestExpenseTimeDeposits100000OrMore",
+        "us-gaap:InterestExpenseTimeDepositsLessThan100000",
+        "us-gaap:InterestExpenseTradingLiabilities",
+        "us-gaap:InterestExpenseTrustPreferredSecurities",
+        "us-gaap:WriteOffOfDeferredDebtIssuanceCost"
+    ],
+    "EarningsPerShareBasic": [
+        "us-gaap:DiscontinuedOperationGainLossOnDisposalOfDiscontinuedOperationNetOfTaxPerBasicShare",
+        "us-gaap:DiscontinuedOperationIncomeLossFromDiscontinuedOperationNetOfTaxPerBasicShare",
+        "us-gaap:EarningsPerShareBasic",
+        "us-gaap:IncomeLossFromContinuingOperationsPerBasicShare",
+        "us-gaap:IncomeLossFromDiscontinuedOperationsNetOfTaxPerBasicShare"
+    ],
+    "EarningsPerShareDiluted": [
+        "us-gaap:DiscontinuedOperationGainLossOnDisposalOfDiscontinuedOperationNetOfTaxPerDilutedShare",
+        "us-gaap:DiscontinuedOperationIncomeLossFromDiscontinuedOperationNetOfTaxPerDilutedShare",
+        "us-gaap:EarningsPerShareDiluted",
+        "us-gaap:IncomeLossFromContinuingOperationsPerDilutedShare",
+        "us-gaap:IncomeLossFromDiscontinuedOperationsNetOfTaxPerDilutedShare"
+    ],
+    "GrossProfit": [
+        "us-gaap:GrossProfit"
+    ],
+    "PretaxIncome": [
+        "us-gaap:IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+        "us-gaap:IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+        "us-gaap:IncomeLossFromContinuingOperationsBeforeInterestExpenseInterestIncomeIncomeTaxesExtraordinaryItemsNoncontrollingInterestsNet",
+        "us-gaap:IncomeLossFromSubsidiariesBeforeTax"
+    ],
+    "IncomeAfterTax": [
+        "us-gaap:IncomeLossFromDiscontinuedOperationsNetOfTax"
+    ],
+    "NetIncome": [
+        "us-gaap:NetIncomeLoss",
+        "us-gaap:ProfitLoss"
+    ],
+    "NoninterestExpense": [
+        "us-gaap:NoninterestExpense",
+        "us-gaap:NoninterestExpenseCommissionExpense",
+        "us-gaap:NoninterestExpenseDirectorsFees",
+        "us-gaap:NoninterestExpenseInvestmentAdvisoryFees",
+        "us-gaap:NoninterestExpenseOfferingCost",
+        "us-gaap:NoninterestExpensePrintingAndFulfillment",
+        "us-gaap:NoninterestExpenseRelatedToPerformanceFees",
+        "us-gaap:NoninterestExpenseTransferAgentAndCustodianFees",
+        "us-gaap:OtherNoninterestExpense",
+        "us-gaap:OtherNonrecurringExpense",
+        "us-gaap:OtherNonrecurringIncome",
+        "us-gaap:OtherNonrecurringIncomeExpense",
+        "us-gaap:OtherRestructuringCosts"
+    ],
+    "NonoperatingIncome": [
+        "us-gaap:NonoperatingIncomeExpense"
+    ],
+    "InterestIncome": [
+        "us-gaap:InterestIncomeOperating"
+    ],
+    "NonInterestIncome": [
+        "us-gaap:NoninterestIncome"
+    ],
+    "OperatingExpenses": [
+        "us-gaap:OperatingExpenses"
+    ],
+    "OperatingIncome": [
+        "us-gaap:OperatingIncomeLoss"
+    ],
+    "PreferredStockDividendsPerShare": [
+        "us-gaap:PreferredStockDividendsPerShareDeclared"
+    ],
+    "TotalRevenue": [
+        "us-gaap:PremiumsEarnedNet",
+        "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+        "us-gaap:RevenueFromContractWithCustomerIncludingAssessedTax",
+        "us-gaap:Revenues",
+        "us-gaap:SubleaseIncome"
+    ],
+    "ProvisionForCreditLosses": [
+        "us-gaap:ProvisionForLeaseLosses",
+        "us-gaap:ProvisionForLoanAndLeaseLosses",
+        "us-gaap:ProvisionForLoanLeaseAndOtherLosses",
+        "us-gaap:ProvisionForLoanLossesExpensed",
+        "us-gaap:ProvisionForOtherCreditLosses",
+        "us-gaap:ProvisionForOtherLosses"
+    ],
+    "ResearchAndDevelopment": [
+        "us-gaap:ResearchAndDevelopmentAssetAcquiredOtherThanThroughBusinessCombinationWrittenOff",
+        "us-gaap:ResearchAndDevelopmentExpense",
+        "us-gaap:ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+        "us-gaap:ResearchAndDevelopmentExpenseSoftwareExcludingAcquiredInProcessCost",
+        "us-gaap:ResearchAndDevelopmentInProcess"
+    ],
+    "DilutedSharesOutstanding": [
+        "us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding"
+    ],
+    "BasicSharesOutstanding": [
+        "us-gaap:WeightedAverageNumberOfSharesOutstandingBasic"
+    ]
+}
