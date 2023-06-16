@@ -1,14 +1,34 @@
 <script>
-	export let selectedCompany;
+	import { companyForms } from "$lib/financialsStore.js";
+
+	export let selectedCompany = "";
 	let currentCompany = "";
 	let currentQuery = "";
+
+	function getCompanyData() {
+		fetch(`/api/financials/allForms/${currentCompany}`)
+			.then(res => {
+				return res.json()
+			})
+			.then(data => {
+				console.log(data);
+				companyForms.update(prev => data);
+				selectedCompany = currentCompany
+			})
+			.catch(err => {
+				console.error(err);
+			})
+	}
 </script>
 
 <div class="container">
 	<div class="card"> 
 		<div id="search-bar" class="">
-			<label>Search:</label>
-			<input class="input" bind:value={selectedCompany}/>
+			<form on:submit={getCompanyData}>
+				<label>Search:</label>
+				<input class="input" bind:value={currentCompany}/>
+				<button style="display: none;"></button>
+			</form>
 		</div>
 
 
