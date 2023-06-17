@@ -239,6 +239,17 @@ def get_forms_of_type_xbrl(CIK, form_type):
 			forms_xbrl.append(form)
 	return forms_xbrl
 
+def get_forms_of_type_inline_xbrl(CIK, form_type):
+	recent_filings = get_recent_filings(CIK)
+	older_filings = get_older_filings(CIK)
+	forms = get_forms_of_type(recent_filings,form_type) + get_forms_of_type(older_filings,form_type)
+	
+	forms_xbrl = []
+	for form in forms:
+		if form.isInlineXBRL:
+			forms_xbrl.append(form)
+	return forms_xbrl
+
 def save_all_forms(ticker, form_type, forms):
 	CIK = get_company_CIK(ticker)
 	

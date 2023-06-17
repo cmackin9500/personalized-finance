@@ -102,31 +102,28 @@ def tab_to_rows(tab, ctx_map, fs_fields):
 def contexts_to_map(context_list):
 	ctx_map = {}
 	for ctx in context_list:
-		end_date = ctx.find("xbrli:enddate")
+		end_date = ctx.find(["xbrli:enddate", "xbrli:endDate"])
 		instant = ctx.find("xbrli:instant")
 		date_elem = end_date if end_date else instant
-		#if date_elem == None:
-		#	continue
-
+		if date_elem == None:
+			continue
 		ctx_map[ctx["id"]] = date_elem.getText()
-
 	return ctx_map
 
 # Returns an list of tables which consists of a list of lists of HTMLFact objects
 # Requires the HTML version of the company form submission
 # Only the column data (ix:nonfraction) is extracted
-def html_to_facts(html,xml,fs_fields):
-	dom = BeautifulSoup(html)
-	xml_dom = BeautifulSoup(xml)
+def html_to_facts(html,htm_xml,fs_fields):
+	dom = BeautifulSoup(html,features='lxml')
+	xml_dom = BeautifulSoup(htm_xml,features='xml')
 	tables = dom.find_all("table")
 
 	# Should grab context elems xbrli:context
 	contexts = dom.find_all("xbrli:context")
-	if contexts is None:
+	if len(contexts) == 0:
 		contexts = xml_dom.find_all("xbrli:context")
 
-
-	ctx_map = contexts_to_map(xml_dom)
+	ctx_map = contexts_to_map(contexts)
 	all_facts = []
 	for tab in tables:
 		new_facts = tab_to_rows(tab, ctx_map, fs_fields)
@@ -138,7 +135,7 @@ def html_to_facts(html,xml,fs_fields):
 
 	
 if __name__ == '__main__':
-	data = read_file(sys.argv[1])
+	data = fm.read_file(sys.argv[1])
 
 	facts = html_to_facts(data)
 	for i, table in enumerate(facts):

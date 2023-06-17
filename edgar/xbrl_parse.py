@@ -46,15 +46,15 @@ class XBRLNode:
 
 # Parses xsd file. It will return a list of all the statement URI.
 def get_URI(file_xsd:str) -> list:
-	roleURI = list()
+	statement_roleURI = list()
 	soup = BeautifulSoup(file_xsd, "html.parser")
 	roleType = soup.find_all("link:roletype")
 
 	# We specifically look for 'Statement' because balance sheet, income statement, and cash flow statement always have 'Statement' in it
 	for e in roleType:
 		if 'Statement' in e.get_text():
-			roleURI.append(e.get('roleuri'))
-	return roleURI
+			statement_roleURI.append(e.get('roleuri'))
+	return statement_roleURI
 
 def URI_from_statement(roleURI:str, statement:str) -> str:
 	for uri in roleURI:
@@ -67,7 +67,7 @@ def URI_from_statement(roleURI:str, statement:str) -> str:
 			return uri
 
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
-def statement_URI(roleURI:list, statement:str) -> str:
+def statement_URI(statement_roleURI:list, statement:str) -> str:
 	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet']
 	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome','statementsofoperations','consolidatedoperations']
 	CF = ['statementsofcashflows','statementofcashflows','cashflow']
@@ -85,7 +85,7 @@ def statement_URI(roleURI:list, statement:str) -> str:
 	# I can keep track of the tables that has alredy been looked at to prevent it from runnin through the same forms multiple times
 
 	# first check will skip the skip and avoid terms
-	for uri in roleURI:
+	for uri in statement_roleURI:
 		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['skip']): 
 			continue
 		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
@@ -94,14 +94,14 @@ def statement_URI(roleURI:list, statement:str) -> str:
 			return uri
 
 	# second check won't skip the skip terms
-	for uri in roleURI:
+	for uri in statement_roleURI:
 		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
 			continue
 		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
 	
 	# final check will look through all
-	for uri in roleURI:
+	for uri in statement_roleURI:
 		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
 
@@ -269,7 +269,10 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 			if parent in fs_fields:
 				fs_fields[tag].parent = parent
 				fs_fields[tag].weight = float(calculation_arc.get('weight'))
-				fs_fields[tag].order = fs_fields[parent].order + 1.0
+				try:
+					fs_fields[tag].order = fs_fields[parent].order + 1.0
+				except:
+					fs_fields[tag].order = None
 	
 	# We will check again if all tags are filled and if not, we will run through all roleURI
 	no_parent_tags = tags_without_parent(fs_fields)
@@ -287,13 +290,17 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 				if parent in fs_fields:
 					fs_fields[tag].parent = parent
 					fs_fields[tag].weight = float(calculation_arc.get('weight'))
-					fs_fields[tag].order = fs_fields[parent].order + 1.0
+
+					try:
+						fs_fields[tag].order = fs_fields[parent].order + 1.0
+					except:
+						fs_fields[tag].order = None
 
 	return fs_fields
 
 def get_fs_fields(ticker:str, form_type, fs, cfiles):
-	roleURI = get_URI(cfiles.xsd)
-	fs_URI = statement_URI(roleURI, fs)
+	statement_roleURI = get_URI(cfiles.xsd)
+	fs_URI = statement_URI(statement_roleURI, fs)
 	fs_fields = {}
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields)
 	fs_fields = cal_data(ticker, cfiles.cal, fs_URI, fs_fields)
@@ -310,6 +317,7 @@ if __name__ == "__main__":
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
 	directory = find_latest_form_dir(ticker,form_type)
+	
 	cfiles = read_forms_from_dir(directory)
 
 	fs = 'bs'

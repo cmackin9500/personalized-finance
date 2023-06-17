@@ -148,7 +148,7 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 
 	fs_fields = get_fs_fields(ticker,form_type,fs,cfiles)
 
-	all_tables = html_to_facts(cfiles.html, cfiles.xml, fs_fields)
+	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
 
 	inx, per = get_best_macth_table(all_tables, fs_fields)
 	
@@ -179,17 +179,23 @@ if __name__ == '__main__':
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
 	fs = sys.argv[3]
-	#ticker_to_json(ticker, form_type, fs)
+
+	directory = find_latest_form_dir(ticker,form_type)
+	date = directory.split('/')[-1]
+	ticker_to_json({},ticker,form_type,fs,date)
+
+
 	directory = find_all_form_dir(ticker,form_type)
-	
-	'''
 	for date in directory:
 		if date == '.DS_Store': continue
-
 		try:
 			ticker_to_json({}, ticker, form_type, fs, date)
 			print(f"Parsed for {date}.")
 		except:
 			print(f"Failed to parse for {date}.")
-	'''
-	ticker_to_json({}, ticker, form_type, fs, directory[9])
+
+'''
+	directory = find_latest_form_dir(ticker,form_type)
+	date = directory.split('/')[-1]
+	ticker_to_json({},ticker,form_type,fs,date)
+'''
