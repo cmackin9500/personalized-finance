@@ -40,5 +40,8 @@ def find_latest_form_dir(ticker, form_type):
 
     return f"forms/{ticker}/{form_type}/{dirs[0]}"
 
+def find_index_form_dir(ticker, form_type, date):
+    return f"forms/{ticker}/{form_type}/{date}"
+
 if __name__ == "__main__":
     find_all_form_dir(sys.argv[1], sys.argv[2])

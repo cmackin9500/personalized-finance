@@ -5,8 +5,9 @@ import sys
 import json
 
 from html_parse import html_to_facts, HTMLFact
-from files import read_forms_from_dir, find_latest_form_dir
+from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir, find_index_form_dir
 from xbrl_parse import XBRLNode, get_fs_fields
+from util import retreival as re
 
 # Given the list of classes, that contains the child and parent, it will take the child and return it as a list
 def XBRLNode_to_fields_list(fs_fields:dict) -> list:
@@ -141,13 +142,13 @@ def fs_fields_to_json(fs_fields, fs_json, tag):
 
 	return fs_json[tag]
 
-def ticker_to_json(ticker, form_type, fs):
-	directory = find_latest_form_dir(ticker,form_type)
-	cfiles = read_forms_from_dir(directory)	
+def ticker_to_json(fs_fields, ticker, form_type, fs, date):
+	directory = find_index_form_dir(ticker,form_type,date)
+	cfiles = read_forms_from_dir(directory)
 
 	fs_fields = get_fs_fields(ticker,form_type,fs,cfiles)
 
-	all_tables = html_to_facts(cfiles.html, fs_fields)
+	all_tables = html_to_facts(cfiles.html, cfiles.xml, fs_fields)
 
 	inx, per = get_best_macth_table(all_tables, fs_fields)
 	
@@ -163,7 +164,9 @@ def ticker_to_json(ticker, form_type, fs):
 		
 	fs_fields_to_json(fs_fields, fs_json, top_node[fs])
 	
-	with open(f"./store/{ticker}_{fs}.json", 'w') as output:
+	path = f"./store/{ticker}/{fs}"
+	re.mkdir_if_NE(path)
+	with open(f"./{path}/{ticker}_{fs}_{date}.json", 'w') as output:
 		json.dump(fs_json, output, indent=4)
 
 if __name__ == '__main__':
@@ -176,4 +179,17 @@ if __name__ == '__main__':
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
 	fs = sys.argv[3]
-	ticker_to_json(ticker, form_type, fs)
+	#ticker_to_json(ticker, form_type, fs)
+	directory = find_all_form_dir(ticker,form_type)
+	
+	'''
+	for date in directory:
+		if date == '.DS_Store': continue
+
+		try:
+			ticker_to_json({}, ticker, form_type, fs, date)
+			print(f"Parsed for {date}.")
+		except:
+			print(f"Failed to parse for {date}.")
+	'''
+	ticker_to_json({}, ticker, form_type, fs, directory[9])

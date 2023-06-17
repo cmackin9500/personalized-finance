@@ -115,22 +115,25 @@ def contexts_to_map(context_list):
 # Returns an list of tables which consists of a list of lists of HTMLFact objects
 # Requires the HTML version of the company form submission
 # Only the column data (ix:nonfraction) is extracted
-def html_to_facts(html,fs_fields):
-	dom = BeautifulSoup(html, "lxml")
+def html_to_facts(html,xml,fs_fields):
+	dom = BeautifulSoup(html)
+	xml_dom = BeautifulSoup(xml)
 	tables = dom.find_all("table")
 
 	# Should grab context elems xbrli:context
 	contexts = dom.find_all("xbrli:context")
-	ctx_map = contexts_to_map(contexts)
+	if contexts is None:
+		contexts = xml_dom.find_all("xbrli:context")
 
+
+	ctx_map = contexts_to_map(xml_dom)
 	all_facts = []
 	for tab in tables:
 		new_facts = tab_to_rows(tab, ctx_map, fs_fields)
 		if len(new_facts) == 0:
 			continue
-
+		
 		all_facts.append(new_facts)
-
 	return all_facts
 
 	
