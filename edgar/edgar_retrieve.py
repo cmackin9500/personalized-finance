@@ -68,15 +68,16 @@ def str_startswith_mlt(buf, words):
 def get_recent_filings(CIK:str):
 	CIK = pad_CIK(CIK) 
 	url = f"https://data.sec.gov/submissions/CIK{CIK}.json"
-	res_json = json.loads(requests.get(url, headers=BASE_HEADERS).text)
-
+	res_json = re.status_code(url)
+	if res_json == {}:
+		return {}
 	recent = res_json["filings"]["recent"]
 	return recent
 
 def get_older_filings(CIK:str):
 	CIK = pad_CIK(CIK)
 	url = f"https://data.sec.gov/submissions/CIK{CIK}-submissions-001.json"
-	return json.loads(requests.get(url, headers=BASE_HEADERS).text)
+	return re.status_code(url)
 
 # Key info for company filings
 @dataclass
@@ -104,7 +105,8 @@ def get_forms_of_type(master, form_type:str):
 	primaryDocDescription = master['primaryDocDescription']
 
 	forms = []
-	for i, name in enumerate(primaryDocDescription):
+	# enumerating form is ok but the likes of JPM is weird. Need to figure out why JPM is not storing the form names as 10-K.
+	for i, name in enumerate(form):
 		if str_cmp_mlt(name, form_names):
 			forms.append(FormInfo(
 									accessionNumber[i],
@@ -228,26 +230,25 @@ def save_data_from_index(ticker, CIK, form, form_type):
 
 	return dest_dir
 
-def get_forms_of_type_xbrl(CIK, form_type):
+def get_forms_of_type_xbrl(CIK, form_type, inline=False):
+	recent_forms, older_forms = [], []
 	recent_filings = get_recent_filings(CIK)
-	older_filings = get_older_filings(CIK)
-	forms = get_forms_of_type(recent_filings,form_type) + get_forms_of_type(older_filings,form_type)
-	
-	forms_xbrl = []
-	for form in forms:
-		if form.isXBRL:
-			forms_xbrl.append(form)
-	return forms_xbrl
+	if recent_filings != {}:
+		recent_forms = get_forms_of_type(recent_filings,form_type)
 
-def get_forms_of_type_inline_xbrl(CIK, form_type):
-	recent_filings = get_recent_filings(CIK)
 	older_filings = get_older_filings(CIK)
-	forms = get_forms_of_type(recent_filings,form_type) + get_forms_of_type(older_filings,form_type)
+	if older_filings != {}:
+		older_forms = get_forms_of_type(older_filings,form_type)
+
+	forms = recent_forms + older_forms
 	
 	forms_xbrl = []
 	for form in forms:
-		if form.isInlineXBRL:
+		if not inline and form.isXBRL:
 			forms_xbrl.append(form)
+		elif inline and form.isInlineXBRL:
+			forms_xbrl.append(form)
+
 	return forms_xbrl
 
 def save_all_forms(ticker, form_type, forms):
@@ -274,6 +275,6 @@ if __name__ == "__main__":
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
 	CIK = get_company_CIK(ticker)
-	forms = get_forms_of_type_xbrl(CIK, form_type)
+	forms = get_forms_of_type_xbrl(CIK, form_type, True)
 
 	save_all_forms(ticker, form_type, forms)
