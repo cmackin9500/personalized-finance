@@ -9,36 +9,39 @@ from files import read_forms_from_dir, find_latest_form_dir
 class XBRLNode:
 	tag: str
 	parent: str
-	child: list
+	children: list
 	val: float
 	weight: float
 	order: float
 	date: str
 	text: str
+	lineup: int
 
-	def	__init__(self,tag=None,parent=None,child=[],weight=1):
+	def	__init__(self,tag=None,parent=None,children=[],weight=1):
 		self.tag = tag
 		self.parent = parent
-		self.child = child
+		self.children = children
 		self.val = None
 		self.weight = None
 		self.order = None
 		self.date = None
 		self.text = None
+		self.lineup = None
 
 	def __str__(self):
-		child = []
-		if self.child != []:
-			child = [c for c in self.child]
+		children = []
+		if self.children != []:
+			children = [c for c in self.children]
 		
 		return (f"{self.tag},\n" + 
 				f"	parent = {self.parent}:\n" +
-				f"	child = {child},\n" +
+				f"	children = {children},\n" +
 				f"	val = {self.val},\n" +
 				f"	weight = {self.weight},\n" +
 				f"	order = {self.order},\n" +
 				f"	date = {self.date},\n" +
-				f"	text = {self.text}\n")
+				f"	text = {self.text},\n" + 
+				f"	line-up = {self.lineup}\n")
 
 
 	def __repr__(self):
@@ -168,6 +171,7 @@ def pre_data(ticker:str, file_pre:str, fs_URI:str, fs_fields:dict, get_parent=Fa
 	
 	assert all_presentation_arc != None, "pre_data not found"
 
+	lineup = 0
 	for presentation_arc in all_presentation_arc:
 		tag, parent = None, None
 
@@ -184,6 +188,9 @@ def pre_data(ticker:str, file_pre:str, fs_URI:str, fs_fields:dict, get_parent=Fa
 			fs_fields[tag] = XBRLNode(tag)
 			if get_parent:
 				fs_fields[tag].parent = parent
+		
+		fs_fields[tag].lineup = lineup
+		lineup += 1
 
 	return fs_fields
 
@@ -323,8 +330,8 @@ if __name__ == "__main__":
 	fs = 'bs'
 	fs_fields = get_fs_fields(ticker, form_type, fs, cfiles)
 
-	#for key in fs_fields:
-	#	print(fs_fields[key])
-	#	print()
+	for key in fs_fields:
+		print(fs_fields[key])
+		print()
 
 

@@ -110,7 +110,7 @@ def assign_child_to_XBRLNode(fs_fields):
 			tag_child[xbrl_node.parent] = [xbrl_node.tag]
 
 	for tag in tag_child:
-		fs_fields[tag].child = tag_child[tag]
+		fs_fields[tag].children = tag_child[tag]
 
 	return fs_fields
 
@@ -132,13 +132,14 @@ def fs_fields_to_json(fs_fields, fs_json, tag):
 	fs_json[tag]['order'] = fs_fields[tag].order
 	fs_json[tag]['date'] = fs_fields[tag].date
 	fs_json[tag]['text'] = fs_fields[tag].text
-	fs_json[tag]['child'] = {}
+	fs_json[tag]['lineup'] = fs_fields[tag].lineup
+	fs_json[tag]['children'] = {}
 
-	for child_key in fs_fields[tag].child:
+	for child_key in fs_fields[tag].children:
 		child = fs_fields[child_key]
-		fs_json[tag]['child'][child.tag] = {}
-		child_fs = fs_fields_to_json(fs_fields, fs_json[tag]['child'][child.tag], child.tag)
-		fs_json[tag]['child'][child.tag] = child_fs
+		fs_json[tag]['children'][child.tag] = {}
+		children_fs = fs_fields_to_json(fs_fields, fs_json[tag]['children'][child.tag], child.tag)
+		fs_json[tag]['children'][child.tag] = children_fs
 
 	return fs_json[tag]
 
