@@ -5,8 +5,9 @@ import sys
 import json
 
 from html_parse import html_to_facts, HTMLFact
-from files import read_forms_from_dir, find_latest_form_dir
+from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir, find_index_form_dir
 from xbrl_parse import XBRLNode, get_fs_fields
+from util import retreival as re
 
 # Given the list of classes, that contains the child and parent, it will take the child and return it as a list
 def XBRLNode_to_fields_list(fs_fields:dict) -> list:
@@ -109,7 +110,7 @@ def assign_child_to_XBRLNode(fs_fields):
 			tag_child[xbrl_node.parent] = [xbrl_node.tag]
 
 	for tag in tag_child:
-		fs_fields[tag].child = tag_child[tag]
+		fs_fields[tag].children = tag_child[tag]
 
 	return fs_fields
 
@@ -120,6 +121,9 @@ def top_tags(fs_fields):
 	return top_tags
 
 def fs_fields_to_json(fs_fields, fs_json, tag):
+	if tag in fs_json:
+		return fs_json[tag]
+
 	fs_json[tag] = {}
 	fs_json[tag]['tag'] = tag
 	fs_json[tag]['parent'] = fs_fields[tag].parent
@@ -128,23 +132,24 @@ def fs_fields_to_json(fs_fields, fs_json, tag):
 	fs_json[tag]['order'] = fs_fields[tag].order
 	fs_json[tag]['date'] = fs_fields[tag].date
 	fs_json[tag]['text'] = fs_fields[tag].text
-	fs_json[tag]['child'] = {}
+	fs_json[tag]['lineup'] = fs_fields[tag].lineup
+	fs_json[tag]['children'] = {}
 
-	for child_key in fs_fields[tag].child:
+	for child_key in fs_fields[tag].children:
 		child = fs_fields[child_key]
-		fs_json[child.tag] = {}
-		child_fs = fs_fields_to_json(fs_fields, fs_json[child.tag], child.tag)
-		fs_json[tag]['child'][child.tag] = child_fs
+		fs_json[tag]['children'][child.tag] = {}
+		children_fs = fs_fields_to_json(fs_fields, fs_json[tag]['children'][child.tag], child.tag)
+		fs_json[tag]['children'][child.tag] = children_fs
 
 	return fs_json[tag]
 
-def ticker_to_json(ticker, form_type, fs):
-	directory = find_latest_form_dir(ticker,form_type)
-	cfiles = read_forms_from_dir(directory)	
+def ticker_to_json(fs_fields, ticker, form_type, fs, date):
+	directory = find_index_form_dir(ticker,form_type,date)
+	cfiles = read_forms_from_dir(directory)
 
 	fs_fields = get_fs_fields(ticker,form_type,fs,cfiles)
 
-	all_tables = html_to_facts(cfiles.html, fs_fields)
+	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
 
 	inx, per = get_best_macth_table(all_tables, fs_fields)
 	
@@ -157,20 +162,41 @@ def ticker_to_json(ticker, form_type, fs):
 	     		'is': 'us-gaap:IncomeStatementAbstract',
 		 		'cf': 'us-gaap:StatementOfCashFlowsAbstract'
 		 		}
-	
+		
 	fs_fields_to_json(fs_fields, fs_json, top_node[fs])
 	
-	with open(f"{ticker}.json", 'w') as output:
+	path = f"./store/{ticker}/{fs}"
+	re.mkdir_if_NE(path)
+	with open(f"./{path}/{ticker}_{fs}_{date}.json", 'w') as output:
 		json.dump(fs_json, output, indent=4)
 
 if __name__ == '__main__':
 	if len(sys.argv) != 4:
-		print("USAGE: python3 xbrl_functions.py <ticker> <form type> <financial statement type>")
-		print("\tex. python3 xbrl_functions.py AAPL 10-K bs")
+		print("USAGE: python3 html_process.py <ticker> <form type> <financial statement type>")
+		print("\tex. python3 html_process.py AAPL 10-K bs")
 		print("bs = balance sheet\nis = income statement\ncf = cashflow staement")
 		sys.exit(0)
 
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
 	fs = sys.argv[3]
-	ticker_to_json(ticker, form_type, fs)
+
+	directory = find_latest_form_dir(ticker,form_type)
+	date = directory.split('/')[-1]
+	ticker_to_json({},ticker,form_type,fs,date)
+
+
+	directory = find_all_form_dir(ticker,form_type)
+	for date in directory:
+		if date == '.DS_Store': continue
+		try:
+			ticker_to_json({}, ticker, form_type, fs, date)
+			print(f"Parsed for {date}.")
+		except:
+			print(f"Failed to parse for {date}.")
+
+'''
+	directory = find_latest_form_dir(ticker,form_type)
+	date = directory.split('/')[-1]
+	ticker_to_json({},ticker,form_type,fs,date)
+'''

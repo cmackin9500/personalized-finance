@@ -1,0 +1,85 @@
+{
+    "DepreciationAndAmortization": [
+        "us-gaap:AccretionAmortizationOfDiscountsAndPremiumsInvestments",
+        "us-gaap:AdjustmentForAmortization",
+        "us-gaap:AmortizationAndDepreciationOfDecontaminatingAndDecommissioningAssets",
+        "us-gaap:AmortizationOfAcquisitionCosts",
+        "us-gaap:AmortizationOfAdvanceRoyalty",
+        "us-gaap:AmortizationOfDebtDiscountPremium",
+        "us-gaap:AmortizationOfDeferredHedgeGains",
+        "us-gaap:AmortizationOfDeferredLoanOriginationFeesNet",
+        "us-gaap:AmortizationOfDeferredPropertyTaxes",
+        "us-gaap:AmortizationOfDeferredSalesCommissions",
+        "us-gaap:AmortizationOfFinancingCosts",
+        "us-gaap:AmortizationOfFinancingCostsAndDiscounts",
+        "us-gaap:AmortizationOfIntangibleAssets",
+        "us-gaap:AmortizationOfMortgageServicingRightsMSRs",
+        "us-gaap:AmortizationOfNuclearFuelLease",
+        "us-gaap:AmortizationOfPowerContractsEmissionCredits",
+        "us-gaap:AmortizationOfRateDeferral",
+        "us-gaap:AmortizationOfRegulatoryAsset",
+        "us-gaap:AmortizationOfValueOfBusinessAcquiredVOBA",
+        "us-gaap:CostDepletion",
+        "us-gaap:CostOfGoodsAndServicesSoldAmortization",
+        "us-gaap:CostOfGoodsAndServicesSoldDepreciation",
+        "us-gaap:DeferredPolicyAcquisitionCostAmortizationExpense",
+        "us-gaap:DeferredSalesInducementsAmortizationExpense",
+        "us-gaap:Depletion",
+        "us-gaap:DepletionOfOilAndGasProperties",
+        "us-gaap:Depreciation",
+        "us-gaap:DepreciationAmortizationAndAccretionNet",
+        "us-gaap:DepreciationAndAmortization",
+        "us-gaap:DepreciationDepletionAndAmortization",
+        "us-gaap:DepreciationNonproduction",
+        "us-gaap:FinanceLeaseRightOfUseAssetAmortization",
+        "us-gaap:OperatingLeaseRightOfUseAssetAmortizationExpense",
+        "us-gaap:OtherAmortizationOfDeferredCharges",
+        "us-gaap:OtherDepreciationAndAmortization",
+        "us-gaap:PresentValueOfFutureInsuranceProfitsAmortizationExpense1"
+    ],
+    "ShareBasedCompensation": [
+        "us-gaap:EmployeeBenefitsAndShareBasedCompensationNoncash",
+        "us-gaap:RestrictedStockExpense",
+        "us-gaap:ShareBasedCompensation",
+        "us-gaap:StockOptionPlanExpense"
+    ],
+    "NetCashProvidedByUsedInFinancingActivities": [
+        "us-gaap:NetCashProvidedByUsedInFinancingActivities"
+    ],
+    "NetCashProvidedByUsedInInvestingActivities": [
+        "us-gaap:NetCashProvidedByUsedInInvestingActivities"
+    ],
+    "NetCashProvidedByUsedInOperatingActivities": [
+        "us-gaap:NetCashProvidedByUsedInOperatingActivities"
+    ],
+    "CapEx": [
+        "us-gaap:PaymentsForCapitalImprovements",
+        "us-gaap:PaymentsForDepositsOnRealEstateAcquisitions",
+        "us-gaap:PaymentsToAcquireBuildings",
+        "us-gaap:PaymentsToAcquireCommercialRealEstate",
+        "us-gaap:PaymentsToAcquireFurnitureAndFixtures",
+        "us-gaap:PaymentsToAcquireHeldForSaleRealEstate",
+        "us-gaap:PaymentsToAcquireLand",
+        "us-gaap:PaymentsToAcquireLandHeldForUse",
+        "us-gaap:PaymentsToAcquireMachineryAndEquipment",
+        "us-gaap:PaymentsToAcquireMiningAssets",
+        "us-gaap:PaymentsToAcquireOilAndGasEquipment",
+        "us-gaap:PaymentsToAcquireOilAndGasProperty",
+        "us-gaap:PaymentsToAcquireOilAndGasPropertyAndEquipment",
+        "us-gaap:PaymentsToAcquireOtherPropertyPlantAndEquipment",
+        "us-gaap:PaymentsToAcquireOtherRealEstate",
+        "us-gaap:PaymentsToAcquirePropertyPlantAndEquipment",
+        "us-gaap:PaymentsToAcquireProductiveAssets",
+        "us-gaap:PaymentsToAcquireRealEstate",
+        "us-gaap:PaymentsToAcquireResidentialRealEstate",
+        "us-gaap:PaymentsToAcquireSoftware",
+        "us-gaap:PaymentsToAcquireTimberlands",
+        "us-gaap:PaymentsToAcquireWasteWaterSystems",
+        "us-gaap:PaymentsToAcquireWaterAndWasteWaterSystems",
+        "us-gaap:PaymentsToAcquireWaterSystems",
+        "us-gaap:PaymentsToExploreAndDevelopOilAndGasProperties"
+    ],
+    "CommonStockDividendsPerShareDeclared": [
+        "us-gaap:CommonStockDividendsPerShareDeclared"
+    ]
+}

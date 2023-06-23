@@ -68,15 +68,16 @@ def str_startswith_mlt(buf, words):
 def get_recent_filings(CIK:str):
 	CIK = pad_CIK(CIK) 
 	url = f"https://data.sec.gov/submissions/CIK{CIK}.json"
-	res_json = json.loads(requests.get(url, headers=BASE_HEADERS).text)
-
+	res_json = re.status_code(url)
+	if res_json == {}:
+		return {}
 	recent = res_json["filings"]["recent"]
 	return recent
 
 def get_older_filings(CIK:str):
 	CIK = pad_CIK(CIK)
 	url = f"https://data.sec.gov/submissions/CIK{CIK}-submissions-001.json"
-	return json.loads(requests.get(url, headers=BASE_HEADERS).text)
+	return re.status_code(url)
 
 # Key info for company filings
 @dataclass
@@ -104,7 +105,8 @@ def get_forms_of_type(master, form_type:str):
 	primaryDocDescription = master['primaryDocDescription']
 
 	forms = []
-	for i, name in enumerate(primaryDocDescription):
+	# enumerating form is ok but the likes of JPM is weird. Need to figure out why JPM is not storing the form names as 10-K.
+	for i, name in enumerate(form):
 		if str_cmp_mlt(name, form_names):
 			forms.append(FormInfo(
 									accessionNumber[i],
@@ -135,6 +137,12 @@ def create_facts_url(CIK):
 def create_tags_url(CIK):
 	return f"https://data.sec.gov/api/xbrl/companyfacts/CIK{CIK}.json"
 
+def create_htm_xml_url(CIK, form):
+	accessionNumber = form.accessionNumber.replace("-", "")
+	primaryDocument = form.primaryDocument.replace(".","_")
+	return f"https://www.sec.gov/Archives/edgar/data/{CIK}/{accessionNumber}/{primaryDocument}.xml"
+	#https://www.sec.gov/Archives/edgar/data/320193/000032019323000064/aapl-20230401_htm.xml
+
 # Creates the data directory based on the convention
 # ticker/form_type/form_date
 def dest_dir_name(ticker, form_type, form):
@@ -157,7 +165,7 @@ def save_form_data(ticker, form_type, date):
 		print("The specified form data is already downloaded. Ignoring download")
 		return dest_dir
 
-	mkdir_if_NE(dest_dir)
+	re.mkdir_if_NE(dest_dir)
 	print("Saving files in dir \"{}\"".format(dest_dir))
 
 	# Create url for inline HTML
@@ -169,13 +177,13 @@ def save_form_data(ticker, form_type, date):
 
 	# Retrieve XBRL instance
 	print("Retrieving XBRL instance (zipfile) from:\n\t{}".format(xbrlurl))
-	get_and_extract_zip(xbrlurl, dest_dir)
+	re.get_and_extract_zip(xbrlurl, dest_dir)
 
 	# Retrieve inline HTML
 	print("Retrieving inline HTML from:\n\t{}".format(htmlurl))
 	html_fullpath = dest_dir + "/{}_{}.html".format(ticker, form.date)
 	htmltext = requests.get(htmlurl, headers=BASE_HEADERS).text
-	write_file(html_fullpath, htmltext) 
+	re.write_file(html_fullpath, htmltext) 
 
 	re.remove_extra_files(dest_dir)
 
@@ -184,6 +192,7 @@ def save_form_data(ticker, form_type, date):
 def save_data_from_index(ticker, CIK, form, form_type):
 	htmlurl = create_inline_html_url(ticker, CIK, form)
 	xbrlurl = create_xbrl_inst_url(CIK, form)
+	htm_xmlurl = create_htm_xml_url(CIK, form)
 
 	dest_dir = dest_dir_name(ticker, form_type, form)
 	re.mkdir_if_NE(dest_dir)
@@ -207,18 +216,37 @@ def save_data_from_index(ticker, CIK, form, form_type):
 		re.write_file(html_fullpath, htmltext) 
 	except:
 		print('    Cannot retrieve HTML.')
+
+	# Retrieve htm.xml
+	print("    Retrieving htm.xml from:\n\t{}".format(htm_xmlurl))
+	htm_xml_fullpath = dest_dir + f"/{ticker}_{form.reportDate}_htm.xml"
+	htmltext = requests.get(htm_xmlurl, headers=BASE_HEADERS)
+	if htmltext.status_code == 200:
+		re.write_file(htm_xml_fullpath, htmltext.text) 
+	else:
+		print('		Cannot retrieve HTM.XML. This is an old form.')
+
 	re.remove_extra_files(dest_dir)
 
 	return dest_dir
 
-def get_forms_of_type_xbrl(CIK, form_type):
+def get_forms_of_type_xbrl(CIK, form_type, inline=False):
+	recent_forms, older_forms = [], []
 	recent_filings = get_recent_filings(CIK)
+	if recent_filings != {}:
+		recent_forms = get_forms_of_type(recent_filings,form_type)
+
 	older_filings = get_older_filings(CIK)
-	forms = get_forms_of_type(recent_filings,form_type) + get_forms_of_type(older_filings,form_type)
+	if older_filings != {}:
+		older_forms = get_forms_of_type(older_filings,form_type)
+
+	forms = recent_forms + older_forms
 	
 	forms_xbrl = []
 	for form in forms:
-		if form.isXBRL:
+		if not inline and form.isXBRL:
+			forms_xbrl.append(form)
+		elif inline and form.isInlineXBRL:
 			forms_xbrl.append(form)
 
 	return forms_xbrl
@@ -235,17 +263,18 @@ def save_all_facts(ticker):
 	factsurl = create_facts_url(CIK)
 	print(f"Retrieving json instance from:\n\t{factsurl}")
 	res = requests.get(factsurl, headers=BASE_HEADERS, stream=True)
-	download_file(res,ticker)
+	re.download_file(res,ticker)
 
 
 if __name__ == "__main__":
 	if len(sys.argv) != 3:
-		print("USAGE: python3 omretrieve.py <ticker> <form type>")
-		print("\tex. python3 omretrive.py AAPL 10-K")
+		print("USAGE: python3 edgar_retrieve.py <ticker> <form type>")
+		print("\tex. python3 edgar_retrieve.py AAPL 10-K")
 		sys.exit(0)
 
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
 	CIK = get_company_CIK(ticker)
-	forms = get_forms_of_type_xbrl(CIK, form_type)
+	forms = get_forms_of_type_xbrl(CIK, form_type, True)
+
 	save_all_forms(ticker, form_type, forms)

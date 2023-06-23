@@ -36,3 +36,11 @@ def remove_extra_files(dirname):
 				and not file.endswith(".xml")\
 				and not file.endswith(".xsd"):
 			os.remove(dirname + "/" + file)
+
+
+def status_code(url):
+	res = requests.get(url, headers=BASE_HEADERS)
+	if res.status_code == 200:
+		return json.loads(res.text)
+	else:
+		return {}
