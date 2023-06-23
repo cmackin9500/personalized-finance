@@ -1,23 +1,24 @@
 <script>
 	import { companyForms } from "$lib/financialsStore.js";
+	import { JSONGetRequest } from "$lib/util.js";
 
 	export let selectedCompany = "";
 	let currentCompany = "";
 	let currentQuery = "";
+	let searchError = null;
 
 	function getCompanyData() {
-		fetch(`/api/financials/allForms/${currentCompany}`)
-			.then(res => {
-				return res.json()
-			})
+		JSONGetRequest(`/api/financials/allForms/${currentCompany}`)
 			.then(data => {
-				console.log(data);
 				companyForms.update(prev => data);
-				selectedCompany = currentCompany
+				selectedCompany = currentCompany;
 			})
-			.catch(err => {
-				console.error(err);
-			})
+			.catch(async err => {
+				selectedCompany = "";
+				console.log("ASD");
+				console.log(err.cause);
+				searchError = err;
+			}) 
 	}
 </script>
 
@@ -42,6 +43,11 @@
 				</ul>
 			{/if}
 		</div>
+	</div>
+	<div>
+		{#if searchError}
+			<p>{JSON.stringify(searchError)}</p>
+		{/if}
 	</div>
 </div>
 

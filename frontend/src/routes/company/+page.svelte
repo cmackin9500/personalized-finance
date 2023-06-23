@@ -9,7 +9,6 @@
 
 	let currentPage = "home";
 	let selectedCompany = "";
-
 </script>
 
 

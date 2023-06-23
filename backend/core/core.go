@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"overmac/webcore/financials"
+	"overmac/webcore/util"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -48,7 +49,9 @@ func apiRouter() http.Handler {
 			ticker := chi.URLParam(r, "ticker")
 			formsBytes, err := financials.GetAllForms(ticker)
 			if err != nil {
-				panic("TODO: HTTP Error handling")
+				util.HTTPErrorHandler(w, r, err,
+					"Company with requested ticker not found", http.StatusInternalServerError)
+				return
 			}
 
 			w.Header().Set("Content-Type", "application/json")
