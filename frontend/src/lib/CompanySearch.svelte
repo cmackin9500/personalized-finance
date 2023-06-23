@@ -1,14 +1,35 @@
 <script>
-	export let selectedCompany;
+	import { companyForms } from "$lib/financialsStore.js";
+	import { JSONGetRequest } from "$lib/util.js";
+
+	export let selectedCompany = "";
 	let currentCompany = "";
 	let currentQuery = "";
+	let searchError = null;
+
+	function getCompanyData() {
+		JSONGetRequest(`/api/financials/allForms/${currentCompany}`)
+			.then(data => {
+				companyForms.update(prev => data);
+				selectedCompany = currentCompany;
+			})
+			.catch(async err => {
+				selectedCompany = "";
+				console.log("ASD");
+				console.log(err.cause);
+				searchError = err;
+			}) 
+	}
 </script>
 
 <div class="container">
 	<div class="card"> 
 		<div id="search-bar" class="">
-			<label>Search:</label>
-			<input class="input" bind:value={selectedCompany}/>
+			<form on:submit={getCompanyData}>
+				<label>Search:</label>
+				<input class="input" bind:value={currentCompany}/>
+				<button style="display: none;"></button>
+			</form>
 		</div>
 
 
@@ -22,6 +43,11 @@
 				</ul>
 			{/if}
 		</div>
+	</div>
+	<div>
+		{#if searchError}
+			<p>{JSON.stringify(searchError)}</p>
+		{/if}
 	</div>
 </div>
 
