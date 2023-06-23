@@ -25,6 +25,7 @@ func CreateRouter() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		// Return svelte index file
 		fmt.Fprintf(w, "Overmac")
 	})
 
@@ -58,6 +59,43 @@ func apiRouter() http.Handler {
 			w.Write(formsBytes)
 		})
 
+		r.Post("/field", func(w http.ResponseWriter, r *http.Request) {
+			// Return all values for a given field for a company
+			// Need to decode JSON body
+
+			//b, err := io.ReadAll(r.Body)
+
+		})
+	})
+
+	r.Get("/tickerAutocomplete", func(w http.ResponseWriter, r *http.Request) {
+		// Temporary implementation for Casey to test
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{
+  "A": {
+    "isTerminal": false,
+    "value": "A",
+    "children": {
+      "A": {
+       	"isTerminal": false,
+    	"value": "AA",
+    	"children": {
+    	  "P": {
+    	    "isTerminal": false,
+    	    "value": "AAP",
+    	    "children": {
+    	      "L": {
+    	        "isTerminal": true,
+    	        "value": "AAPL",
+    	        "children": {}
+    	      }
+    	    }
+    	  }
+    	}
+      }
+    }
+  }
+}`))
 	})
 
 	return r
