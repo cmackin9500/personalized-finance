@@ -10,7 +10,7 @@ from util import file_management as fm
 class HTMLFact:
 	tag: str
 	parent: str
-	child: list()
+	children: list()
 	val: float
 	date: str
 	text: str

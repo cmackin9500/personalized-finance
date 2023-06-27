@@ -200,13 +200,13 @@
 	}
 
 	#financial-plot {
-		height: 40vh;
+		height: 30vh;
 	}
 
 	#table-wrapper {
 		overflow-x: scroll;
 		overflow-y: scroll;
-		height: 50vh;
+		height: 60vh;
 	}
 
 	td:first-child, th:first-child {

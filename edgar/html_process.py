@@ -7,6 +7,7 @@ import json
 from html_parse import html_to_facts, HTMLFact
 from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir, find_index_form_dir
 from xbrl_parse import XBRLNode, get_fs_fields
+import edgar_retrieve as edgar
 from util import retreival as re
 
 # Given the list of classes, that contains the child and parent, it will take the child and return it as a list
@@ -165,7 +166,9 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 		
 	fs_fields_to_json(fs_fields, fs_json, top_node[fs])
 	
-	path = f"./store/{ticker}/{fs}"
+	#path = f"./store/{ticker}/{fs}"
+
+	path = f"./../backend/store/{ticker}"
 	re.mkdir_if_NE(path)
 	with open(f"./{path}/{ticker}_{fs}_{date}.json", 'w') as output:
 		json.dump(fs_json, output, indent=4)
@@ -180,6 +183,10 @@ if __name__ == '__main__':
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
 	fs = sys.argv[3]
+
+	#CIK = edgar.get_company_CIK(ticker)
+	#forms = edgar.get_forms_of_type_xbrl(CIK, form_type, True)
+	#edgar.save_all_forms(ticker, form_type, forms)
 
 	directory = find_latest_form_dir(ticker,form_type)
 	date = directory.split('/')[-1]
