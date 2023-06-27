@@ -10,14 +10,15 @@
 	function getCompanyData() {
 		JSONGetRequest(`/api/financials/allForms/${currentCompany}`)
 			.then(data => {
+				searchError = null;
+				companyForms.update(prev => {});
 				companyForms.update(prev => data);
 				selectedCompany = currentCompany;
 			})
 			.catch(async err => {
 				selectedCompany = "";
-				console.log("ASD");
 				console.log(err.cause);
-				searchError = err;
+				searchError = err.cause;
 			}) 
 	}
 </script>
@@ -46,7 +47,7 @@
 	</div>
 	<div>
 		{#if searchError}
-			<p>{JSON.stringify(searchError)}</p>
+			<p>{searchError.msg}</p>
 		{/if}
 	</div>
 </div>

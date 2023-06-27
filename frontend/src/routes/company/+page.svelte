@@ -32,9 +32,15 @@
 	<div id="wrapper" class="has-background-white-ter container">
 		<div class="card">
 			<div class="card-header">
-				<button class="button" on:click={() => {currentPage = "home"}}>Overview</button>
-				<button class="button" on:click={() => {currentPage = "financials"}}>Financials</button>
-				<button class="button" on:click={() => {currentPage = "derived"}}>Derived</button>
+				<button class="button"
+					class:has-background-link,has-text-light={currentPage === "home"} 
+					on:click={() => {currentPage = "home"}}>Overview</button>
+				<button class="button"
+					class:has-background-link,has-text-light={currentPage === "financials"} 
+					on:click={() => {currentPage = "financials"}}>Financials</button>
+				<button class="button"
+					class:has-background-link,has-text-light={currentPage === "derived"} 
+					on:click={() => {currentPage = "derived"}}>Derived</button>
 			</div>
 
 			

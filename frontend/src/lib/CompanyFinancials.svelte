@@ -8,6 +8,8 @@
 
 	let normalizePlotData = false;
 
+	let tableWrapperElem;
+
 	$: {
 		normalizePlotData;
 		console.log("ASD");
@@ -43,6 +45,15 @@
 		return arr;
 	}()
 
+	$: {
+		arrayTempData;
+
+		// Scroll way to the right
+		if (tableWrapperElem) {
+			tableWrapperElem.scrollLeft += 100000000;
+		}
+	}
+
 	$: shouldPlotTable = function() {
 		let keys = Object.keys(flatTempData);
 
@@ -74,7 +85,7 @@
 
 			out[term][date] = node[term]["val"];
 
-			out = recursiveFlatten(node[term]["child"], date, out);
+			out = recursiveFlatten(node[term]["children"], date, out);
 		}
 
 		return out;
@@ -105,8 +116,12 @@
 			datasets.push(data);
 		}
 
+		const layout = {
+			autosize: true
+		};
+
 		Plotly.newPlot(financialPlot,
-			datasets);
+			datasets, layout);
 	}
 
 	function convertFlattenedToTrace(name, flattened) {
@@ -133,7 +148,10 @@
 	}
 
 	onMount(async () => {
-		Plotly.newPlot(financialPlot);
+		const layout = {
+			autosize: true
+		};
+		Plotly.newPlot(financialPlot, {}, layout);
 	})
 </script>
 
@@ -152,7 +170,7 @@
 
 	<br>
 
-	<div id="table-wrapper">
+	<div id="table-wrapper" bind:this={tableWrapperElem}>
 		<table class="table" style="width: 100%">
 			<thead>
 				<tr style="position: sticky; top: 0; z-index: 101; background-color: #e8e8e8">
@@ -196,11 +214,12 @@
 
 <style>
 	#wrapper {
-		height: 90vh;
+		height: 95vh;
 	}
 
 	#financial-plot {
 		height: 30vh;
+		width: 100%;
 	}
 
 	#table-wrapper {

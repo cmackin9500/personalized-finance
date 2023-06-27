@@ -2,6 +2,7 @@ package core
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -10,17 +11,20 @@ import (
 // @BasePath /api
 
 type Core struct {
+	port   int
 	router *chi.Mux
 }
 
-func CreateCore() *Core {
+func CreateCore(port int) *Core {
 	router := CreateCoreRouter()
 
 	return &Core{
+		port,
 		router,
 	}
 }
 
+// Will need to incorporate TLS or use TLS forwarding in the future
 func (core *Core) Start() {
-	http.ListenAndServe(":8080", core.router)
+	http.ListenAndServe(":"+strconv.Itoa(core.port), core.router)
 }

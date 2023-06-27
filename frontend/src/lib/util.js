@@ -1,9 +1,11 @@
 export function JSONGetRequest(url) {
 	return fetch(url)
-		.then(res => {
+		.then(async res => {
 			if (res.status < 200 || res.status >= 400) {
-				throw new Error(res);
+				const content = await res.json();
+				throw new Error(res, { cause: content } );
 			}
+
 			return res.json();
 		})
 }

@@ -168,7 +168,7 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 	
 	#path = f"./store/{ticker}/{fs}"
 
-	path = f"./../backend/store/{ticker}"
+	path = f"./store/{ticker}"
 	re.mkdir_if_NE(path)
 	with open(f"./{path}/{ticker}_{fs}_{date}.json", 'w') as output:
 		json.dump(fs_json, output, indent=4)
@@ -184,9 +184,9 @@ if __name__ == '__main__':
 	form_type = sys.argv[2]
 	fs = sys.argv[3]
 
-	#CIK = edgar.get_company_CIK(ticker)
-	#forms = edgar.get_forms_of_type_xbrl(CIK, form_type, True)
-	#edgar.save_all_forms(ticker, form_type, forms)
+	CIK = edgar.get_company_CIK(ticker)
+	forms = edgar.get_forms_of_type_xbrl(CIK, form_type, True)
+	edgar.save_all_forms(ticker, form_type, forms)
 
 	directory = find_latest_form_dir(ticker,form_type)
 	date = directory.split('/')[-1]

@@ -7,7 +7,8 @@
         "order": null,
         "date": null,
         "text": null,
-        "child": {
+        "lineup": null,
+        "children": {
             "us-gaap:AssetsAbstract": {
                 "tag": "us-gaap:AssetsAbstract",
                 "parent": "us-gaap:StatementOfFinancialPositionAbstract",
@@ -16,7 +17,8 @@
                 "order": null,
                 "date": null,
                 "text": null,
-                "child": {
+                "lineup": 0,
+                "children": {
                     "us-gaap:AssetsCurrentAbstract": {
                         "tag": "us-gaap:AssetsCurrentAbstract",
                         "parent": "us-gaap:AssetsAbstract",
@@ -25,7 +27,8 @@
                         "order": null,
                         "date": null,
                         "text": null,
-                        "child": {}
+                        "lineup": 1,
+                        "children": {}
                     },
                     "us-gaap:AssetsNoncurrentAbstract": {
                         "tag": "us-gaap:AssetsNoncurrentAbstract",
@@ -35,7 +38,8 @@
                         "order": null,
                         "date": null,
                         "text": null,
-                        "child": {}
+                        "lineup": 9,
+                        "children": {}
                     },
                     "us-gaap:Assets": {
                         "tag": "us-gaap:Assets",
@@ -45,7 +49,8 @@
                         "order": null,
                         "date": "2021-09-25",
                         "text": "Total assets",
-                        "child": {
+                        "lineup": 14,
+                        "children": {
                             "us-gaap:AssetsCurrent": {
                                 "tag": "us-gaap:AssetsCurrent",
                                 "parent": "us-gaap:Assets",
@@ -54,7 +59,8 @@
                                 "order": 1.0,
                                 "date": "2021-09-25",
                                 "text": "Total current assets",
-                                "child": {
+                                "lineup": 8,
+                                "children": {
                                     "us-gaap:CashAndCashEquivalentsAtCarryingValue": {
                                         "tag": "us-gaap:CashAndCashEquivalentsAtCarryingValue",
                                         "parent": "us-gaap:AssetsCurrent",
@@ -63,7 +69,8 @@
                                         "order": 1.0,
                                         "date": "2021-09-25",
                                         "text": "Cash and cash equivalents",
-                                        "child": {}
+                                        "lineup": 2,
+                                        "children": {}
                                     },
                                     "us-gaap:MarketableSecuritiesCurrent": {
                                         "tag": "us-gaap:MarketableSecuritiesCurrent",
@@ -73,7 +80,8 @@
                                         "order": 2.0,
                                         "date": "2021-09-25",
                                         "text": "Marketable securities",
-                                        "child": {}
+                                        "lineup": 3,
+                                        "children": {}
                                     },
                                     "us-gaap:AccountsReceivableNetCurrent": {
                                         "tag": "us-gaap:AccountsReceivableNetCurrent",
@@ -83,7 +91,8 @@
                                         "order": 3.0,
                                         "date": "2021-09-25",
                                         "text": "Accounts receivable, net",
-                                        "child": {}
+                                        "lineup": 4,
+                                        "children": {}
                                     },
                                     "us-gaap:InventoryNet": {
                                         "tag": "us-gaap:InventoryNet",
@@ -93,7 +102,8 @@
                                         "order": 4.0,
                                         "date": "2021-09-25",
                                         "text": "Inventories",
-                                        "child": {}
+                                        "lineup": 5,
+                                        "children": {}
                                     },
                                     "us-gaap:NontradeReceivablesCurrent": {
                                         "tag": "us-gaap:NontradeReceivablesCurrent",
@@ -103,7 +113,8 @@
                                         "order": 5.0,
                                         "date": "2021-09-25",
                                         "text": "Vendor non-trade receivables",
-                                        "child": {}
+                                        "lineup": 6,
+                                        "children": {}
                                     },
                                     "us-gaap:OtherAssetsCurrent": {
                                         "tag": "us-gaap:OtherAssetsCurrent",
@@ -113,7 +124,8 @@
                                         "order": 6.0,
                                         "date": "2021-09-25",
                                         "text": "Other current assets",
-                                        "child": {}
+                                        "lineup": 7,
+                                        "children": {}
                                     }
                                 }
                             },
@@ -125,7 +137,8 @@
                                 "order": 2.0,
                                 "date": "2021-09-25",
                                 "text": "Total non-current assets",
-                                "child": {
+                                "lineup": 13,
+                                "children": {
                                     "us-gaap:MarketableSecuritiesNoncurrent": {
                                         "tag": "us-gaap:MarketableSecuritiesNoncurrent",
                                         "parent": "us-gaap:AssetsNoncurrent",
@@ -134,7 +147,8 @@
                                         "order": 1.0,
                                         "date": "2021-09-25",
                                         "text": "Marketable securities",
-                                        "child": {}
+                                        "lineup": 10,
+                                        "children": {}
                                     },
                                     "us-gaap:PropertyPlantAndEquipmentNet": {
                                         "tag": "us-gaap:PropertyPlantAndEquipmentNet",
@@ -144,7 +158,8 @@
                                         "order": 2.0,
                                         "date": "2021-09-25",
                                         "text": "Property, plant and equipment, net",
-                                        "child": {}
+                                        "lineup": 11,
+                                        "children": {}
                                     },
                                     "us-gaap:OtherAssetsNoncurrent": {
                                         "tag": "us-gaap:OtherAssetsNoncurrent",
@@ -154,7 +169,8 @@
                                         "order": 3.0,
                                         "date": "2021-09-25",
                                         "text": "Other non-current assets",
-                                        "child": {}
+                                        "lineup": 12,
+                                        "children": {}
                                     }
                                 }
                             }
@@ -170,7 +186,8 @@
                 "order": null,
                 "date": null,
                 "text": null,
-                "child": {
+                "lineup": 15,
+                "children": {
                     "us-gaap:LiabilitiesCurrentAbstract": {
                         "tag": "us-gaap:LiabilitiesCurrentAbstract",
                         "parent": "us-gaap:LiabilitiesAndStockholdersEquityAbstract",
@@ -179,7 +196,8 @@
                         "order": null,
                         "date": null,
                         "text": null,
-                        "child": {}
+                        "lineup": 16,
+                        "children": {}
                     },
                     "us-gaap:LiabilitiesNoncurrentAbstract": {
                         "tag": "us-gaap:LiabilitiesNoncurrentAbstract",
@@ -189,7 +207,8 @@
                         "order": null,
                         "date": null,
                         "text": null,
-                        "child": {}
+                        "lineup": 23,
+                        "children": {}
                     },
                     "us-gaap:StockholdersEquityAbstract": {
                         "tag": "us-gaap:StockholdersEquityAbstract",
@@ -199,7 +218,8 @@
                         "order": null,
                         "date": null,
                         "text": null,
-                        "child": {}
+                        "lineup": 29,
+                        "children": {}
                     },
                     "us-gaap:LiabilitiesAndStockholdersEquity": {
                         "tag": "us-gaap:LiabilitiesAndStockholdersEquity",
@@ -209,7 +229,8 @@
                         "order": null,
                         "date": "2021-09-25",
                         "text": "Total liabilities and shareholders\u2019 equity",
-                        "child": {
+                        "lineup": 34,
+                        "children": {
                             "us-gaap:Liabilities": {
                                 "tag": "us-gaap:Liabilities",
                                 "parent": "us-gaap:LiabilitiesAndStockholdersEquity",
@@ -218,7 +239,8 @@
                                 "order": 1.0,
                                 "date": "2021-09-25",
                                 "text": "Total liabilities",
-                                "child": {
+                                "lineup": 27,
+                                "children": {
                                     "us-gaap:LiabilitiesCurrent": {
                                         "tag": "us-gaap:LiabilitiesCurrent",
                                         "parent": "us-gaap:Liabilities",
@@ -227,7 +249,8 @@
                                         "order": 1.0,
                                         "date": "2021-09-25",
                                         "text": "Total current liabilities",
-                                        "child": {
+                                        "lineup": 22,
+                                        "children": {
                                             "us-gaap:AccountsPayableCurrent": {
                                                 "tag": "us-gaap:AccountsPayableCurrent",
                                                 "parent": "us-gaap:LiabilitiesCurrent",
@@ -236,7 +259,8 @@
                                                 "order": 1.0,
                                                 "date": "2021-09-25",
                                                 "text": "Accounts payable",
-                                                "child": {}
+                                                "lineup": 17,
+                                                "children": {}
                                             },
                                             "us-gaap:OtherLiabilitiesCurrent": {
                                                 "tag": "us-gaap:OtherLiabilitiesCurrent",
@@ -246,7 +270,8 @@
                                                 "order": 2.0,
                                                 "date": "2021-09-25",
                                                 "text": "Other current liabilities",
-                                                "child": {}
+                                                "lineup": 18,
+                                                "children": {}
                                             },
                                             "us-gaap:ContractWithCustomerLiabilityCurrent": {
                                                 "tag": "us-gaap:ContractWithCustomerLiabilityCurrent",
@@ -256,7 +281,8 @@
                                                 "order": 3.0,
                                                 "date": "2021-09-25",
                                                 "text": "Deferred revenue",
-                                                "child": {}
+                                                "lineup": 19,
+                                                "children": {}
                                             },
                                             "us-gaap:CommercialPaper": {
                                                 "tag": "us-gaap:CommercialPaper",
@@ -266,7 +292,8 @@
                                                 "order": 4.0,
                                                 "date": "2021-09-25",
                                                 "text": "Commercial paper",
-                                                "child": {}
+                                                "lineup": 20,
+                                                "children": {}
                                             },
                                             "us-gaap:LongTermDebtCurrent": {
                                                 "tag": "us-gaap:LongTermDebtCurrent",
@@ -276,7 +303,8 @@
                                                 "order": 5.0,
                                                 "date": "2021-09-25",
                                                 "text": "Term debt",
-                                                "child": {}
+                                                "lineup": 21,
+                                                "children": {}
                                             }
                                         }
                                     },
@@ -288,7 +316,8 @@
                                         "order": 2.0,
                                         "date": "2021-09-25",
                                         "text": "Total non-current liabilities",
-                                        "child": {
+                                        "lineup": 26,
+                                        "children": {
                                             "us-gaap:LongTermDebtNoncurrent": {
                                                 "tag": "us-gaap:LongTermDebtNoncurrent",
                                                 "parent": "us-gaap:LiabilitiesNoncurrent",
@@ -297,7 +326,8 @@
                                                 "order": 1.0,
                                                 "date": "2021-09-25",
                                                 "text": "Term debt",
-                                                "child": {}
+                                                "lineup": 24,
+                                                "children": {}
                                             },
                                             "us-gaap:OtherLiabilitiesNoncurrent": {
                                                 "tag": "us-gaap:OtherLiabilitiesNoncurrent",
@@ -307,7 +337,8 @@
                                                 "order": 2.0,
                                                 "date": "2021-09-25",
                                                 "text": "Other non-current liabilities",
-                                                "child": {}
+                                                "lineup": 25,
+                                                "children": {}
                                             }
                                         }
                                     }
@@ -321,7 +352,8 @@
                                 "order": 2.0,
                                 "date": "2021-09-25",
                                 "text": "Commitments and contingencies",
-                                "child": {}
+                                "lineup": 28,
+                                "children": {}
                             },
                             "us-gaap:StockholdersEquity": {
                                 "tag": "us-gaap:StockholdersEquity",
@@ -331,7 +363,8 @@
                                 "order": 3.0,
                                 "date": "2021-09-25",
                                 "text": "Total shareholders\u2019 equity",
-                                "child": {
+                                "lineup": 33,
+                                "children": {
                                     "us-gaap:CommonStocksIncludingAdditionalPaidInCapital": {
                                         "tag": "us-gaap:CommonStocksIncludingAdditionalPaidInCapital",
                                         "parent": "us-gaap:StockholdersEquity",
@@ -340,7 +373,8 @@
                                         "order": 1.0,
                                         "date": "2021-09-25",
                                         "text": "Common stock and additional paid-in capital, $0.00001 par value: 50,400,000 shares authorized; 16,426,786 and 16,976,763 shares issued and outstanding, respectively",
-                                        "child": {}
+                                        "lineup": 30,
+                                        "children": {}
                                     },
                                     "us-gaap:RetainedEarningsAccumulatedDeficit": {
                                         "tag": "us-gaap:RetainedEarningsAccumulatedDeficit",
@@ -350,7 +384,8 @@
                                         "order": 2.0,
                                         "date": "2021-09-25",
                                         "text": "Retained earnings",
-                                        "child": {}
+                                        "lineup": 31,
+                                        "children": {}
                                     },
                                     "us-gaap:AccumulatedOtherComprehensiveIncomeLossNetOfTax": {
                                         "tag": "us-gaap:AccumulatedOtherComprehensiveIncomeLossNetOfTax",
@@ -360,7 +395,8 @@
                                         "order": 3.0,
                                         "date": "2021-09-25",
                                         "text": "Accumulated other comprehensive income/(loss)",
-                                        "child": {}
+                                        "lineup": 32,
+                                        "children": {}
                                     }
                                 }
                             }
