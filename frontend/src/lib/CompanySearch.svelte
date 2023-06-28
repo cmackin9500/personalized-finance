@@ -8,6 +8,7 @@
 	let searchError = null;
 
 	function getCompanyData() {
+		selectedCompany = "";
 		JSONGetRequest(`/api/financials/allForms/${currentCompany}`)
 			.then(data => {
 				searchError = null;
