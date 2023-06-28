@@ -8,6 +8,8 @@
 
 	let normalizePlotData = false;
 
+	let tableWrapperElem;
+
 	$: {
 		normalizePlotData;
 		console.log("ASD");
@@ -20,17 +22,17 @@
 
 	$: flatTempData = recursiveFlattenTop(companyData);
 	$: arrayTempData = function() {
-		const years = Object.keys(companyData).sort();
+		const years = Object.keys(companyData).sort().reverse();
+		console.log(years);
 
 		// Make array
 		let arr = new Array(Object.keys(flatTempData).length);
 		for (let i = 0; i < arr.length; i++) {
-			arr[i] = new Array(years.length + 2);
+			arr[i] = new Array(years.length + 1);
 		}
 
 		for (const [i, term] of Object.keys(flatTempData).entries()) {
 			arr[i][0] = term;
-			arr[i][years.length + 1] = term;
 
 			for (const year of Object.keys(flatTempData[term])) {
 				const index = years.indexOf(year) + 1;
@@ -42,6 +44,15 @@
 
 		return arr;
 	}()
+
+	$: {
+		arrayTempData;
+
+		// Scroll way to the right
+		if (tableWrapperElem) {
+			//tableWrapperElem.scrollLeft += 100000000;
+		}
+	}
 
 	$: shouldPlotTable = function() {
 		let keys = Object.keys(flatTempData);
@@ -74,7 +85,7 @@
 
 			out[term][date] = node[term]["val"];
 
-			out = recursiveFlatten(node[term]["child"], date, out);
+			out = recursiveFlatten(node[term]["children"], date, out);
 		}
 
 		return out;
@@ -105,8 +116,12 @@
 			datasets.push(data);
 		}
 
+		const layout = {
+			autosize: true
+		};
+
 		Plotly.newPlot(financialPlot,
-			datasets);
+			datasets, layout);
 	}
 
 	function convertFlattenedToTrace(name, flattened) {
@@ -133,7 +148,10 @@
 	}
 
 	onMount(async () => {
-		Plotly.newPlot(financialPlot);
+		const layout = {
+			autosize: true
+		};
+		Plotly.newPlot(financialPlot, {}, layout);
 	})
 </script>
 
@@ -152,15 +170,20 @@
 
 	<br>
 
-	<div id="table-wrapper">
+	<div id="table-wrapper" bind:this={tableWrapperElem}>
 		<table class="table" style="width: 100%">
 			<thead>
 				<tr style="position: sticky; top: 0; z-index: 101; background-color: #e8e8e8">
-					<th>Field</th>
-					{#each Object.keys(companyData).sort() as key}
+					<th style="flex-grow: 1;">
+						<div style="flex-grow: 1;">
+							Field
+						</div>
+
+						<div style="min-width: 10ch; text-align: center; text-align: center;">Plot</div>
+					</th>
+					{#each Object.keys(companyData).sort().reverse() as key}
 						<th>{key}</th>
 					{/each}
-					<th>Plot</th>
 				</tr>
 			</thead>
 
@@ -169,10 +192,16 @@
 					{#if !row[0].includes("Abstract")}
 						<tr>
 							{#each row as cell, i}
-								{#if i === row.length - 1}
+								{#if i === 0}
 									<td>
-										<input type="checkbox" 
-			  								on:change={updatePlot(cell)} />
+										<div style="flex-grow: 1;">
+											{simplifyTag(cell)}
+										</div>
+
+										<div style="min-width: 10ch; text-align: center;">
+											<input type="checkbox"
+			  									on:change={updatePlot(cell)} />
+										</div>
 									</td>
 								{:else}
 									{#if cell === undefined || cell === null}
@@ -196,25 +225,28 @@
 
 <style>
 	#wrapper {
-		height: 90vh;
+		height: 95vh;
 	}
 
 	#financial-plot {
-		height: 40vh;
+		height: 30vh;
+		width: 100%;
 	}
 
 	#table-wrapper {
 		overflow-x: scroll;
 		overflow-y: scroll;
-		height: 50vh;
+		height: 60vh;
 	}
 
 	td:first-child, th:first-child {
+		display: flex;
 		position: sticky;
 		position: -webkit-sticky;
 		background-color: #c8c8c8;
-		left: 0px;
 		min-width: 20ch;
+		left: 0px;
+		z-index:100;
 	}
 
 

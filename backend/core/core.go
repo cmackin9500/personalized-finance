@@ -1,64 +1,30 @@
 package core
 
 import (
-	"fmt"
 	"net/http"
-	"overmac/webcore/financials"
-	"overmac/webcore/util"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
 
+// @title Overmac API
+// @BasePath /api
+
 type Core struct {
+	port   int
 	router *chi.Mux
 }
 
-func CreateCore() *Core {
-	router := CreateRouter()
+func CreateCore(port int) *Core {
+	router := CreateCoreRouter()
 
 	return &Core{
+		port,
 		router,
 	}
 }
 
-func CreateRouter() *chi.Mux {
-	r := chi.NewRouter()
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Overmac")
-	})
-
-	r.Mount("/api", apiRouter())
-
-	return r
-}
-
+// Will need to incorporate TLS or use TLS forwarding in the future
 func (core *Core) Start() {
-	http.ListenAndServe(":8080", core.router)
-}
-
-func apiRouter() http.Handler {
-	r := chi.NewRouter()
-	r.Route("/financials", func(r chi.Router) {
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Financials API")
-		})
-
-		r.Get("/allForms/{ticker}", func(w http.ResponseWriter, r *http.Request) {
-			// TODO: Sanitize ticker
-			ticker := chi.URLParam(r, "ticker")
-			formsBytes, err := financials.GetAllForms(ticker)
-			if err != nil {
-				util.HTTPErrorHandler(w, r, err,
-					"Company with requested ticker not found", http.StatusInternalServerError)
-				return
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.Write(formsBytes)
-		})
-
-	})
-
-	return r
+	http.ListenAndServe(":"+strconv.Itoa(core.port), core.router)
 }
