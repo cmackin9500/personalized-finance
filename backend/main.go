@@ -10,8 +10,7 @@ const disclaimer string = `
 ================================
 Overmac core
 Cale Overstreet, Casey MacKinnon
-================================
-`
+================================`
 
 func main() {
 	fmt.Println(disclaimer)

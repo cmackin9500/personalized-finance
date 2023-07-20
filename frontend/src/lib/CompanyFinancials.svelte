@@ -1,10 +1,19 @@
 <script>
 	import { onMount } from "svelte";
-	import { companyForms } from "$lib/financialsStore.js";
+	import { companyForms, companyFormsFlat } from "$lib/financialsStore.js";
 
 	let financialPlot;
 
 	let companyData = {};
+	let companyDataFlat = {};
+
+	companyForms.subscribe(newData => {
+		companyData = newData;
+	})
+
+	companyFormsFlat.subscribe(newData => {
+		companyDataFlat = newData;
+	})
 
 	let normalizePlotData = false;
 
@@ -12,50 +21,33 @@
 
 	$: {
 		normalizePlotData;
-		console.log("ASD");
 		updatePlot(null);
 	}
 
-	companyForms.subscribe(newData => {
-		companyData = newData;
-	})
-
-	$: flatTempData = recursiveFlattenTop(companyData);
 	$: arrayTempData = function() {
 		const years = Object.keys(companyData).sort().reverse();
-		console.log(years);
 
 		// Make array
-		let arr = new Array(Object.keys(flatTempData).length);
+		let arr = new Array(Object.keys(companyDataFlat).length);
 		for (let i = 0; i < arr.length; i++) {
 			arr[i] = new Array(years.length + 1);
 		}
 
-		for (const [i, term] of Object.keys(flatTempData).entries()) {
+		for (const [i, term] of Object.keys(companyDataFlat).entries()) {
 			arr[i][0] = term;
 
-			for (const year of Object.keys(flatTempData[term])) {
+			for (const year of Object.keys(companyDataFlat[term])) {
 				const index = years.indexOf(year) + 1;
-				arr[i][index] = flatTempData[term][year];
+				arr[i][index] = companyDataFlat[term][year];
 			}
 		}
 
-		console.log(arr);
 
 		return arr;
 	}()
 
-	$: {
-		arrayTempData;
-
-		// Scroll way to the right
-		if (tableWrapperElem) {
-			//tableWrapperElem.scrollLeft += 100000000;
-		}
-	}
-
 	$: shouldPlotTable = function() {
-		let keys = Object.keys(flatTempData);
+		let keys = Object.keys(companyDataFlat);
 
 		let out = {}
 		for (const k of keys) {
@@ -65,31 +57,6 @@
 		return out;
 	}();
 
-
-	function recursiveFlattenTop(data) {
-		let out = {}
-
-		for (const year of Object.keys(data)) {
-			out = recursiveFlatten(data[year], year, out);
-		}
-		console.log(out);
-
-		return out;
-	}
-
-	function recursiveFlatten(node, date, out) {
-		for (const term of Object.keys(node)) {
-			if (!out[term])	 {
-				out[term] = {};
-			}
-
-			out[term][date] = node[term]["val"];
-
-			out = recursiveFlatten(node[term]["children"], date, out);
-		}
-
-		return out;
-	}
 
 	function updatePlot(fieldName) {
 		if (fieldName) {
@@ -109,7 +76,7 @@
 
 		let datasets = [];
 		for (const k of keys) {
-			const data = convertFlattenedToTrace(k, flatTempData[k])
+			const data = convertFlattenedToTrace(k, companyDataFlat[k])
 			if (normalizePlotData) {
 				data.y = data.y.map(y => y / Math.max(...data.y));
 			}

@@ -2,6 +2,7 @@ package core
 
 import (
 	"net/http"
+	"overmac/webcore/ovmauth"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -11,16 +12,26 @@ import (
 // @BasePath /api
 
 type Core struct {
-	port   int
-	router *chi.Mux
+	port        int
+	router      *chi.Mux
+	authManager *ovmauth.AuthManager
 }
 
 func CreateCore(port int) *Core {
 	router := CreateCoreRouter()
 
+	authManager, err := ovmauth.CreateAuthManager(ovmauth.AuthManagerConfig{
+		SessionLifetime: 300,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
 	return &Core{
 		port,
 		router,
+		authManager,
 	}
 }
 

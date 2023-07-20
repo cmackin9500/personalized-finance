@@ -4,6 +4,7 @@
 		".git",
 		"forms",
 		"store",
-		"docs"
+		"docs",
+		"./users.db"
 	]
 }

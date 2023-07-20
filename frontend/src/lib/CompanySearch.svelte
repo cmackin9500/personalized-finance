@@ -1,5 +1,5 @@
 <script>
-	import { companyForms } from "$lib/financialsStore.js";
+	import { companyForms, companyFormsFlat } from "$lib/financialsStore.js";
 	import { JSONGetRequest } from "$lib/util.js";
 
 	export let selectedCompany = "";
@@ -14,6 +14,10 @@
 				searchError = null;
 				companyForms.update(prev => {});
 				companyForms.update(prev => data);
+				const flat = recursiveFlattenTop(data);
+				companyFormsFlat.update(prev => {});
+				companyFormsFlat.update(prev => flat);
+				console.log(flat);
 				selectedCompany = currentCompany;
 			})
 			.catch(async err => {
@@ -21,6 +25,30 @@
 				console.log(err.cause);
 				searchError = err.cause;
 			}) 
+	}
+
+	function recursiveFlattenTop(data) {
+		let out = {}
+
+		for (const year of Object.keys(data)) {
+			out = recursiveFlatten(data[year], year, out);
+		}
+
+		return out;
+	}
+
+	function recursiveFlatten(node, date, out) {
+		for (const term of Object.keys(node)) {
+			if (!out[term])	 {
+				out[term] = {};
+			}
+
+			out[term][date] = node[term]["val"];
+
+			out = recursiveFlatten(node[term]["children"], date, out);
+		}
+
+		return out;
 	}
 </script>
 

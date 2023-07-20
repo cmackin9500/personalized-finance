@@ -1,10 +1,11 @@
 <script>
 	import { onMount } from "svelte";
+	import { companyForms } from "$lib/financialsStore.js";
 
-	let quillEditorElement;
+	export let onSubmitFunc = () => {};
 
-	let eqContent = `k = usgaap:PropertyPlantAndEquipmentNet(0) * 0.95
-myval = k / usgaap:Assets(0)`;
+
+	let eqContent = `k = usgaap:Assets(0) * 0.95`;
 
 	let TICKER = "";
 	let LASTVARS = {};
@@ -15,135 +16,13 @@ myval = k / usgaap:Assets(0)`;
 			&& event.shiftKey === true) {
 			// Parse current contents
 			event.preventDefault();
-			console.log("Parsing equation...");
-			temporaryEvalRun(event.srcElement.value);
+			onSubmitFunc(eqContent);
+			//console.log("Parsing equation...");
+			//temporaryEvalRun(event.srcElement.value);
 			//parseEquation(event.srcElement.value);
 		}
 	}
 
-	function temporaryEvalRun(text) {
-		const result = parseAndEval(TICKER, text);
-		LASTVARS = result["vars"];
-		LASTWORK = result["work"];
-		console.log(result);
-	}
-
-	function parseAndEval(ticker, text) {
-		let window = undefined;
-		let document = undefined;
-
-		const split = text.split(/[ \n\t]+/);
-		const tokens = tokenizeText(text);
-		console.log("Tokens", tokens);
-
-		let out = "";
-		let i = 0;
-		let error = null;
-		let work = {};
-		let vars = {};
-		while (i < tokens.length) {
-			if (tokens[i].includes(":")) {
-				// Check if correct syntex
-				if (tokens.length - i < 4) {
-					error = { msg: ```Invalid syntax near term ${tokens[i]}` }
-					break;
-				}
-				const term = tokens[i];
-				const inner = parseInt(tokens[i+2]);
-
-				out += `evalTerm("${ticker}", work, "${term}", ${inner})`;
-				i += 4;
-				continue;
-			} else if (tokens[i] == "\n") {
-				out += ";";
-				i += 1;
-				continue;
-			} else if (tokens.length - i >= 2 && tokens[i+1] === "=") {
-				//vars[tokens[i]]	= undefined;
-				out += `const ${tokens[i]} = vars["${tokens[i]}"]` + " ";
-				//out += `const ${tokens[i]}` + " ";
-				i += 1;
-				continue;
-			}
-
-			out += tokens[i] + " ";
-			i += 1;
-		}
-		
-
-		console.log("Evaluating: ", out);
-		eval(out);
-
-		// round values
-		for (const v of Object.keys(vars)) {
-			console.log("V", v);
-			vars[v] = vars[v].toFixed(2);
-			console.log(vars[v].toFixed);
-		}
-
-		let result = {
-			work: work,
-			vars: vars
-		};
-		console.log(work);
-		console.log(vars);
-
-		return result;
-	}
-
-	// Inner should be an integer
-	// The work term is an object containing all the results
-	// for evaluated terms. This function retrieves all values
-	// for a given term at a time period and 
-	function evalTerm(ticker, work, term, inner) {
-		work[`${term}(${inner})`] = {
-			values: [1, 2, 3],
-			result: 6
-		};
-
-		return 6
-	}
-
-	function tokenizeText(text) {
-		const special = "()=+-*/^\n";
-		const skip = " \t";
-
-		let tokens = [];
-		let buffer = "";
-
-		for (const char of text) {
-			if (skip.includes(char)) { 
-				if (buffer.length > 0) {
-					tokens.push(buffer);
-				}
-				buffer = "";
-				continue;
-			}
-
-			if (special.includes(char)) {
-				if (buffer.length > 0) {
-					tokens.push(buffer);
-				}
-				buffer = "";
-				tokens.push(char)
-				continue;
-			}
-
-			if (skip.includes(char)) { continue }
-			buffer += char;
-		}
-
-		if (buffer.length > 0) {
-			tokens.push(buffer);
-		}
-
-		return tokens;
-	}
-
-	onMount(async => {
-		var quill = new Quill(quillEditorElement, {
-		});
-	})
 </script>
 
 
@@ -159,14 +38,6 @@ myval = k / usgaap:Assets(0)`;
 		  	  	  	  on:keydown={keydownHandler}/>
 		</div>
 	</div>
-</div>
-
-<br>
-
-<div>
-<div id="quill-editor" bind:this={quillEditorElement} class="content">
-	<p>Hello</p>
-</div>
 </div>
 
 <br>
