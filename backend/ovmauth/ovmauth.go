@@ -76,19 +76,6 @@ END;`)
 		return err
 	}
 
-	uuid := uuid.NewString()
-
-	_, err = db.Exec(`INSERT INTO users VALUES(
-		?,
-		"djburns",
-		?,
-		0
-	)`, uuid, []byte{1, 2, 3, 4, 5})
-
-	if err != nil {
-		return err
-	}
-
 	return err
 }
 

@@ -22,6 +22,7 @@ func CreateCore(port int) *Core {
 
 	authManager, err := ovmauth.CreateAuthManager(ovmauth.AuthManagerConfig{
 		SessionLifetime: 300,
+		DBName:          "users.db",
 	})
 
 	if err != nil {

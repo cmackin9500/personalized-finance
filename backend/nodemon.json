@@ -6,5 +6,6 @@
 		"store",
 		"docs",
 		"./users.db"
-	]
+	],
+	"ext": "go"
 }
