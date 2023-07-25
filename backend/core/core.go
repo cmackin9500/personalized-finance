@@ -18,7 +18,7 @@ type Core struct {
 }
 
 func CreateCore(port int) *Core {
-	router := CreateCoreRouter()
+	router := chi.NewRouter()
 
 	authManager, err := ovmauth.CreateAuthManager(ovmauth.AuthManagerConfig{
 		SessionLifetime: 300,
@@ -29,11 +29,16 @@ func CreateCore(port int) *Core {
 		panic(err)
 	}
 
-	return &Core{
+	core := &Core{
 		port,
 		router,
 		authManager,
 	}
+
+	// Run initialization functions
+	core.InitializeCoreRouter()
+
+	return core
 }
 
 // Will need to incorporate TLS or use TLS forwarding in the future

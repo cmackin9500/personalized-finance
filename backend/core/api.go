@@ -13,23 +13,22 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
-func CreateCoreRouter() *chi.Mux {
-	r := chi.NewRouter()
+func (core *Core) InitializeCoreRouter() {
+	core.router.Use(middleware.RequestID)
+	core.router.Use(middleware.RealIP)
+	core.router.Use(middleware.Logger)
+	core.router.Use(core.authManager.AuthMiddleware)
 
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	core.router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		// Return svelte index file
 		fmt.Fprintf(w, "Overmac")
 	})
 
-	r.Get("/swagger/*", httpSwagger.Handler(
+	core.router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger.json"), //The url pointing to API definition
 	))
 
-	r.Get("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+	core.router.Get("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
 		b, err := os.ReadFile("docs/swagger.json")
 		if err != nil {
 			log.Println(err)
@@ -39,13 +38,16 @@ func CreateCoreRouter() *chi.Mux {
 		w.Write(b)
 	})
 
-	r.Mount("/api", apiRouter())
-
-	return r
+	core.router.Mount("/api", apiRouter())
 }
 
 func apiRouter() http.Handler {
 	r := chi.NewRouter()
+
+	r.Route("/userLogin", func(r chi.Router) {
+		// Fake route to prevent 404
+
+	})
 
 	// Financials sub-route
 	r.Route("/financials", func(r chi.Router) {

@@ -1,8 +1,11 @@
 package ovmauth
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
+	"overmac/webcore/util"
 	"time"
 
 	"github.com/google/uuid"
@@ -37,10 +40,15 @@ func CreateAuthManager(conf AuthManagerConfig) (*AuthManager, error) {
 		return nil, err
 	}
 
-	return &AuthManager{
+	man := &AuthManager{
 		sessionLifetime: conf.SessionLifetime,
 		userDB:          db,
-	}, nil
+	}
+
+	//TODO: REMOVE THIS AS IT IS ONLY FOR TESTING
+	man.CreateUser("daddy", "dwayne", 0)
+
+	return man, nil
 }
 
 func prepareUserDB(db *sql.DB) error {
@@ -57,20 +65,15 @@ func prepareUserDB(db *sql.DB) error {
 		username text,
 		permissions int,
 		creation_time int
-	)`)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(`CREATE TRIGGER IF NOT EXISTS raise_error_if_field_exists
-BEFORE INSERT ON users
-BEGIN
-    SELECT CASE
-        WHEN EXISTS (SELECT 1 FROM users WHERE username=NEW.username) THEN
-            RAISE(ABORT, 'username already exists.')
-    END;
-END;`)
+	);
+	CREATE TRIGGER IF NOT EXISTS raise_error_if_field_exists
+	BEFORE INSERT ON users
+	BEGIN
+    	SELECT CASE
+        	WHEN EXISTS (SELECT 1 FROM users WHERE username=NEW.username) THEN
+            	RAISE(ABORT, 'username already exists.')
+    	END;
+	END;`)
 
 	if err != nil {
 		return err
@@ -156,4 +159,52 @@ func (man *AuthManager) ValidateSession(token string) (UserData, error) {
 	}
 
 	return UserData{uuid, username, permissions}, nil
+}
+
+func (man *AuthManager) AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		fmt.Println(r)
+
+		if r.URL.Path == "/userLogin" || r.URL.Path == "/api/userLogin" {
+			// Attempt to validate login
+			loginData := struct {
+				Username string `json:"username"`
+				Password string `json:"password"`
+			}{}
+
+			err := util.ReadJSONBody(r, &loginData)
+
+			if err != nil {
+				util.HTTPErrorHandler(w, r, err, "No login information provided", 500)
+				return
+			}
+
+			userData, err := man.ValidateCredentials(loginData.Username, loginData.Password)
+			if err != nil {
+				util.HTTPErrorHandler(w, r, err, "Invalid credentials provided", 400)
+				return
+			}
+
+			token, err := man.CreateSession(userData)
+			if err != nil {
+				util.HTTPErrorHandler(w, r, err, "Unable to create user session", 500)
+				return
+			}
+
+			http.SetCookie(w, &http.Cookie{
+				Name:    "overmacWeb",
+				Value:   token,
+				Expires: time.Now().Add(time.Duration(man.sessionLifetime) * time.Second),
+			})
+
+			fmt.Fprintf(w, "Successfully logged in")
+
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "userData", 1)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

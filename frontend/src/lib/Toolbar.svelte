@@ -3,6 +3,8 @@
 		<a href="/"><i class="fa-solid fa-house has-text-black icon-is-large"/></a>
 		<a href="/company" class="has-text-light"
 			style="font-weight: bold;">Company</a>
+		<a href="/login" class="has-text-light"
+				   style="font-weight: bold;">Login</a>
 	</div>
 	<h1 class="has-text-light" style="text-align: center;">overmac</h1>
 	<div style="flex-grow: 1;"></div>
