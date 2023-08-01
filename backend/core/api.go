@@ -13,17 +13,31 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
+func WrapRoute(core *Core, route func(http.ResponseWriter, *http.Request, *Core)) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		route(w, r, core)
+	}
+}
+
+func WrapMiddleware(core *Core, middleware func(http.Handler, *Core) http.Handler) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return middleware(next, core)
+	}
+}
+
 func (core *Core) InitializeCoreRouter() {
 	core.router.Use(middleware.RequestID)
 	core.router.Use(middleware.RealIP)
 	core.router.Use(middleware.Logger)
-	core.router.Use(core.authManager.AuthMiddleware)
+	core.router.Use(WrapMiddleware(core, AuthMiddleware))
 
 	core.router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		// Return svelte index file
+		// Right now just shows a debug result
 		fmt.Fprintf(w, "Overmac")
 	})
 
+	// ========== Swagger section for API documentation ==========
 	core.router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger.json"), //The url pointing to API definition
 	))
@@ -37,31 +51,29 @@ func (core *Core) InitializeCoreRouter() {
 
 		w.Write(b)
 	})
+	// ========== END Swagger section for API documentation ==========
 
-	core.router.Mount("/api", apiRouter())
-}
+	core.router.Mount("/api", func() *chi.Mux {
+		r := chi.NewRouter()
 
-func apiRouter() http.Handler {
-	r := chi.NewRouter()
-
-	r.Route("/userLogin", func(r chi.Router) {
 		// Fake route to prevent 404
+		r.Post("/userLogin", WrapRoute(core, LoginHandler))
 
-	})
+		// Financials sub-route
+		// All company data will be accessed through this route
+		r.Route("/financials", func(r chi.Router) {
+			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprintf(w, "Financials API")
+			})
 
-	// Financials sub-route
-	r.Route("/financials", func(r chi.Router) {
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Financials API")
+			r.Get("/allForms/{ticker}", allFormsHandler)
 		})
 
-		r.Get("/allForms/{ticker}", allFormsHandler)
-	})
+		// autocomplete route
+		r.Get("/tickerAutocomplete", autocompleteAssetHandler)
 
-	// autocomplete route
-	r.Get("/tickerAutocomplete", autocompleteAssetHandler)
-
-	return r
+		return r
+	}())
 }
 
 // @Description JSON-like structure of data from a financial document

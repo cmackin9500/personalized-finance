@@ -1,11 +1,8 @@
 package ovmauth
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
-	"net/http"
-	"overmac/webcore/util"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,7 +16,7 @@ type AuthManagerConfig struct {
 }
 
 type AuthManager struct {
-	sessionLifetime int64
+	SessionLifetime int64
 	userDB          *sql.DB
 }
 
@@ -41,12 +38,12 @@ func CreateAuthManager(conf AuthManagerConfig) (*AuthManager, error) {
 	}
 
 	man := &AuthManager{
-		sessionLifetime: conf.SessionLifetime,
+		SessionLifetime: conf.SessionLifetime,
 		userDB:          db,
 	}
 
 	//TODO: REMOVE THIS AS IT IS ONLY FOR TESTING
-	man.CreateUser("daddy", "dwayne", 0)
+	man.CreateUser("daddy", "dwayne", 0, "dwayne@overmac.com", true)
 
 	return man, nil
 }
@@ -56,7 +53,10 @@ func prepareUserDB(db *sql.DB) error {
 		uuid text,
 		username text, 
 		hash blob,
-		permissions int
+		permissions int,
+		email text,
+		verified bool,
+		paypal_id text
 	);
 
 	CREATE TABLE IF NOT EXISTS sessions(
@@ -66,6 +66,13 @@ func prepareUserDB(db *sql.DB) error {
 		permissions int,
 		creation_time int
 	);
+
+	CREATE TABLE IF NOT EXISTS verification(
+		token text,
+		creation_time int,
+		uuid text
+	);
+
 	CREATE TRIGGER IF NOT EXISTS raise_error_if_field_exists
 	BEFORE INSERT ON users
 	BEGIN
@@ -82,22 +89,22 @@ func prepareUserDB(db *sql.DB) error {
 	return err
 }
 
-func (man *AuthManager) CreateUser(username string, password string, permissions uint) error {
+func (man *AuthManager) CreateUser(username string, password string, permissions uint, email string, verified bool) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	uuid := uuid.NewString()
 
-	_, err = man.userDB.Exec(`INSERT INTO users VALUES(?, ?, ?, ?)`,
-		uuid, username, hash, permissions, username)
+	_, err = man.userDB.Exec(`INSERT INTO users VALUES(?, ?, ?, ?, ?, ?, ?)`,
+		uuid, username, hash, permissions, email, verified, true, "")
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return uuid, nil
 }
 
 func (man *AuthManager) DeleteUser(uuid string) error {
@@ -111,10 +118,16 @@ func (man *AuthManager) ValidateCredentials(username string, password string) (U
 	var uuid string
 	var hash []byte
 	var permissions uint
+	var email string
+	var verified bool
+	var paypal string
 
 	row := man.userDB.QueryRow("SELECT * FROM users WHERE username=?", username)
 
-	err := row.Scan(&uuid, &username, &hash, &permissions)
+	err := row.Scan(&uuid, &username, &hash, &permissions, &email, &verified, &paypal)
+	if err != nil {
+		return err
+	}
 
 	res := bcrypt.CompareHashAndPassword(hash, []byte(password))
 	if res != nil {
@@ -151,7 +164,7 @@ func (man *AuthManager) ValidateSession(token string) (UserData, error) {
 		return UserData{}, err
 	}
 
-	if time.Now().Unix()-creationTime > man.sessionLifetime {
+	if time.Now().Unix()-creationTime > man.SessionLifetime {
 		// Delete session from database
 		man.userDB.Exec("DELETE FROM sessions WHERE session_id=?", token)
 
@@ -161,50 +174,41 @@ func (man *AuthManager) ValidateSession(token string) (UserData, error) {
 	return UserData{uuid, username, permissions}, nil
 }
 
-func (man *AuthManager) AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func (man *AuthManager) CreateVerificationEntry(userUUID string) (string, error) {
+	row := man.userDB.QueryRow("SELECT verification FROM users WHERE uuid=?", userUUID)
 
-		fmt.Println(r)
+	var isVerified bool
+	err := row.Scan(&isVerified)
+	if err != nil {
+		return "", err
+	}
 
-		if r.URL.Path == "/userLogin" || r.URL.Path == "/api/userLogin" {
-			// Attempt to validate login
-			loginData := struct {
-				Username string `json:"username"`
-				Password string `json:"password"`
-			}{}
+	// User is already verified
+	if isVerified {
+		return "", fmt.Errorf("Email is already verified")
+	}
 
-			err := util.ReadJSONBody(r, &loginData)
+	token := uuid.NewString()
+	time := time.Now().Unix()
 
-			if err != nil {
-				util.HTTPErrorHandler(w, r, err, "No login information provided", 500)
-				return
-			}
+	_, err = man.userDB.Exec("INSERT INTO verification VALUES(?, ?, ?)", token, time, userUUID)
 
-			userData, err := man.ValidateCredentials(loginData.Username, loginData.Password)
-			if err != nil {
-				util.HTTPErrorHandler(w, r, err, "Invalid credentials provided", 400)
-				return
-			}
+	return token, err
+}
 
-			token, err := man.CreateSession(userData)
-			if err != nil {
-				util.HTTPErrorHandler(w, r, err, "Unable to create user session", 500)
-				return
-			}
+func (man *AuthManager) ValidateVerification(token string) error {
+	row := man.userDB.QueryRow("SELECT * FROM verification WHERE token=?", token)
 
-			http.SetCookie(w, &http.Cookie{
-				Name:    "overmacWeb",
-				Value:   token,
-				Expires: time.Now().Add(time.Duration(man.sessionLifetime) * time.Second),
-			})
+	var dbToken string
+	var creationTime int
+	var userUUID string
 
-			fmt.Fprintf(w, "Successfully logged in")
+	err := row.Scan(&dbToken, &creationTime, &userUUID)
+	if err != nil {
+		return err
+	}
 
-			return
-		}
+	_, err = man.userDB.Exec("DELETE * FROM verification WHERE token=?", token)
 
-		ctx := context.WithValue(r.Context(), "userData", 1)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+	return err
 }

@@ -8,13 +8,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// @title Overmac API
-// @BasePath /api
-
 type Core struct {
-	port        int
-	router      *chi.Mux
-	authManager *ovmauth.AuthManager
+	port    int
+	router  *chi.Mux
+	authMan *ovmauth.AuthManager
 }
 
 func CreateCore(port int) *Core {

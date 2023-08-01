@@ -84,7 +84,13 @@
 		}
 
 		const layout = {
-			autosize: true
+			autosize: true,
+			margin: {
+				l: 0,
+				r: 0,
+				t: 0,
+				b: 0
+			}
 		};
 
 		Plotly.newPlot(financialPlot,
@@ -116,7 +122,13 @@
 
 	onMount(async () => {
 		const layout = {
-			autosize: true
+			autosize: true,
+			margin: {
+				l: 0,
+				r: 0,
+				t: 0,
+				b: 0
+			}
 		};
 		Plotly.newPlot(financialPlot, {}, layout);
 	})
