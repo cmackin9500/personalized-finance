@@ -149,8 +149,18 @@
 
 	<br>
 
-	<div id="table-wrapper" bind:this={tableWrapperElem}>
-		<table class="table" style="width: 100%">
+	<div id="table-wrapper" bind:this={tableWrapperElem} style="display: flex; flex-direction: row; width: 100%;">
+		<div style="flex-grow: 1;">EQUATION EDITING
+			<button class="button">ASDASD</button>
+			<button class="button">ASDASD</button>
+			<button class="button">ASDASD</button>
+			<button class="button">ASDASD</button>
+			<button class="button">ASDASD</button>
+			<button class="button">ASDASD</button>
+			<input class="input"/>
+		</div>
+
+		<table class="table" style="width: 50%">
 			<thead>
 				<tr style="position: sticky; top: 0; z-index: 101; background-color: #e8e8e8">
 					<th style="flex-grow: 1;">

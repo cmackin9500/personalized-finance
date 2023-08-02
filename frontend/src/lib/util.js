@@ -3,7 +3,7 @@ export function JSONGetRequest(url) {
 		.then(async res => {
 			if (res.status < 200 || res.status >= 400) {
 				const content = await res.json();
-				throw new Error(res, { cause: content } );
+				throw new Error(res, { cause: content.msg } );
 			}
 
 			return res.json();
@@ -21,7 +21,7 @@ export function JSONPostRequest(url, body) {
 		.then(async res => {
 			if (res.status < 200 || res.status >= 400) {
 				const content = await res.json();
-				throw new Error(res, { cause: content } );
+				throw new Error(res, { cause: content.msg } );
 			}
 
 			return res.json();

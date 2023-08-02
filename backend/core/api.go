@@ -56,8 +56,10 @@ func (core *Core) InitializeCoreRouter() {
 	core.router.Mount("/api", func() *chi.Mux {
 		r := chi.NewRouter()
 
-		// Fake route to prevent 404
 		r.Post("/userLogin", WrapRoute(core, LoginHandler))
+		r.Post("/registerUser", WrapRoute(core, CreateUserHandler))
+		r.Post("/sendEmailVerification", WrapRoute(core, SendEmailVerificationHandler))
+		r.Get("/verifyEmail", WrapRoute(core, VerifyEmailHandler))
 
 		// Financials sub-route
 		// All company data will be accessed through this route

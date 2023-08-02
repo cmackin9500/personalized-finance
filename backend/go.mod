@@ -26,6 +26,7 @@ require (
 	github.com/swaggo/http-swagger/v2 v2.0.1 // indirect
 	github.com/swaggo/swag v1.16.1 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
+	golang.org/x/exp v0.0.0-20230801115018-d63ba01acd4b // indirect
 	golang.org/x/net v0.11.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect

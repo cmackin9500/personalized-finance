@@ -126,7 +126,7 @@ func (man *AuthManager) ValidateCredentials(username string, password string) (U
 
 	err := row.Scan(&uuid, &username, &hash, &permissions, &email, &verified, &paypal)
 	if err != nil {
-		return err
+		return UserData{}, err
 	}
 
 	res := bcrypt.CompareHashAndPassword(hash, []byte(password))
@@ -175,7 +175,7 @@ func (man *AuthManager) ValidateSession(token string) (UserData, error) {
 }
 
 func (man *AuthManager) CreateVerificationEntry(userUUID string) (string, error) {
-	row := man.userDB.QueryRow("SELECT verification FROM users WHERE uuid=?", userUUID)
+	row := man.userDB.QueryRow("SELECT verified FROM users WHERE uuid=?", userUUID)
 
 	var isVerified bool
 	err := row.Scan(&isVerified)
@@ -208,7 +208,9 @@ func (man *AuthManager) ValidateVerification(token string) error {
 		return err
 	}
 
-	_, err = man.userDB.Exec("DELETE * FROM verification WHERE token=?", token)
+	_, err = man.userDB.Exec("DELETE FROM verification WHERE token=?", token)
+
+	_, err = man.userDB.Exec("UPDATE users SET verified = true WHERE uuid=?", userUUID)
 
 	return err
 }

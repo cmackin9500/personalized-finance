@@ -1,3 +1,12 @@
+<script>
+	import { browser } from "$app/environment";
+
+	if (browser) {
+		console.log(document.cookie);
+	}
+
+</script>
+
 <div id="wrapper" class="has-background-primary-dark">
 	<div style="flex-grow: 1;">
 		<a href="/"><i class="fa-solid fa-house has-text-black icon-is-large"/></a>
@@ -5,9 +14,15 @@
 			style="font-weight: bold;">Company</a>
 		<a href="/login" class="has-text-light"
 				   style="font-weight: bold;">Login</a>
+		<a href="/register" class="has-text-light"
+			style="font-weight: bold">Register</a>
 	</div>
 	<h1 class="has-text-light" style="text-align: center;">overmac</h1>
 	<div style="flex-grow: 1;"></div>
+
+	<div style="padding-right: 0.5rem;">
+		<a href="/account" class="has-text-light">Account</a>
+	</div>
 </div>
 
 <style>
