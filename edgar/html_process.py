@@ -68,7 +68,7 @@ def unmatched_fields_in_table(html_table:list, fs_fields:list) -> list:
 	return list((set(fs_fields)-set(already_matched_fields)))
 
 # Combines the tables if we deem that the the table is split into two separate tables (e.g. Citi)
-def combine_tables(all_tables: list, fs_fields:list) -> list:
+def derived_fs_table(all_tables: list, fs_fields:list) -> list:
 	index1, percentage1 = get_best_macth_table(all_tables,fs_fields)
 	index2, percentage2 = None, None
 	table = all_tables[index1]
@@ -84,6 +84,7 @@ def combine_tables(all_tables: list, fs_fields:list) -> list:
 					table = all_tables[index2] + all_tables[index1]
 				else:
 					table = all_tables[index1] + all_tables[index2]
+	assert table != [], "The financial statement table dervived is empty."
 	return table
 
 def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts):
@@ -91,6 +92,9 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts):
 		html_fact = html_facts[0]
 		tag = html_fact.tag
 
+		# This line is important since for BAC, there was a tag that did not belong to the table. It was overriding the fs_fields bc of this.
+		# This is addressed in #30
+		if tag not in fs_fields: continue
 		if fs_fields[tag].val is None:
 			fs_fields[tag].val = [html_fact.val]
 		else:
@@ -102,7 +106,8 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts):
 			fs_fields[tag].text = [html_fact.text]	
 		else:
 			fs_fields[tag].text.append(html_fact.text)
-
+	
+	if fs_fields == {}: print("yo")
 	return fs_fields
 
 def assign_child_to_XBRLNode(fs_fields):
@@ -157,13 +162,10 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 	cfiles = read_forms_from_dir(directory)
 
 	fs_fields = get_fs_fields(ticker,form_type,fs,cfiles)
-
 	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
-
-	inx, per = get_best_macth_table(all_tables, fs_fields)
 	
-	com = combine_tables(all_tables, fs_fields)
-	fs_fields = assign_HTMLFact_to_XBRLNode(fs_fields, com)
+	fs_table_from_html = derived_fs_table(all_tables, fs_fields)
+	fs_fields = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html)
 	fs_fields = assign_child_to_XBRLNode(fs_fields)
 
 	fs_json = {}
@@ -194,21 +196,23 @@ if __name__ == '__main__':
 
 	CIK = edgar.get_company_CIK(ticker)
 	forms = edgar.get_forms_of_type_xbrl(CIK, form_type, True)
-	edgar.save_all_forms(ticker, form_type, forms)
+#	edgar.save_all_forms(ticker, form_type, forms)
 
 	directory = find_latest_form_dir(ticker,form_type)
 	date = directory.split('/')[-1]
-	ticker_to_json({},ticker,form_type,fs,date)
+	#ticker_to_json({},ticker,form_type,fs,date)
 
 
 	directory = find_all_form_dir(ticker,form_type)
 	for date in directory:
 		if date == '.DS_Store': continue
-		try:
-			ticker_to_json({}, ticker, form_type, fs, date)
-			print(f"Parsed for {date}.")
-		except:
-			print(f"Failed to parse for {date}.")
+		if date == '2021-12-31':
+			print(f"Attempting to parse for {date}")
+			try:
+				ticker_to_json({}, ticker, form_type, fs, date)
+				print(f"Parsed for {date}.")
+			except:
+				print(f"Failed to parse for {date}.")
 
 '''
 	directory = find_latest_form_dir(ticker,form_type)

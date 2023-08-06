@@ -58,17 +58,9 @@ def get_URI(file_xsd:str) -> list:
 	for e in roleType:
 		if 'Statement' in e.get_text():
 			statement_roleURI.append(e.get('roleuri'))
-	return statement_roleURI
 
-def URI_from_statement(roleURI:str, statement:str) -> str:
-	for uri in roleURI:
-		if any(s in uri.lower() for s in skip):
-			continue
-		if any(b in uri.lower() for b in BS):
-			return uri
-	for uri in roleURI:
-		if any(b in uri.lower() for b in BS):
-			return uri
+	assert statement_roleURI != [], "statement roleURI not found"
+	return statement_roleURI
 
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
 def statement_URI(statement_roleURI:list, statement:str) -> str:
@@ -108,6 +100,8 @@ def statement_URI(statement_roleURI:list, statement:str) -> str:
 	for uri in statement_roleURI:
 		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
+	
+	assert False, f"{terms[statement]} not found."
 
 # loops throught the string that is split into multiple sections. It will only pick up the tag
 def get_tag(ticker:str, full_tag:str) -> str:
@@ -307,7 +301,7 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 	return fs_fields
 
 def get_fs_fields(ticker:str, form_type, fs, cfiles):
-	statement_roleURI = get_URI(cfiles.xsd)
+	statement_roleURI = get_URI(cfiles.xsd)	
 	fs_URI = statement_URI(statement_roleURI, fs)
 	fs_fields = {}
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields)
@@ -318,6 +312,7 @@ def get_fs_fields(ticker:str, form_type, fs, cfiles):
 		cal_data_again(ticker, cfiles.cal, fs_URI, fs, fs_fields, no_parent_tags)
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields, True)
 
+	assert fs_fields != {}, "fs_fields is empty"
 	return fs_fields
 
 

@@ -132,6 +132,8 @@ def html_to_facts(html,htm_xml,fs_fields):
 			continue
 		
 		all_facts.append(new_facts)
+	
+	assert all_facts != [], "all_facts is empty."
 	return all_facts
 
 	
