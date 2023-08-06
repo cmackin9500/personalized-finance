@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import bs4
 import sys
 from dataclasses import dataclass
+from typing import List
 
 from util import file_management as fm
 
@@ -10,10 +11,10 @@ from util import file_management as fm
 class HTMLFact:
 	tag: str
 	parent: str
-	children: list()
-	val: float
+	children: list
+	val: List[float]
 	date: str
-	text: str
+	text: List[str]
 
 	def __iter__(self):
 		yield "tag", self.tag

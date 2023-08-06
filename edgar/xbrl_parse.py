@@ -2,6 +2,7 @@ import os
 from bs4 import BeautifulSoup
 import sys
 from dataclasses import dataclass
+from typing import List
 
 from files import read_forms_from_dir, find_latest_form_dir
 
@@ -9,13 +10,13 @@ from files import read_forms_from_dir, find_latest_form_dir
 class XBRLNode:
 	tag: str
 	parent: str
-	children: list
-	val: float
+	children: List[str]
+	val: List[float]
 	weight: float
 	order: float
 	date: str
-	text: str
-	lineup: int
+	text: List[str]
+	lineup: List[int]
 
 	def	__init__(self,tag=None,parent=None,children=[],weight=1):
 		self.tag = tag

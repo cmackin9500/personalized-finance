@@ -91,10 +91,18 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts):
 		html_fact = html_facts[0]
 		tag = html_fact.tag
 
-		fs_fields[tag].val = html_fact.val
+		if fs_fields[tag].val is None:
+			fs_fields[tag].val = [html_fact.val]
+		else:
+			fs_fields[tag].val.append(html_fact.val)
+
 		fs_fields[tag].date = html_fact.date
-		fs_fields[tag].text = html_fact.text
-	
+
+		if fs_fields[tag].text is None:
+			fs_fields[tag].text = [html_fact.text]	
+		else:
+			fs_fields[tag].text.append(html_fact.text)
+
 	return fs_fields
 
 def assign_child_to_XBRLNode(fs_fields):
