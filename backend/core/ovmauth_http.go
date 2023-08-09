@@ -76,9 +76,20 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, core *Core) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "overmacWeb",
-		Value:   token,
-		Expires: time.Now().Add(time.Duration(core.authMan.SessionLifetime) * time.Second),
+		Name:     "overmacWeb",
+		Value:    token,
+		Expires:  time.Now().Add(time.Duration(core.authMan.SessionLifetime) * time.Second),
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "overmacWebDummy",
+		Value:    "isLoggedIn",
+		Path:     "/",
+		Expires:  time.Now().Add(time.Duration(core.authMan.SessionLifetime) * time.Second),
+		HttpOnly: false,
+		SameSite: http.SameSiteStrictMode,
 	})
 
 	fmt.Fprintf(w, `{"msg": "Successfully logged in"}`)

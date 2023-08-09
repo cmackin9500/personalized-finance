@@ -1,23 +1,9 @@
 <script>
 	import { onMount } from "svelte";
+	import { Chart } from "chart.js/auto";
 
 	export let selectedCompany = "";
 	let marketPricePlot = undefined;
-
-	const bsValues = [
-		["Market price", 234],
-		["Market price", 234],
-		["Market price", 234],
-		["Market price", 234],
-		["Market price", 234],
-		["Market price", 234],
-		["Market price", 2340],
-		["Market price", -234],
-		["Market price", 2304],
-		["Market price", 2304],
-		["Market price", 2034],
-		["Market price", 20034],
-	]
 
 	const marketTimes = [
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9
@@ -29,60 +15,27 @@
 
 
 	onMount(async () => {
-		Plotly.newPlot(marketPricePlot, [{
-			x: marketTimes,
-			y: marketPrices,
-		}], {
-			title: "Market Prices",
-			xaxis: {
-				title: "Time (some units)"
-			},
-			yaxis: {
-				title: "Price ($/share)"
-			},
-		}, {
-			responsive: true
-		})
+		console.log(marketPricePlot);
+		const newChart =  new Chart(document.getElementById("plotdiv"), {
+			type: "line",
+			data: {
+				labels: marketTimes,
+				datasets: [
+					{
+						label: "Market Price",
+						data: marketPrices
+					}
+				]
+			}
+		});
 	})
 </script>
 
 <br>
 <div class="card">
 	<div class="columns">
-		<div class="column" style="padding: 1rem;
-			display:flex; justify-content: center;">
-			<table class="table">
-				<tbody>
-					{#each bsValues as val, i}
-						{#if i % 2 === 0}
-							<tr>
-								<td>{val[0]}</td>
-								<td>{val[1]}</td>
-								<td>{bsValues[i+1][0]}</td>
-								<td>{bsValues[i+1][1]}</td>
-							</tr>
-						{/if}
-					{/each}
-
-					<tr>
-						<td>Market Value</td>
-						<td>230</td>
-						<td>Some</td>
-						<td>123</td>
-					</tr>
-
-					<tr>
-						<td>Market Value</td>
-						<td>230</td>
-						<td>Some</td>
-						<td>123,000</td>
-					<tr>
-				</tbody>
-			</table>
-		</div>
-
 		<div class="column" style="padding: 1rem;"> 
-			<div bind:this={marketPricePlot} style="width: 100%;"></div>
+			<canvas id="plotdiv" bind:this={marketPricePlot} style="width: 100%;"></canvas>
 		</div>
 	</div>
 </div>

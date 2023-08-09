@@ -21,6 +21,7 @@
 	"type": "module",
 	"dependencies": {
 		"@sveltejs/adapter-static": "^2.0.3",
+		"chart.js": "^4.3.3",
 		"svelte-multicssclass": "^2.1.1"
 	}
 }

@@ -4,10 +4,19 @@
 
 	let username = "";
 	let password = "";
+	let error = null;
 
 	function loginHandler(event) {
 		event.preventDefault();
 		JSONPostRequest("/api/userLogin", {username, password})
+			.then(data => {
+				window.location.replace("/")	
+				error = null;
+			})
+			.catch(err => {
+				console.error(err);
+				error = err;
+			})
 	}
 </script>
 
@@ -25,4 +34,8 @@
 
 		<button>Login</button>
 	</form>
+
+	{#if error}
+		<p>{error.cause}</p>
+	{/if}
 </div>

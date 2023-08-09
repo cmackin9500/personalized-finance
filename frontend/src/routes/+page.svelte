@@ -1,9 +1,43 @@
 <script>
 	import EqEditor from "$lib/EqEditor.svelte";
 	import Toolbar from "$lib/Toolbar.svelte";
+	import CompanySearch from "$lib/CompanySearch.svelte";
 </script>
 
 <Toolbar/>
+
+<div id="search-banner">
+	<CompanySearch/>
+</div>
+
+<div id="about-container">
+	<div id="about-content" class="container" style="background-color: #ffffff; padding: 1rem; margin-top: 1rem;">
+		<div style="width: 100%; height: display: flex; text-align: center; justify-content: center; font-size: 2rem;">Welcome to Overmac</div>
+		<br>
+		<br>
+
+		<div style="width: 100%; height: display: flex; text-align: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">Transparent Financial Data & Analysis</div>
+		<br>
+		<div style="width: 100%; display: flex; justify-content: center; font-size: 1rem;"> 
+			<div style="display: flex; max-width: 60ch;">
+				We provide easy-to-access financial data for publicly-traded companies and show exactly how each of our financial indicators are derived (NAV, EPV, etc.).
+			</div>
+		</div>
+
+		<br>
+
+		<div style="width: 100%; height: display: flex; text-align: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">Integrated Model Creation</div>
+		<br>
+		<div style="width: 100%; display: flex; justify-content: center; font-size: 1rem;"> 
+			<div style="display: flex; max-width: 60ch;">
+				We provide an integrated model creator that allows users to create various expressions for financial indicators. Models are applied to every collected financial filing (10-K, 10-Q) allowing users to quickly understand trends within a company's financial development and immediately be able to apply these models to newly released financial data.
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
 <div id="page-content" class="has-background-light">
 	<br>
 
@@ -42,7 +76,21 @@
 
 </div>
 
+
+
 <style>
+	#search-banner {
+		display: flex;
+		align-items: center;
+		padding: 1rem;
+		height: 30vh;
+		background-image: linear-gradient(to bottom right, blue, cyan);
+	}
+
+	#about-container {
+		background-color: #f3f3f3;
+	}
+
 	#page-content > * {
 		margin-top:0.5rem;
 	}

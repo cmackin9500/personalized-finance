@@ -1,8 +1,10 @@
 <script>
 	import { onMount } from "svelte";
 	import { companyForms, companyFormsFlat } from "$lib/financialsStore.js";
+	import { Chart } from "chart.js/auto";
 
 	let financialPlot;
+	let chartInstance;
 
 	let companyData = {};
 	let companyDataFlat = {};
@@ -78,10 +80,22 @@
 		for (const k of keys) {
 			const data = convertFlattenedToTrace(k, companyDataFlat[k])
 			if (normalizePlotData) {
-				data.y = data.y.map(y => y / Math.max(...data.y));
+				let max = 1;
+				for (const elem of data.data) {
+					if (elem.y > max) max = elem.y;
+				}
+
+				data.data = data.data.map(elem => {
+					return {
+						x: elem.x,
+						y: elem.y / max,
+					}
+				})
 			}
 			datasets.push(data);
 		}
+
+		console.log(datasets);
 
 		const layout = {
 			autosize: true,
@@ -93,6 +107,17 @@
 			}
 		};
 
+		chartInstance.destroy();
+
+
+		chartInstance = new Chart(financialPlot, {
+			type: "line",
+			data: {
+				datasets: datasets,	
+			}
+		})
+
+		
 		Plotly.newPlot(financialPlot,
 			datasets, layout);
 	}
@@ -100,18 +125,16 @@
 	function convertFlattenedToTrace(name, flattened) {
 		const traces = [];
 		const x = Object.keys(flattened).sort();
+
+		let data = [];
 		
-		let y = [];
 		for (const k of x) {
-			y.push(flattened[k]);
+			data.push({x: k, y: flattened[k]})
 		}
 
-		console.log(y);
-
 		return {
-			x: x,
-			y: y,
-			name: name
+			label: name,
+			data: data
 		};
 	}
 
@@ -121,16 +144,9 @@
 	}
 
 	onMount(async () => {
-		const layout = {
-			autosize: true,
-			margin: {
-				l: 0,
-				r: 0,
-				t: 0,
-				b: 0
-			}
-		};
-		Plotly.newPlot(financialPlot, {}, layout);
+		chartInstance = new Chart(financialPlot, {
+			type: "line"
+		});
 	})
 </script>
 
@@ -144,7 +160,9 @@
 		<p class="subtitle-5" style="padding-right: 0.5rem;">Normalize</p>
 	</div>
 
-	<div id="financial-plot" bind:this={financialPlot}>
+	<div>
+		<canvas id="financial-plot" bind:this={financialPlot}>
+		</canvas>
 	</div>
 
 	<br>
