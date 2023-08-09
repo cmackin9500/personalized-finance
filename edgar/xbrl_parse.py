@@ -115,9 +115,23 @@ def get_tag(ticker:str, full_tag:str) -> str:
 		elif split[i][:7] == 'us-gaap':
 			tag = 'us-gaap:'+[i][7:]
 			break
-		elif split[i][:len(ticker)] == ticker:
-			tag = ticker+':'+split[i][len(ticker):]
+		
+		# I am commenting this but I feel like I added this for a reason. Maybe it is worth researching this.
+		# Or create another issue that will address this. For ones using a custom tag that is not its ticker, we will have to find that out first.
+		#elif split[i][:len(ticker)] == ticker:
+		#	tag = ticker+':'+split[i][len(ticker):]
+		#	break
+
+	# Worst case scenario when we can't parse to get the tag, we will go from back and get the first split[i] that does not contain a number
+	# and assume that it is the tag
+	if tag is None:
+		for i in range(len(split)-1,-1,-1):
+			if any(char.isdigit() for char in split[i]):
+				continue
+			tag = f"{split[i-1]}:{split[i]}"
 			break
+	
+	assert tag is not None, "Could not parse tag. Look into it as it has a wierd way of presenting."
 	return tag
 
 # Given the file and the the tags to find, it will find all of the tags we want

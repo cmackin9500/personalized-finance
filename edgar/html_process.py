@@ -106,9 +106,7 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts):
 			fs_fields[tag].text = [html_fact.text]	
 		else:
 			fs_fields[tag].text.append(html_fact.text)
-	
-	if fs_fields == {}: print("yo")
-	return fs_fields
+		return fs_fields
 
 def assign_child_to_XBRLNode(fs_fields):
 	tag_child = {}
@@ -206,13 +204,11 @@ if __name__ == '__main__':
 	directory = find_all_form_dir(ticker,form_type)
 	for date in directory:
 		if date == '.DS_Store': continue
-		if date == '2021-12-31':
-			print(f"Attempting to parse for {date}")
-			try:
-				ticker_to_json({}, ticker, form_type, fs, date)
-				print(f"Parsed for {date}.")
-			except:
-				print(f"Failed to parse for {date}.")
+		try:
+			ticker_to_json({}, ticker, form_type, fs, date)
+			print(f"Parsed for {date}.")
+		except:
+			print(f"Failed to parse for {date}.")
 
 '''
 	directory = find_latest_form_dir(ticker,form_type)
