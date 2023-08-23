@@ -15,7 +15,7 @@
 	let selectedCompany = ""
 
 	$: {
-		dataNormal = data;
+		dataNormal = data.finances;
 		dataFlat = recursiveFlattenTop(dataNormal);
 
 		companyForms.update(old => dataNormal);
@@ -54,6 +54,10 @@
 <div id="search-banner">
 	<CompanySearch/>
 </div>
+<div>
+	<h1 style="font-size: 10rem; font-weight: bold;">{data.ticker}</h1>
+</div>
+<br>
 
 <div id="wrapper">
 

@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
 	CIK = edgar.get_company_CIK(ticker)
 	forms = edgar.get_forms_of_type_xbrl(CIK, form_type, True)
-#	edgar.save_all_forms(ticker, form_type, forms)
+	edgar.save_all_forms(ticker, form_type, forms)
 
 	directory = find_latest_form_dir(ticker,form_type)
 	date = directory.split('/')[-1]
