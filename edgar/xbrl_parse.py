@@ -2,6 +2,7 @@ import os
 from bs4 import BeautifulSoup
 import sys
 from dataclasses import dataclass
+from typing import List
 
 from files import read_forms_from_dir, find_latest_form_dir
 
@@ -9,13 +10,13 @@ from files import read_forms_from_dir, find_latest_form_dir
 class XBRLNode:
 	tag: str
 	parent: str
-	children: list
-	val: float
+	children: List[str]
+	val: List[float]
 	weight: float
 	order: float
 	date: str
-	text: str
-	lineup: int
+	text: List[str]
+	lineup: List[int]
 
 	def	__init__(self,tag=None,parent=None,children=[],weight=1):
 		self.tag = tag
@@ -57,17 +58,9 @@ def get_URI(file_xsd:str) -> list:
 	for e in roleType:
 		if 'Statement' in e.get_text():
 			statement_roleURI.append(e.get('roleuri'))
-	return statement_roleURI
 
-def URI_from_statement(roleURI:str, statement:str) -> str:
-	for uri in roleURI:
-		if any(s in uri.lower() for s in skip):
-			continue
-		if any(b in uri.lower() for b in BS):
-			return uri
-	for uri in roleURI:
-		if any(b in uri.lower() for b in BS):
-			return uri
+	assert statement_roleURI != [], "statement roleURI not found"
+	return statement_roleURI
 
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
 def statement_URI(statement_roleURI:list, statement:str) -> str:
@@ -107,6 +100,8 @@ def statement_URI(statement_roleURI:list, statement:str) -> str:
 	for uri in statement_roleURI:
 		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
+	
+	assert False, f"{terms[statement]} not found."
 
 # loops throught the string that is split into multiple sections. It will only pick up the tag
 def get_tag(ticker:str, full_tag:str) -> str:
@@ -120,9 +115,25 @@ def get_tag(ticker:str, full_tag:str) -> str:
 		elif split[i][:7] == 'us-gaap':
 			tag = 'us-gaap:'+[i][7:]
 			break
-		elif split[i][:len(ticker)] == ticker:
-			tag = ticker+':'+split[i][len(ticker):]
+		
+		# I am commenting this but I feel like I added this for a reason. Maybe it is worth researching this.
+		# Or create another issue that will address this. For ones using a custom tag that is not its ticker, we will have to find that out first.
+		#elif split[i][:len(ticker)] == ticker:
+		#	tag = ticker+':'+split[i][len(ticker):]
+		#	break
+
+	# Worst case scenario when we can't parse to get the tag, we will go from back and get the first split[i] that does not contain a number
+	# and assume that it is the tag
+	if tag is None:
+		for i in range(len(split)-1,-1,-1):
+			if any(char.isdigit() for char in split[i]):
+				continue
+			tag = f"{split[i-1]}:{split[i]}"
 			break
+	
+	# Another way we can get the tag is find the index of us-gaap. As long as they are consistent, they will be good.
+
+	assert tag is not None, "Could not parse tag. Look into it as it has a wierd way of presenting."
 	return tag
 
 # Given the file and the the tags to find, it will find all of the tags we want
@@ -305,8 +316,8 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 
 	return fs_fields
 
-def get_fs_fields(ticker:str, form_type, fs, cfiles):
-	statement_roleURI = get_URI(cfiles.xsd)
+def get_fs_fields(ticker:str, fs, cfiles):
+	statement_roleURI = get_URI(cfiles.xsd)	
 	fs_URI = statement_URI(statement_roleURI, fs)
 	fs_fields = {}
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields)
@@ -317,6 +328,7 @@ def get_fs_fields(ticker:str, form_type, fs, cfiles):
 		cal_data_again(ticker, cfiles.cal, fs_URI, fs, fs_fields, no_parent_tags)
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields, True)
 
+	assert fs_fields != {}, "fs_fields is empty"
 	return fs_fields
 
 
@@ -328,7 +340,7 @@ if __name__ == "__main__":
 	cfiles = read_forms_from_dir(directory)
 
 	fs = 'bs'
-	fs_fields = get_fs_fields(ticker, form_type, fs, cfiles)
+	fs_fields = get_fs_fields(ticker, fs, cfiles)
 
 	for key in fs_fields:
 		print(fs_fields[key])

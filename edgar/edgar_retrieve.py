@@ -162,7 +162,7 @@ def save_form_data(ticker, form_type, date):
 
 	dest_dir = dest_dir_name(ticker, form_type, form)
 	if os.path.isdir(dest_dir):
-		print("The specified form data is already downloaded. Ignoring download")
+		print(f"Data for {ticker} {form_type} from {form.reportDate} is already downloaded. Ignoring download")
 		return dest_dir
 
 	re.mkdir_if_NE(dest_dir)
@@ -195,6 +195,9 @@ def save_data_from_index(ticker, CIK, form, form_type):
 	htm_xmlurl = create_htm_xml_url(CIK, form)
 
 	dest_dir = dest_dir_name(ticker, form_type, form)
+	if os.path.isdir(dest_dir):
+		print(f"Data for {ticker} {form_type} from {form.reportDate} is already downloaded. Ignoring download")
+		return dest_dir
 	re.mkdir_if_NE(dest_dir)
 
 	print(f"{ticker} {form_type}: {form.reportDate}")
