@@ -6,20 +6,30 @@ import (
 	"net/http"
 	"overmac/webcore/ovmauth"
 	"overmac/webcore/util"
+	"strings"
 	"time"
-
-	"golang.org/x/exp/slices"
 )
 
 var WHITELISTED_ROUTES []string = []string{
 	"/userlogin", "/api/userLogin",
 	"/api/registerUser",
 	"/api/verifyEmail",
+	"/api/financials/allForms",
+}
+
+func IsWhitelistedRoute(path string) bool {
+	for _, route := range WHITELISTED_ROUTES {
+		if strings.HasPrefix(path, route) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func AuthMiddleware(next http.Handler, core *Core) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if slices.Contains(WHITELISTED_ROUTES, r.URL.Path) {
+		if IsWhitelistedRoute(r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}

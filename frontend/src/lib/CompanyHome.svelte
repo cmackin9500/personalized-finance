@@ -5,6 +5,8 @@
 	export let selectedCompany = "";
 	let marketPricePlot = undefined;
 
+	let chartInstance;
+
 	const marketTimes = [
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 	];
@@ -16,7 +18,7 @@
 
 	onMount(async () => {
 		console.log(marketPricePlot);
-		const newChart =  new Chart(document.getElementById("plotdiv"), {
+		chartInstance =  new Chart(document.getElementById("plotdiv"), {
 			type: "line",
 			data: {
 				labels: marketTimes,

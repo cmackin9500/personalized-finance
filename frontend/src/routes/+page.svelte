@@ -70,7 +70,6 @@
 
 	<br>
 
-	<EqEditor/>
 	<br>
 
 

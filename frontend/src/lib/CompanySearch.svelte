@@ -8,23 +8,7 @@
 	let searchError = null;
 
 	function getCompanyData() {
-		selectedCompany = "";
-		JSONGetRequest(`/api/financials/allForms/${currentCompany}`)
-			.then(data => {
-				searchError = null;
-				companyForms.update(prev => {});
-				companyForms.update(prev => data);
-				const flat = recursiveFlattenTop(data);
-				companyFormsFlat.update(prev => {});
-				companyFormsFlat.update(prev => flat);
-				console.log(flat);
-				selectedCompany = currentCompany;
-			})
-			.catch(async err => {
-				selectedCompany = "";
-				console.log(err.cause);
-				searchError = err.cause;
-			}) 
+		window.location.href = `/company/${currentCompany}`;
 	}
 
 	function recursiveFlattenTop(data) {
@@ -52,12 +36,12 @@
 	}
 </script>
 
-<div class="container">
+<div id="search-container">
 	<div class="card"> 
 		<div id="search-bar" class="">
-			<form on:submit={getCompanyData}>
-				<label>Search:</label>
-				<input class="input" bind:value={currentCompany}/>
+			<form on:submit={getCompanyData} style="width: 100%">
+				<input id="search-input" class="input" bind:value={currentCompany} 
+					placeholder="Search"/>
 				<button style="display: none;"></button>
 			</form>
 		</div>
@@ -93,5 +77,17 @@
 		align-items: center;
 		font-weight: bold;
 		margin: 0.5rem;
+	}
+
+	#search-input {
+		max-width: 200ch;
+		min-width: 20ch;
+		width: 100%;
+	}
+
+	#search-container {
+		width: 100%;
+		display: flex;
+		justify-content: center;
 	}
 </style>

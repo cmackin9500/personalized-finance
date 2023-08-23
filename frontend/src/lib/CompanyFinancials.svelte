@@ -52,10 +52,16 @@
 		let keys = Object.keys(companyDataFlat);
 
 		let out = {}
-		for (const k of keys) {
-			out[k] = false;
+		for (const [i, k] of keys.entries()) {
+			if (k === "us-gaap:Assets") {
+				out[k] = true;
+			} else {
+				out[k] = false;
+			}
 		}
 
+
+		updatePlot();
 		return out;
 	}();
 
@@ -95,20 +101,8 @@
 			datasets.push(data);
 		}
 
-		console.log(datasets);
-
-		const layout = {
-			autosize: true,
-			margin: {
-				l: 0,
-				r: 0,
-				t: 0,
-				b: 0
-			}
-		};
-
+		// Clear prior data
 		chartInstance.destroy();
-
 
 		chartInstance = new Chart(financialPlot, {
 			type: "line",
@@ -116,10 +110,6 @@
 				datasets: datasets,	
 			}
 		})
-
-		
-		Plotly.newPlot(financialPlot,
-			datasets, layout);
 	}
 
 	function convertFlattenedToTrace(name, flattened) {
@@ -147,6 +137,8 @@
 		chartInstance = new Chart(financialPlot, {
 			type: "line"
 		});
+
+		updatePlot();
 	})
 </script>
 
@@ -160,71 +152,68 @@
 		<p class="subtitle-5" style="padding-right: 0.5rem;">Normalize</p>
 	</div>
 
-	<div>
-		<canvas id="financial-plot" bind:this={financialPlot}>
+	<div id="financial-plot">
+		<canvas bind:this={financialPlot} style="width: 100%;">
 		</canvas>
 	</div>
 
 	<br>
 
-	<div id="table-wrapper" bind:this={tableWrapperElem} style="display: flex; flex-direction: row; width: 100%;">
-		<div style="flex-grow: 1;">EQUATION EDITING
-			<button class="button">ASDASD</button>
-			<button class="button">ASDASD</button>
-			<button class="button">ASDASD</button>
-			<button class="button">ASDASD</button>
-			<button class="button">ASDASD</button>
-			<button class="button">ASDASD</button>
-			<input class="input"/>
-		</div>
+	<div bind:this={tableWrapperElem} style="display: flex; flex-direction: row; width: 100%; flex-wrap: wrap; padding: 1rem;">
+		<div style="width: 100%; height: 40vh; overflow-x: auto; min-width: 40ch;">
+			<table style="width: 100%;">
+				<thead>
+					<tr style="position: sticky; top: 0; left:0 ; z-index: 101; background-color: #ffffff; border-bottom: solid black 2px;">
+						<th style="flex-grow: 1;">
+							<div style="flex-grow: 1;">
+								Field
+							</div>
 
-		<table class="table" style="width: 50%">
-			<thead>
-				<tr style="position: sticky; top: 0; z-index: 101; background-color: #e8e8e8">
-					<th style="flex-grow: 1;">
-						<div style="flex-grow: 1;">
-							Field
-						</div>
+							<div style="min-width: 10ch; text-align: center; text-align: center;">Plot</div>
+						</th>
+						{#each Object.keys(companyData).sort().reverse() as key}
+							<th>{key}</th>
+						{/each}
+					</tr>
+				</thead>
 
-						<div style="min-width: 10ch; text-align: center; text-align: center;">Plot</div>
-					</th>
-					{#each Object.keys(companyData).sort().reverse() as key}
-						<th>{key}</th>
-					{/each}
-				</tr>
-			</thead>
+				<tbody>
+					{#each arrayTempData as row}
+						{#if !row[0].includes("Abstract")}
+							<tr>
+								{#each row as cell, i}
+									{#if i === 0}
+										<td>
+											<div style="flex-grow: 1; max-width: 20ch;">
+												{simplifyTag(cell)}
+											</div>
 
-			<tbody>
-				{#each arrayTempData as row}
-					{#if !row[0].includes("Abstract")}
-						<tr>
-							{#each row as cell, i}
-								{#if i === 0}
-									<td>
-										<div style="flex-grow: 1;">
-											{simplifyTag(cell)}
-										</div>
-
-										<div style="min-width: 10ch; text-align: center;">
-											<input type="checkbox"
-			  									on:change={updatePlot(cell)} />
-										</div>
-									</td>
-								{:else}
-									{#if cell === undefined || cell === null}
-										<td>-</td>
-									{:else if i === 0}
-										<td>{simplifyTag(cell)}</td>
+											<div style="min-width: 10ch; text-align: center;">
+												{#if cell === "us-gaap:Assets"}
+													<input type="checkbox"
+			  											on:change={updatePlot(cell)} checked="true"/>
+												{:else}
+													<input type="checkbox"
+			  											on:change={updatePlot(cell)} />
+												{/if}
+											</div>
+										</td>
 									{:else}
-										<td>{cell.toLocaleString()}</td>
+										{#if cell === undefined || cell === null}
+											<td>-</td>
+										{:else if i === 0}
+											<td>{simplifyTag(cell)}</td>
+										{:else}
+											<td>{cell.toLocaleString()}</td>
+										{/if}
 									{/if}
-								{/if}
-							{/each}
-						</tr>
-					{/if}
-				{/each}
-			</tbody>
-		</table>
+								{/each}
+							</tr>
+						{/if}
+					{/each}
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>
 
@@ -236,21 +225,36 @@
 	}
 
 	#financial-plot {
-		height: 30vh;
+		display: flex;
+		justify-content: center;
+		height: 50vh;
 		width: 100%;
 	}
 
-	#table-wrapper {
-		overflow-x: scroll;
-		overflow-y: scroll;
-		height: 60vh;
+	table {
+		border-collapse: collapse;
+	}
+
+	tbody > tr {
+		border-bottom: solid grey 1px;
+		line-height: 1.5rem;
+	}
+
+	td {
+		text-align: right;
+		padding-right: 0.5rem;
+	}
+
+	th {
+		text-align: right;
+		padding-right: 0.5rem;
 	}
 
 	td:first-child, th:first-child {
+		text-align: left;
 		display: flex;
 		position: sticky;
 		position: -webkit-sticky;
-		background-color: #c8c8c8;
 		min-width: 20ch;
 		left: 0px;
 		z-index:100;
