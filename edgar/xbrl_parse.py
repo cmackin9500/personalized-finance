@@ -131,6 +131,8 @@ def get_tag(ticker:str, full_tag:str) -> str:
 			tag = f"{split[i-1]}:{split[i]}"
 			break
 	
+	# Another way we can get the tag is find the index of us-gaap. As long as they are consistent, they will be good.
+
 	assert tag is not None, "Could not parse tag. Look into it as it has a wierd way of presenting."
 	return tag
 
@@ -314,7 +316,7 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 
 	return fs_fields
 
-def get_fs_fields(ticker:str, form_type, fs, cfiles):
+def get_fs_fields(ticker:str, fs, cfiles):
 	statement_roleURI = get_URI(cfiles.xsd)	
 	fs_URI = statement_URI(statement_roleURI, fs)
 	fs_fields = {}
@@ -338,7 +340,7 @@ if __name__ == "__main__":
 	cfiles = read_forms_from_dir(directory)
 
 	fs = 'bs'
-	fs_fields = get_fs_fields(ticker, form_type, fs, cfiles)
+	fs_fields = get_fs_fields(ticker, fs, cfiles)
 
 	for key in fs_fields:
 		print(fs_fields[key])
