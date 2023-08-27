@@ -106,7 +106,7 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts):
 			fs_fields[tag].text = [html_fact.text]	
 		else:
 			fs_fields[tag].text.append(html_fact.text)
-		return fs_fields
+	return fs_fields
 
 def assign_child_to_XBRLNode(fs_fields):
 	tag_child = {}
