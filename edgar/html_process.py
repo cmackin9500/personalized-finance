@@ -161,7 +161,7 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 
 	fs_fields = get_fs_fields(ticker,fs,cfiles)
 	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
-	
+
 	fs_table_from_html = derived_fs_table(all_tables, fs_fields)
 	fs_fields = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html)
 	fs_fields = assign_child_to_XBRLNode(fs_fields)
@@ -178,7 +178,6 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 
 	path = f"./store/{ticker}"
 	re.mkdir_if_NE(path)
-	print(path)
 	with open(f"./{path}/{ticker}_{fs}_{date}.json", 'w') as output:
 		json.dump(fs_json, output, indent=4)
 
@@ -209,7 +208,7 @@ if __name__ == '__main__':
 			ticker_to_json({}, ticker, form_type, fs, date)
 			print(f"Parsed for {date}.")
 		except Exception as err:
-			print(f"Failed to parse for {date}. {err}")
+			print(f"Failed to parse for {date}, {err}.")
 
 '''
 	directory = find_latest_form_dir(ticker,form_type)

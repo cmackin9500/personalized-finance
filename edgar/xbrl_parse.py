@@ -109,18 +109,18 @@ def get_tag(ticker:str, full_tag:str) -> str:
 	split = full_tag.split('_')
 	tag = None
 	for i in range(len(split)):
+		# for "us-gaap_tag" format. e.g. us-gaap_CashAndCashEquivalents
 		if split[i] == 'us-gaap' or split[i] == ticker:
 			tag = split[i]+':'+split[i+1]
 			break
+
+		# for "us-gaptag" format. e.g. us-gaapCashAndCashEquivalents
 		elif split[i][:7] == 'us-gaap':
-			tag = 'us-gaap:'+[i][7:]
+			tag = 'us-gaap:'+split[i][7:]
 			break
-		
-		# I am commenting this but I feel like I added this for a reason. Maybe it is worth researching this.
-		# Or create another issue that will address this. For ones using a custom tag that is not its ticker, we will have to find that out first.
-		#elif split[i][:len(ticker)] == ticker:
-		#	tag = ticker+':'+split[i][len(ticker):]
-		#	break
+		elif split[i][:len(ticker)] == ticker:
+			tag = ticker+':'+split[i][len(ticker):]
+			break
 
 	# Worst case scenario when we can't parse to get the tag, we will go from back and get the first split[i] that does not contain a number
 	# and assume that it is the tag
@@ -133,7 +133,9 @@ def get_tag(ticker:str, full_tag:str) -> str:
 	
 	# Another way we can get the tag is find the index of us-gaap. As long as they are consistent, they will be good.
 
-	assert tag is not None, "Could not parse tag. Look into it as it has a wierd way of presenting."
+	if __debug__:
+		assert tag is not None, "Could not parse tag. Look into it as it has a wierd way of presenting."
+	
 	return tag
 
 # Given the file and the the tags to find, it will find all of the tags we want
@@ -202,7 +204,8 @@ def pre_data(ticker:str, file_pre:str, fs_URI:str, fs_fields:dict, get_parent=Fa
 		
 		fs_fields[tag].lineup = lineup
 		lineup += 1
-
+	
+	#assert fs_fields != {}, "pre_data parsed no information."
 	return fs_fields
 
 # Gets the information from the cal file (order and the weight) and stores it with the tags
