@@ -166,6 +166,13 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 	fs_fields = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html)
 	fs_fields = assign_child_to_XBRLNode(fs_fields)
 
+	t = []
+	skip = ['Items','Axis','Member','Domain','Table','Abstract']
+	for tag in fs_fields:
+		if any(s in tag for s in skip): continue
+		t.append(tag)
+	print(t)
+
 	fs_json = {}
 	top_node = {'bs': 'us-gaap:StatementOfFinancialPositionAbstract',
 	     		'is': 'us-gaap:IncomeStatementAbstract',
