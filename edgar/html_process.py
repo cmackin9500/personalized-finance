@@ -87,9 +87,9 @@ def derived_fs_table(all_tables: list, fs_fields:list) -> list:
 	assert table != [], "The financial statement table dervived is empty."
 	return table
 
-def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts):
+def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts, index=0):
 	for html_facts in fs_facts:
-		html_fact = html_facts[0]
+		html_fact = html_facts[index]
 		tag = html_fact.tag
 
 		# This line is important since for BAC, there was a tag that did not belong to the table. It was overriding the fs_fields bc of this.
