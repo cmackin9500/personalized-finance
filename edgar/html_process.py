@@ -100,7 +100,10 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts, index=0):
 		else:
 			fs_fields[tag].val.append(html_fact.val)
 
-		fs_fields[tag].date = html_fact.date
+		if fs_fields[tag].date is None:
+			fs_fields[tag].date = [html_fact.date]
+		else:
+			fs_fields[tag].date.append(html_fact.date)
 
 		if fs_fields[tag].text is None:
 			fs_fields[tag].text = [html_fact.text]	
