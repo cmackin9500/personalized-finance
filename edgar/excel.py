@@ -170,12 +170,12 @@ def fs_process_from_cfiles(directory_cfiles, form_type, fs, index, get_both_date
 		FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, 1)
 	return FS
 
-def df_input_fs(FS):
+def df_input_fs(FS, div=1000):
 	financial_statement = []
 	for fact in FS:
 		f = FS[fact]
 		if f.val is None or f.date is None: continue
-		val_date_dict = {f.date[i]: f.val[i] for i in range(len(f.date))}
+		val_date_dict = {f.date[i]: f.val[i]/div for i in range(len(f.date))}
 		push_fact = {"Tag": f.text[0]}
 		for key in val_date_dict:
 			push_fact[key] = val_date_dict[key]
@@ -292,7 +292,7 @@ if __name__ == "__main__":
 	
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
 	BS = fs_process_from_cfiles(directory_cfiles, form_type, 'bs', 0, True)
-	balance_sheet = df_input_fs(BS)
+	balance_sheet = df_input_fs(BS, div)
 	df_nav = pd.DataFrame(balance_sheet)
 
 	#TODO: I need to add retrieve both current and previous year bs info. Rn, im only getting the current year.
