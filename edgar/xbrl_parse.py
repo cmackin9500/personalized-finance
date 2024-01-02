@@ -64,7 +64,7 @@ def get_URI(file_xsd:str) -> list:
 
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
 def statement_URI(statement_roleURI:list, statement:str) -> str:
-	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementofconditions']
+	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition']
 	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome','statementsofoperations','consolidatedoperations']
 	CF = ['statementsofcashflows','statementofcashflows','cashflow']
 	PPE = ['propertyplantandequipment','propertyandequipment','investmentproperties']
