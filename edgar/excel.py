@@ -158,9 +158,8 @@ def epv(epv_path, json_path):
 	#df.to_csv("ticker.csv")
 	return df
 					
-def fs_process_from_cfiles(directory_cfiles, form_type, fs, index, get_both_dates = False):
+def fs_process_from_cfiles(cfiles, fs, get_both_dates = False):
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
-	cfiles = read_forms_from_dir(f"forms/{ticker}/{form_type}/{directory_cfiles[index]}")
 	fs_fields = get_fs_fields(ticker, fs, cfiles)
 	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
 	fs_table_from_html = derived_fs_table(all_tables, fs_fields)
@@ -194,7 +193,7 @@ def populate_fs_df(fs_list, all_fs_info):
 		for j in range(len(fs_list)):
 			for i in range(len(all_fs_info)):
 				next = False
-				if all_fs_info[i]["Tag"] == fs_list[j]["Tag"]:
+				if all_fs_info[i]["Tag"] == fs_list[j]["Tag"] or all_fs_info[i]["Text"] == fs_list[j]["Text"]:
 					all_fs_info[i][cur_year] = fs_list[j][cur_year]
 					index = i+1
 					next = True
@@ -289,10 +288,11 @@ if __name__ == "__main__":
 	# Get the directory where the forms are/were stored and sort them in chronological order.1
 	directory_cfiles = find_all_form_dir(ticker,form_type)
 	directory_cfiles.sort(reverse=True)
+	cfiles = read_forms_from_dir(f"forms/{ticker}/{form_type}/{directory_cfiles[0]}")
 	
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
-	BS = fs_process_from_cfiles(directory_cfiles, form_type, 'bs', 0, True)
-	balance_sheet = df_input_fs(BS, div)
+	NAV = fs_process_from_cfiles(cfiles, 'bs', True)
+	balance_sheet = df_input_fs(NAV, div)
 	df_nav = pd.DataFrame(balance_sheet)
 
 	#TODO: I need to add retrieve both current and previous year bs info. Rn, im only getting the current year.
@@ -306,13 +306,15 @@ if __name__ == "__main__":
 		cur_year = directory_cfiles[i]
 		# Balance Sheet
 		try:
-			BS = fs_process_from_cfiles(directory_cfiles, '10-K', 'bs', i, False)
+			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles[i]}")
+
+			BS = fs_process_from_cfiles(cfiles, 'bs', False)
 			bs_list = get_fs_list(BS, mag, 'bs')
 
-			IS = fs_process_from_cfiles(directory_cfiles, '10-K', 'is', i, False)
+			IS = fs_process_from_cfiles(cfiles, 'is', False)
 			is_list = get_fs_list(IS, mag, 'is')
 
-			CF = fs_process_from_cfiles(directory_cfiles, '10-K', 'cf', i, False)
+			CF = fs_process_from_cfiles(cfiles, 'cf', False)
 			cf_list = get_fs_list(CF, mag, 'cf')
 
 		except:
