@@ -12,27 +12,33 @@ from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_fac
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
 
-TAGS = ['CashAndCashEquivalentsAtCarryingValue', 'CashAndDueFromBanks', 
-	'PropertyPlantAndEquipmentNet', 'PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization', 
-	'LongTermDebtNoncurrent', 'us-gaap:OtherLongTermDebt', 'UnsecuredLongTermDebt', 'LongTermDebt', "LongTermDebtAndCapitalLeaseObligations",
-	'StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest',
-
-	'InterestIncomeOperating', 'NoninterestIncome',
-	'NetIncomeLoss', 'OperatingIncomeLoss', 'ProfitLoss', 'RevenueFromContractWithCustomerExcludingAssessedTax',
-	'Revenues',
-	'ResearchAndDevelopmentExpense', 
-	'SellingGeneralAndAdministrativeExpense', "GeneralAndAdministrativeExpense", "SellingAndMarketingExpense", "MarketingAndAdvertisingExpense",
-	'LaborAndRelatedExpense', 'OccupancyNet', 'LegalFees', 'MarketingAndAdvertisingExpense', 'Communication', 'EquipmentExpense'
-	"InterestExpense", 'IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest',
-	'ProvisionForLoanLossesExpensed',
-	'EarningsPerShareDiluted', 
-
-	'DepreciationAndAmortization','DepreciationDepletionAndAmortization', "Depreciation", "AmortizationOfIntangibleAssets", "EquipmentExpense",
-	'ShareBasedCompensation', 
-	'PaymentsToAcquirePropertyPlantAndEquipment', 'PaymentsToAcquireProductiveAssets', 'us-gaap:PaymentsToAcquireRealEstate', 'PaymentsToAcquireOilAndGasProperty',
-	'CommonStockDividendsPerShareDeclared'
-
-	]
+TAGS = {
+  "Cash": ["CashAndCashEquivalentsAtCarryingValue", "CashAndDueFromBanks", "CashCashEquivalentsAndFederalFundsSold"],
+  "Debt": ["LongTermDebtNoncurrent", "OtherLongTermDebt", "UnsecuredLongTermDebt", "LongTermDebt", "FederalHomeLoanBankAdvancesLongTerm",
+           "JuniorSubordinatedNotes", "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust", "UnsecuredLongTermDebt",
+           "LongTermDebt", "LongTermDebtAndCapitalLeaseObligations"],
+  "PPE": ["PropertyPlantAndEquipmentNet", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
+          "PaymentsToAcquireOilAndGasProperty"],
+  "Equity": ["StockholdersEquity", "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"],
+  "Revenue": ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues"],
+  "Research and Development": ["ResearchAndDevelopmentExpense"],
+  "SG&A": ["SellingGeneralAndAdministrativeExpense", "GeneralAndAdministrativeExpense", "SellingAndMarketingExpense", "MarketingAndAdvertisingExpense",
+           "LaborAndRelatedExpense", "OccupancyNet", "LegalFees", "MarketingAndAdvertisingExpense", "Communication", "EquipmentExpense"],
+  "Interest Expense": ["InterestExpense"],
+  "Interest Income": ["InterestIncomeOperating"],
+  "Non-interest Income": ["NoninterestIncome"],
+  "Provision for Credit Losses": ["ProvisionForLoanLossesExpensed"],
+  "Operating Income": ["OperatingIncomeLoss"],
+  "Pretax Income": ["IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest"],
+  "Net Income": ["NetIncomeLoss", "ProfitLoss"],
+  "EPS": ["EarningsPerShareDiluted"],
+  "D&A": ["DepreciationAndAmortization","DepreciationDepletionAndAmortization", "Depreciation", "AmortizationOfIntangibleAssets",
+          "OtherDepreciationAndAmortization", "DepreciationAmortizationAndAccretionNet", "EquipmentExpense"],
+  "Option Expenses": ["ShareBasedCompensation"],
+  "Capex": ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets", "PaymentsToAcquireRealEstate",
+            "PaymentsToAcquireOilAndGasProperty"],
+  "Dividend": ["CommonStockDividendsPerShareDeclared"]
+}
 
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
@@ -98,7 +104,7 @@ def get_all_dates(data, period):
 	dates2.sort()
 	return dates1 if len(dates1) > len(dates2) else dates2
 	
-def get_tags(ticker,destination):
+def get_tags(destination):
 	div = 1000
 	if mag == 't':
 		div = 1000
@@ -109,21 +115,25 @@ def get_tags(ticker,destination):
 
 	with open(destination, 'r') as f:
 		data = f.read()
-	data = json.loads(data)['facts']['us-gaap']
-
-	dates = get_all_dates(data, '10-K')
+	facts_json = json.loads(data)['facts']['us-gaap']
+	with open("./tags/facts_tags.json", 'r') as f:
+		data = f.read()
+	USGAAP_json = json.loads(data)
+	
+	dates = get_all_dates(facts_json, '10-K')
 	df = pd.DataFrame(columns = dates)
 
-	for tag in TAGS:
-		if tag in data: 
-			rowData = {y:0 for y in dates}
-			if 'USD' in data[tag]['units']:
-				d = list(data[tag]['units']['USD'])
-				for year in d:
-					if year['form'] == '10-K' and year['end'] in dates:
-						rowData[year['end']] = year['val']/div
-			appendRow = [rowData[key] for key in rowData]
-			df.loc[tag] = appendRow
+	for category in USGAAP_json:
+		for usgaap_tag in USGAAP_json[category]:
+			if usgaap_tag in facts_json: 
+				rowData = {y:0 for y in dates}
+				if 'USD' in facts_json[usgaap_tag]['units']:
+					d = list(facts_json[usgaap_tag]['units']['USD'])
+					for year in d:
+						if year['form'] == '10-K' and year['end'] in dates:
+							rowData[year['end']] = year['val']/div
+				appendRow = [rowData[key] for key in rowData]
+				df.loc[usgaap_tag] = appendRow
 
 	#df.to_csv("ticker.csv")
 	return df
@@ -224,8 +234,9 @@ def populate_fs_df(fs_list, all_fs_info):
 
 
 # overrides for write_to_csv
-def write_to_csv(ticker,BS,IS,CF,TAGS,EPV):
-	writer = pd.ExcelWriter(f"{ticker}.xlsx", engine='xlsxwriter')
+def write_to_csv(ticker,NAV,BS,IS,CF,TAGS,EPV):
+	writer = pd.ExcelWriter(f"./excel/{ticker}.xlsx", engine='xlsxwriter')
+	NAV.to_excel(writer, sheet_name='NAV')
 	BS.to_excel(writer, sheet_name='Balance Sheet')
 	IS.to_excel(writer, sheet_name='Income Statement')
 	CF.to_excel(writer, sheet_name='Cash Flow')
@@ -261,8 +272,7 @@ def write_to_csv(ticker,TAGS):
 
 if __name__ == "__main__":
 	ticker = sys.argv[1]
-	form_type = sys.argv[2]
-	mag = sys.argv[3]
+	mag = sys.argv[2]
 	
 	div = 1000
 	if mag == 't':
@@ -273,7 +283,7 @@ if __name__ == "__main__":
 		div = 1
 
 	offline = False
-	if len(sys.argv) > 4:
+	if len(sys.argv) > 3:
 		offline = True
 	
 	if not offline:
@@ -286,9 +296,15 @@ if __name__ == "__main__":
 		if all_inline_10q_forms != []: retrieved_forms = save_all_forms(ticker,'10-Q',all_inline_10q_forms)
 
 	# Get the directory where the forms are/were stored and sort them in chronological order.1
-	directory_cfiles = find_all_form_dir(ticker,form_type)
-	directory_cfiles.sort(reverse=True)
-	cfiles = read_forms_from_dir(f"forms/{ticker}/{form_type}/{directory_cfiles[0]}")
+	directory_cfiles_10Q = find_all_form_dir(ticker,"10-Q")
+	directory_cfiles_10Q.sort(reverse=True)
+	directory_cfiles_10K = find_all_form_dir(ticker,"10-K")
+	directory_cfiles_10K.sort(reverse=True)
+	
+	if directory_cfiles_10K[0] > directory_cfiles_10Q[0]:
+		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[0]}")
+	else:
+		cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles_10Q[0]}")
 	
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
 	NAV = fs_process_from_cfiles(cfiles, 'bs', True)
@@ -297,16 +313,14 @@ if __name__ == "__main__":
 
 	#TODO: I need to add retrieve both current and previous year bs info. Rn, im only getting the current year.
 	# Attempt to parse as much fs info and append them all into all_fs_info
-	directory_cfiles = find_all_form_dir(ticker,"10-K")
-	directory_cfiles.sort(reverse=True)
 	all_bs_info = []
 	all_is_info = []
 	all_cf_info = []
-	for i in range(len(directory_cfiles)):
-		cur_year = directory_cfiles[i]
+	for i in range(len(directory_cfiles_10K)):
+		cur_year = directory_cfiles_10K[i]
 		# Balance Sheet
 		try:
-			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles[i]}")
+			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[i]}")
 
 			BS = fs_process_from_cfiles(cfiles, 'bs', False)
 			bs_list = get_fs_list(BS, mag, 'bs')
@@ -318,7 +332,7 @@ if __name__ == "__main__":
 			cf_list = get_fs_list(CF, mag, 'cf')
 
 		except:
-			print(f"Could not parse for {directory_cfiles[i]}.")
+			print(f"Could not parse for {directory_cfiles_10K[i]}.")
 			continue
 
 		all_bs_info = populate_fs_df(bs_list, all_bs_info)
@@ -337,8 +351,8 @@ if __name__ == "__main__":
 	else:
 		retreieved_facts = True
 	if retreieved_facts:
-		TAGS = get_tags(ticker,f"./forms/{ticker}/{ticker}.json")
-		EPV = epv("./epv_tags.json", f"./forms/{ticker}/{ticker}.json")
+		TAGS = get_tags(f"./forms/{ticker}/{ticker}.json")
+		EPV = epv("./tags/epv_tags.json", f"./forms/{ticker}/{ticker}.json")
 	else:
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
