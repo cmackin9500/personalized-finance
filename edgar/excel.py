@@ -12,34 +12,6 @@ from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_fac
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
 
-TAGS = {
-  "Cash": ["CashAndCashEquivalentsAtCarryingValue", "CashAndDueFromBanks", "CashCashEquivalentsAndFederalFundsSold"],
-  "Debt": ["LongTermDebtNoncurrent", "OtherLongTermDebt", "UnsecuredLongTermDebt", "LongTermDebt", "FederalHomeLoanBankAdvancesLongTerm",
-           "JuniorSubordinatedNotes", "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust", "UnsecuredLongTermDebt",
-           "LongTermDebt", "LongTermDebtAndCapitalLeaseObligations"],
-  "PPE": ["PropertyPlantAndEquipmentNet", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
-          "PaymentsToAcquireOilAndGasProperty"],
-  "Equity": ["StockholdersEquity", "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"],
-  "Revenue": ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues"],
-  "Research and Development": ["ResearchAndDevelopmentExpense"],
-  "SG&A": ["SellingGeneralAndAdministrativeExpense", "GeneralAndAdministrativeExpense", "SellingAndMarketingExpense", "MarketingAndAdvertisingExpense",
-           "LaborAndRelatedExpense", "OccupancyNet", "LegalFees", "MarketingAndAdvertisingExpense", "Communication", "EquipmentExpense"],
-  "Interest Expense": ["InterestExpense"],
-  "Interest Income": ["InterestIncomeOperating"],
-  "Non-interest Income": ["NoninterestIncome"],
-  "Provision for Credit Losses": ["ProvisionForLoanLossesExpensed"],
-  "Operating Income": ["OperatingIncomeLoss"],
-  "Pretax Income": ["IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest"],
-  "Net Income": ["NetIncomeLoss", "ProfitLoss"],
-  "EPS": ["EarningsPerShareDiluted"],
-  "D&A": ["DepreciationAndAmortization","DepreciationDepletionAndAmortization", "Depreciation", "AmortizationOfIntangibleAssets",
-          "OtherDepreciationAndAmortization", "DepreciationAmortizationAndAccretionNet", "EquipmentExpense"],
-  "Option Expenses": ["ShareBasedCompensation"],
-  "Capex": ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets", "PaymentsToAcquireRealEstate",
-            "PaymentsToAcquireOilAndGasProperty"],
-  "Dividend": ["CommonStockDividendsPerShareDeclared"]
-}
-
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
 	if mag == 't':
@@ -119,7 +91,7 @@ def get_tags(destination):
 	with open("./tags/facts_tags.json", 'r') as f:
 		data = f.read()
 	USGAAP_json = json.loads(data)
-	
+
 	dates = get_all_dates(facts_json, '10-K')
 	df = pd.DataFrame(columns = dates)
 
@@ -131,7 +103,10 @@ def get_tags(destination):
 					d = list(facts_json[usgaap_tag]['units']['USD'])
 					for year in d:
 						if year['form'] == '10-K' and year['end'] in dates:
-							rowData[year['end']] = year['val']/div
+							if category == "EPS" or category == "Dividend":
+								rowData[year['end']] = year['val']
+							else:
+								rowData[year['end']] = year['val']/div
 				appendRow = [rowData[key] for key in rowData]
 				df.loc[usgaap_tag] = appendRow
 

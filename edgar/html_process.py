@@ -89,6 +89,9 @@ def derived_fs_table(all_tables: list, fs_fields:list) -> list:
 
 def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts, index=0):
 	for html_facts in fs_facts:
+		if len(html_facts) <= index:
+			continue
+
 		html_fact = html_facts[index]
 		tag = html_fact.tag
 
