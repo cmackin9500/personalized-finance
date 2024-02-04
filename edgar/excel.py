@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
-from xbrl_parse import get_fs_fields
+from xbrl_parse import get_fs_fields, get_disclosure_fields
 from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
@@ -49,7 +49,10 @@ def get_fs_list(fs_fields, mag, fs):
 			continue
 		text = fs_fields[key].text[0] if fs_fields[key].text else ''
 		for i,tag in enumerate(fs_fields[key].text):
-			d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]/div}
+			if fs_fields[key].tag == "us-gaap:EarningsPerShareBasic" or fs_fields[key].tag == "us-gaap:EarningsPerShareDiluted":
+				d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]}	
+			else:
+				d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]/div}
 			fs_list.append(d)
 	return fs_list
 
@@ -76,7 +79,7 @@ def get_all_dates(data, period):
 	dates2.sort()
 	return dates1 if len(dates1) > len(dates2) else dates2
 	
-def get_tags(destination):
+def get_tags(destination, period):
 	div = 1000
 	if mag == 't':
 		div = 1000
@@ -92,7 +95,7 @@ def get_tags(destination):
 		data = f.read()
 	USGAAP_json = json.loads(data)
 
-	dates = get_all_dates(facts_json, '10-K')
+	dates = get_all_dates(facts_json, period)
 	df = pd.DataFrame(columns = dates)
 
 	for category in USGAAP_json:
@@ -102,7 +105,7 @@ def get_tags(destination):
 				if 'USD' in facts_json[usgaap_tag]['units']:
 					d = list(facts_json[usgaap_tag]['units']['USD'])
 					for year in d:
-						if year['form'] == '10-K' and year['end'] in dates:
+						if year['form'] == period and year['end'] in dates:
 							if category == "EPS" or category == "Dividend":
 								rowData[year['end']] = year['val']
 							else:
@@ -136,6 +139,8 @@ def epv(epv_path, json_path):
 					d = list(data[tag]['units']['USD'])
 					for year in d:
 						if year['form'] == '10-K' and year['end'] in dates:
+							#TODO: I need to handle fields that adds up to one category. For example debt usually has multiple that adds up to one.
+							if rowData[year['end']] != 0: continue 
 							rowData[year['end']] += year['val']/div
 		appendRow = [rowData[key] for key in rowData]
 		df.loc[tags] = appendRow
@@ -148,10 +153,20 @@ def fs_process_from_cfiles(cfiles, fs, get_both_dates = False):
 	fs_fields = get_fs_fields(ticker, fs, cfiles)
 	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
 	fs_table_from_html = derived_fs_table(all_tables, fs_fields)
-	FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html)
+	
+	index = 0
+	if get_both_dates:
+		assert len(fs_table_from_html[0]) > 0, "Facts retrieved for the Financial Statement is empty."
+		date1 = fs_table_from_html[0][0].date
+		date2 = fs_table_from_html[0][1].date
+		if date1 > date2: index = 1
+	
+	FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, index)
 	
 	if get_both_dates:
-		FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, 1)
+		if index == 1: index = 0
+		else: index = 1
+		FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, index)
 	return FS
 
 def df_input_fs(FS, div=1000):
@@ -179,26 +194,6 @@ def populate_fs_df(fs_list, all_fs_info):
 			for i in range(len(all_fs_info)):
 				next = False
 				if all_fs_info[i]["Tag"] == fs_list[j]["Tag"] or all_fs_info[i]["Text"] == fs_list[j]["Text"]:
-					all_fs_info[i][cur_year] = fs_list[j][cur_year]
-					index = i+1
-					next = True
-					break
-			if next: continue
-			all_fs_info.insert(index, fs_list[j])
-	
-	
-	if all_fs_info == []: 
-		all_fs_info = fs_list
-
-	# Loop through the new list and add it to the right place.
-	# First, we check of the tag is already added. If so, we just add the data there.
-	# If not, we add the data 1 index after the previous place the data was added to.
-	else:
-		index = 0
-		for j in range(len(fs_list)):
-			for i in range(len(all_fs_info)):
-				next = False
-				if all_fs_info[i]["Tag"] == fs_list[j]["Tag"]:
 					all_fs_info[i][cur_year] = fs_list[j][cur_year]
 					index = i+1
 					next = True
@@ -248,6 +243,7 @@ def write_to_csv(ticker,TAGS):
 if __name__ == "__main__":
 	ticker = sys.argv[1]
 	mag = sys.argv[2]
+	industry = sys.argv[3]
 	
 	div = 1000
 	if mag == 't':
@@ -258,7 +254,7 @@ if __name__ == "__main__":
 		div = 1
 
 	offline = False
-	if len(sys.argv) > 3:
+	if len(sys.argv) > 4:
 		offline = True
 	
 	if not offline:
@@ -326,8 +322,8 @@ if __name__ == "__main__":
 	else:
 		retreieved_facts = True
 	if retreieved_facts:
-		TAGS = get_tags(f"./forms/{ticker}/{ticker}.json")
-		EPV = epv("./tags/epv_tags.json", f"./forms/{ticker}/{ticker}.json")
+		TAGS = get_tags(f"./forms/{ticker}/{ticker}.json", "10-K")
+		EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json")
 	else:
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 

@@ -49,43 +49,45 @@ def getTags(ticker,destination):
 	# Cash
 		'CashAndDueFromBanks', 'CashEquivalentsAtCarryingValue', 'InterestBearingDepositsInBanks',
 	# Cash and Cash Equivalents
-		'CashCashEquivalentsAndFederalFundsSold', 'CashAndCashEquivalentsAtCarryingValue',
+		'CashCashEquivalentsAndFederalFundsSold', 'CashAndCashEquivalentsAtCarryingValue', 'CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalentsIncludingDisposalGroupAndDiscontinuedOperations',
 	# Cash + Restricted Cash
-		'CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents'
+		'CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents',
 	# Accounts Recievables
-		'AccountsReceivableNetCurrent',
+		'AccountsReceivableNetCurrent', 'ReceivablesNetCurrent',
 	# Inventory
 		'InventoryNet',
 	# Goodwill and Intangible Assets
 		'Goodwill', 'IntangibleAssetsNetExcludingGoodwill', 'FiniteLivedIntangibleAssetsNet',
 	# Current Assets
 		'AssetsCurrent',
+	# Accounts Payable
+		'AccountsPayableCurrent', 'AccountsPayableAndAccruedLiabilitiesCurrent',
 	# Short-Term Debt
-		'LongTermDebtCurrent', 'CommercialPaper', 'ShortTermBorrowings',
+		'LongTermDebtCurrent', 'CommercialPaper', 'ShortTermBorrowings', 'NotesPayableCurrent', 'DebtCurrent',
 	# Current Liabilities
 		'LiabilitiesCurrent',
 	# Long-Term Debt
 		'LongTermDebtNoncurrent', 'FederalHomeLoanBankAdvancesLongTerm', 'JuniorSubordinatedNotes', 'OtherLongTermDebt', 'JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust',
-		'UnsecuredLongTermDebt', 'LongTermDebt',
+		'UnsecuredLongTermDebt', 'LongTermDebt', 'LongTermDebtAndCapitalLeaseObligations',
 	# Debt
-		'AdvancesFromFederalHomeLoanBanks', 'SubordinatedDebt', 'OtherBorrowings',
+		'AdvancesFromFederalHomeLoanBanks', 'SubordinatedDebt', 'OtherBorrowings', 'LongTermLineOfCredit',
 	# Common Equity
-		'StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest'
+		'StockholdersEquity', 'StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest',
 	# Revenues
-		'RevenueFromContractWithCustomerExcludingAssessedTax', 'Revenues',
+		'RevenueFromContractWithCustomerExcludingAssessedTax', 'Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax',
 	# SG&A
 		'SellingGeneralAndAdministrativeExpense', "GeneralAndAdministrativeExpense", "SellingAndMarketingExpense", "MarketingAndAdvertisingExpense",
 		'LaborAndRelatedExpense', 'OccupancyNet', 'LegalFees', 'MarketingAndAdvertisingExpense', 'Communication', 'EquipmentExpense',
 		'CommunicationsAndInformationTechnology', 'MarketingExpense', 'ProfessionalFees', 'InformationTechnologyAndDataProcessing',
 		'SuppliesAndPostageExpense', 'AdvertisingExpense',
 	# COGS
-		'CostOfGoodsAndServicesSold', 
+		'CostOfGoodsAndServicesSold', 'CostOfRevenue',
 	# Gross Profit
 		'GrossProfit',
 	# Interest and Dividend Income
 		'InterestAndDividendIncomeOperating',
 	# Operating Income
-		'OperatingIncomeLoss', 
+		'OperatingIncomeLoss', 'IncomeLossFromContinuingOperationsBeforeInterestExpenseInterestIncomeIncomeTaxesExtraordinaryItemsNoncontrollingInterestsNet', 
 	# Interest Expense
 		'InterestExpense',
 	# Net Interest Income
@@ -134,7 +136,7 @@ def getTags(ticker,destination):
 						if year['form'] == '10-K':
 							if any(time in year['fp'] for time in ['Q1','Q2','Q3']):
 								continue
-								if year['end'] not in dates1: dates1.append(year['end'])
+							if year['end'] not in dates1: dates1.append(year['end'])
 	dates1.sort()
 
 	dates2 = []
@@ -149,19 +151,31 @@ def getTags(ticker,destination):
 							if year['end'] not in dates2: dates2.append(year['end'])
 	dates2.sort()
 
-	if len(dates1) > len(dates2):
-		dates = dates1
-	else:
-		dates = dates2
+	dates3 = []
+	for tag in TAGS:
+		if tag in data: 
+			if tag == 'Assets':
+				rowData = {}
+				if 'USD' in data[tag]['units']:
+					d = list(data[tag]['units']['USD'])
+					for year in d:
+						if year['form'] == '10-K':
+							if year['end'] not in dates3: dates3.append(year['end'])
+	dates3.sort()
+	
+	dates = dates1
+	for d in dates2:
+		if d not in dates: dates.append(d)
+	for d in dates3:
+		if d not in dates: dates.append(d)
+
+	dates.sort()
 	dates.reverse()
-
-	print(dates)
-
 
 	df = pd.DataFrame(columns = dates)
 
 	for tag in TAGS:
-		if tag in data: 
+		if tag in data:
 			rowData = {y:0 for y in dates}
 			if 'USD' in data[tag]['units']:
 				d = list(data[tag]['units']['USD'])
@@ -209,12 +223,12 @@ if __name__ == "__main__":
 	# Retrieve facts json
 	retreieved_facts = save_all_facts(sys.argv[1])
 	if retreieved_facts:
-		TAGS = getTags(ticker,f"./forms/{ticker}/{ticker}.json")
+		TAGS_excel = getTags(ticker,f"./forms/{ticker}/{ticker}.json")
 		#write_to_csv(ticker,TAGS)
 	else:
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
 	writer = pd.ExcelWriter(f"./excel/{ticker}.xlsx", engine='xlsxwriter')
-	TAGS.to_excel(writer, sheet_name='Tags')
+	TAGS_excel.to_excel(writer, sheet_name='Tags')
 	writer.save()
 	writer.close()

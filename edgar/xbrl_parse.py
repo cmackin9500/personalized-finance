@@ -49,7 +49,7 @@ class XBRLNode:
 		return str(self)
 
 # Parses xsd file. It will return a list of all the statement URI.
-def get_URI(file_xsd:str) -> list:
+def get_statement_URI(file_xsd:str) -> list:
 	statement_roleURI = list()
 	soup = BeautifulSoup(file_xsd, "html.parser")
 	roleType = soup.find_all("link:roletype")
@@ -57,6 +57,20 @@ def get_URI(file_xsd:str) -> list:
 	# We specifically look for 'Statement' because balance sheet, income statement, and cash flow statement always have 'Statement' in it
 	for e in roleType:
 		if 'Statement' in e.get_text():
+			statement_roleURI.append(e.get('roleuri'))
+
+	assert statement_roleURI != [], "statement roleURI not found"
+	return statement_roleURI
+
+# Parses xsd file. It will return a list of all the disclosure URI.
+def get_disclosure_URI(file_xsd:str) -> list:
+	statement_roleURI = list()
+	soup = BeautifulSoup(file_xsd, "html.parser")
+	roleType = soup.find_all("link:roletype")
+
+	# We specifically look for 'Statement' because balance sheet, income statement, and cash flow statement always have 'Statement' in it
+	for e in roleType:
+		if 'Disclosure' in e.get_text():
 			statement_roleURI.append(e.get('roleuri'))
 
 	assert statement_roleURI != [], "statement roleURI not found"
@@ -121,6 +135,11 @@ def get_tag(ticker:str, full_tag:str) -> str:
 		elif split[i][:len(ticker)] == ticker:
 			tag = ticker+':'+split[i][len(ticker):]
 			break
+
+	#The xlink:to might be the tag only without the company name.
+	# xlink:to="CashAndCashEquivalentsAtCarryingValue"
+	if len(split) == 1:
+		tag = "us-gaap:"+ split[i]
 
 	# Worst case scenario when we can't parse to get the tag, we will go from back and get the first split[i] that does not contain a number
 	# and assume that it is the tag
@@ -320,7 +339,7 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 	return fs_fields
 
 def get_fs_fields(ticker:str, fs, cfiles):
-	statement_roleURI = get_URI(cfiles.xsd)	
+	statement_roleURI = get_statement_URI(cfiles.xsd)	
 	fs_URI = statement_URI(statement_roleURI, fs)
 	fs_fields = {}
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields)
@@ -334,6 +353,12 @@ def get_fs_fields(ticker:str, fs, cfiles):
 	assert fs_fields != {}, "fs_fields is empty"
 	return fs_fields
 
+def get_disclosure_fields(ticker:str, disclosure, cfiles):
+	statement_roleURI = get_disclosure_URI(cfiles.xsd)	
+	fs_URI = statement_URI(statement_roleURI, disclosure)
+	
+	assert fs_fields != {}, "fs_fields is empty"
+	return fs_fields
 
 if __name__ == "__main__":
 	ticker = sys.argv[1]

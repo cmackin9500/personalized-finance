@@ -97,7 +97,8 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts, index=0):
 
 		# This line is important since for BAC, there was a tag that did not belong to the table. It was overriding the fs_fields bc of this.
 		# This is addressed in #30
-		if tag not in fs_fields: continue
+		if tag not in fs_fields: 
+			continue
 		if fs_fields[tag].val is None:
 			fs_fields[tag].val = [html_fact.val]
 		else:
@@ -109,9 +110,9 @@ def assign_HTMLFact_to_XBRLNode(fs_fields, fs_facts, index=0):
 			fs_fields[tag].date.append(html_fact.date)
 
 		if fs_fields[tag].text is None:
-			fs_fields[tag].text = [html_fact.text]	
+			fs_fields[tag].text = [html_fact.text.replace('\n','')]	
 		else:
-			fs_fields[tag].text.append(html_fact.text)
+			fs_fields[tag].text.append(html_fact.text.replace('\n',''))
 	return fs_fields
 
 def assign_child_to_XBRLNode(fs_fields):
@@ -177,7 +178,6 @@ def ticker_to_json(fs_fields, ticker, form_type, fs, date):
 	for tag in fs_fields:
 		if any(s in tag for s in skip): continue
 		t.append(tag)
-	print(t)
 
 	fs_json = {}
 	top_node = {'bs': 'us-gaap:StatementOfFinancialPositionAbstract',
