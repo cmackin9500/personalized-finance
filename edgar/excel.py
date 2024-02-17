@@ -11,6 +11,7 @@ from xbrl_parse import get_fs_fields, get_disclosure_fields
 from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
+from util.write_to_csv import *
 
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
@@ -116,7 +117,7 @@ def get_tags(destination, period):
 	#df.to_csv("ticker.csv")
 	return df
 
-def epv(epv_path, json_path):
+def epv(epv_path, json_path, appeared_tags):
 	with open(json_path, 'r') as f:
 		data = f.read()
 	data = json.loads(data)['facts']['us-gaap']
@@ -134,7 +135,7 @@ def epv(epv_path, json_path):
 	for tags in all_tags:
 		rowData = {y:0 for y in dates}
 		for tag in all_tags[tags]:
-			if tag in data: 
+			if tag in data and tag in appeared_tags: 
 				if 'USD' in data[tag]['units']:
 					d = list(data[tag]['units']['USD'])
 					for year in d:
@@ -202,43 +203,13 @@ def populate_fs_df(fs_list, all_fs_info):
 			all_fs_info.insert(index, fs_list[j])
 	return all_fs_info
 
-
-# overrides for write_to_csv
-def write_to_csv(ticker,NAV,BS,IS,CF,TAGS,EPV):
-	writer = pd.ExcelWriter(f"./excel/{ticker}.xlsx", engine='xlsxwriter')
-	NAV.to_excel(writer, sheet_name='NAV')
-	BS.to_excel(writer, sheet_name='Balance Sheet')
-	IS.to_excel(writer, sheet_name='Income Statement')
-	CF.to_excel(writer, sheet_name='Cash Flow')
-	TAGS.to_excel(writer, sheet_name='Tags')
-	EPV.to_excel(writer, sheet_name='EPV')
-	writer.save()
-
-def write_to_csv(ticker,BS,IS,CF,TAGS):
-	writer = pd.ExcelWriter(f"{ticker}.xlsx", engine='xlsxwriter')
-	BS.to_excel(writer, sheet_name='Balance Sheet')
-	IS.to_excel(writer, sheet_name='Income Statement')
-	CF.to_excel(writer, sheet_name='Cash Flow')
-	TAGS.to_excel(writer, sheet_name='Tags')
-	writer.save()
-
-def write_to_csv(ticker,BS,IS,CF):
-	writer = pd.ExcelWriter(f"{ticker}.xlsx", engine='xlsxwriter')
-	BS.to_excel(writer, sheet_name='Balance Sheet')
-	IS.to_excel(writer, sheet_name='Income Statement')
-	CF.to_excel(writer, sheet_name='Cash Flow')
-	writer.save()
-
-def write_to_csv(ticker,BS,TAGS):
-	writer = pd.ExcelWriter(f"{ticker}.xlsx", engine='xlsxwriter')
-	BS.to_excel(writer, sheet_name='Balance Sheet')
-	TAGS.to_excel(writer, sheet_name='Tags')
-	writer.save()
-
-def write_to_csv(ticker,TAGS):
-	writer = pd.ExcelWriter(f"{ticker}.xlsx", engine='xlsxwriter')
-	TAGS.to_excel(writer, sheet_name='Tags')
-	writer.save()
+def get_tags_from_df(fs_df):
+	usgaap_tags = list(fs_df["Tag"])
+	just_tags = list()
+	for full_tag in usgaap_tags:
+		tag = full_tag.split(':')[1]
+		just_tags.append(tag)
+	return just_tags
 
 if __name__ == "__main__":
 	ticker = sys.argv[1]
@@ -289,31 +260,38 @@ if __name__ == "__main__":
 	all_cf_info = []
 	for i in range(len(directory_cfiles_10K)):
 		cur_year = directory_cfiles_10K[i]
-		# Balance Sheet
+		if cur_year == ".DS_Store":continue
+		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[i]}")
 		try:
-			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[i]}")
-
 			BS = fs_process_from_cfiles(cfiles, 'bs', False)
 			bs_list = get_fs_list(BS, mag, 'bs')
-
+			all_bs_info = populate_fs_df(bs_list, all_bs_info)
+		except:
+			print(f"Could not parse balance sheet for {directory_cfiles_10K[i]}.")
+		
+		try:
 			IS = fs_process_from_cfiles(cfiles, 'is', False)
 			is_list = get_fs_list(IS, mag, 'is')
-
+			all_is_info = populate_fs_df(is_list, all_is_info)
+		except:
+			print(f"Could not parse income statement for {directory_cfiles_10K[i]}.")
+			
+		try:
 			CF = fs_process_from_cfiles(cfiles, 'cf', False)
 			cf_list = get_fs_list(CF, mag, 'cf')
-
+			all_cf_info = populate_fs_df(cf_list, all_cf_info)
 		except:
-			print(f"Could not parse for {directory_cfiles_10K[i]}.")
-			continue
-
-		all_bs_info = populate_fs_df(bs_list, all_bs_info)
-		all_is_info = populate_fs_df(is_list, all_is_info)
-		all_cf_info = populate_fs_df(cf_list, all_cf_info)
+			print(f"Could not parse cash flow for {directory_cfiles_10K[i]}.")
 
 	df_bs = pd.DataFrame(all_bs_info)
 	df_is = pd.DataFrame(all_is_info)
 	df_cf = pd.DataFrame(all_cf_info)
 			
+	appeared_tags = list()
+	try:
+		appeared_tags = get_tags_from_df(df_bs) + get_tags_from_df(df_is) + get_tags_from_df(df_cf)
+	except:
+		appeared_tags  = []
 	#TODO: Work on duplicate tags.
 	
 	# Retrieve facts json
@@ -323,7 +301,7 @@ if __name__ == "__main__":
 		retreieved_facts = True
 	if retreieved_facts:
 		TAGS = get_tags(f"./forms/{ticker}/{ticker}.json", "10-K")
-		EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json")
+		EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json", appeared_tags)
 	else:
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 

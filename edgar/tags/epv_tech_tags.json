@@ -7,7 +7,7 @@
            "JuniorSubordinatedNotes", "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust", "UnsecuredLongTermDebt",
            "LongTermDebt", "LongTermDebtAndCapitalLeaseObligations"],
   "PPE": ["PropertyPlantAndEquipmentNet", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
-          "PaymentsToAcquireOilAndGasProperty"],
+          "PaymentsToAcquireOilAndGasProperty", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization"],
   "Revenue": ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues"],
   "D&A": ["DepreciationAndAmortization","DepreciationDepletionAndAmortization", "Depreciation", "AmortizationOfIntangibleAssets",
           "OtherDepreciationAndAmortization", "DepreciationAmortizationAndAccretionNet"],

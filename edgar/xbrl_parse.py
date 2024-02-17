@@ -79,7 +79,8 @@ def get_disclosure_URI(file_xsd:str) -> list:
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
 def statement_URI(statement_roleURI:list, statement:str) -> str:
 	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition']
-	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome','statementsofoperations','consolidatedoperations']
+	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome',
+	   	  'statementsofoperations','consolidatedoperations', 'statementsofearnings']
 	CF = ['statementsofcashflows','statementofcashflows','cashflow']
 	PPE = ['propertyplantandequipment','propertyandequipment','investmentproperties']
 	skip = ['comprehensive','details']
@@ -115,6 +116,7 @@ def statement_URI(statement_roleURI:list, statement:str) -> str:
 		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
 	
+	print("Statement roleURI not found.")
 	assert False, f"{terms[statement]} not found."
 
 # loops throught the string that is split into multiple sections. It will only pick up the tag
