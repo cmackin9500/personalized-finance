@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import List
 
 from files import read_forms_from_dir, find_latest_form_dir
+from util.operations import contains_no_numbers
 
 @dataclass
 class XBRLNode:
@@ -76,6 +77,10 @@ def get_disclosure_URI(file_xsd:str) -> list:
 	assert statement_roleURI != [], "statement roleURI not found"
 	return statement_roleURI
 
+def get_role_path(uri:str) -> str:
+	uri_parts = uri.split('/')
+	return uri_parts[-1]
+
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
 def statement_URI(statement_roleURI:list, statement:str) -> str:
 	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition']
@@ -94,28 +99,46 @@ def statement_URI(statement_roleURI:list, statement:str) -> str:
 		'avoid': avoid
 	}
 	# I can keep track of the tables that has alredy been looked at to prevent it from runnin through the same forms multiple times
+	# Adding check for numbers because NXST has numbers in URI:
+	#	Role_StatementCONSOLIDATEDSTATEMENTSOFOPERATIONSANDCOMPREHENSIVEINCOME -> real one
+	#	StatementConsolidatedStatementsOfOperationsAndComprehensiveIncome2 -> fake one
 
-	# first check will skip the skip and avoid terms
+	# first check will skip the skip and avoid terms, and numbers
 	for uri in statement_roleURI:
-		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['skip']): 
+		stipped_uri = get_role_path(uri)
+		if any(s in stipped_uri.replace("_", "").replace("-", "").lower() for s in terms['skip']): 
 			continue
-		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
+		if any(s in stipped_uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
 			continue
-		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+		if not contains_no_numbers(stipped_uri): 
+			continue
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
 
-	# second check won't skip the skip terms
+	# second check won't skip the skip terms and skip uri that has numbers
 	for uri in statement_roleURI:
-		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
+		stipped_uri = get_role_path(uri)
+		if any(s in stipped_uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
 			continue
-		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+		if not contains_no_numbers(stipped_uri): 
+			continue
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+			return uri
+	
+	# final check will look through all but skip numbers
+	for uri in statement_roleURI:
+		stipped_uri = get_role_path(uri)
+		if not contains_no_numbers(uri): 
+			continue
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
 	
 	# final check will look through all
 	for uri in statement_roleURI:
-		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+		stipped_uri = get_role_path(uri)
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
-	
+
 	print("Statement roleURI not found.")
 	assert False, f"{terms[statement]} not found."
 

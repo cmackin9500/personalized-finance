@@ -57,12 +57,12 @@ def get_fs_list(fs_fields, mag, fs):
 			fs_list.append(d)
 	return fs_list
 
-def get_all_dates(data, period):
+def get_all_dates(data, period, currency):
 	dates1 = []
 	cash = 'CashAndCashEquivalentsAtCarryingValue'
 	if cash in data: 
-		if 'USD' in data[cash]['units']:
-			d = list(data[cash]['units']['USD'])
+		if currency in data[cash]['units']:
+			d = list(data[cash]['units'][currency])
 			for year in d:
 				if year['form'] == period:
 					if year['end'] not in dates1: dates1.append(year['end'])
@@ -71,8 +71,8 @@ def get_all_dates(data, period):
 	dates2 = []
 	cash = 'CashAndDueFromBanks'
 	if cash in data: 
-		if 'USD' in data[cash]['units']:
-			d = list(data[cash]['units']['USD'])
+		if currency in data[cash]['units']:
+			d = list(data[cash]['units'][currency])
 			for year in d:
 				if year['form'] == period:
 					if year['end'] not in dates1: dates1.append(year['end'])
@@ -96,7 +96,11 @@ def get_tags(destination, period):
 		data = f.read()
 	USGAAP_json = json.loads(data)
 
-	dates = get_all_dates(facts_json, period)
+	dates = get_all_dates(facts_json, period,'USD')
+	# Special cases where companies like CP has 'CAD' as currecny
+	if (dates == []):
+		dates = get_all_dates(facts_json, period,'CAD')
+
 	df = pd.DataFrame(columns = dates)
 
 	for category in USGAAP_json:
@@ -113,8 +117,6 @@ def get_tags(destination, period):
 								rowData[year['end']] = year['val']/div
 				appendRow = [rowData[key] for key in rowData]
 				df.loc[usgaap_tag] = appendRow
-
-	#df.to_csv("ticker.csv")
 	return df
 
 def epv(epv_path, json_path, appeared_tags):
@@ -123,29 +125,45 @@ def epv(epv_path, json_path, appeared_tags):
 	data = json.loads(data)['facts']['us-gaap']
 	usd = (list(data)[0])
 	if 'USD' not in data[usd]['units']:
-		return {}
+		return pd.DataFrame()
 	
 	with open(epv_path, 'r') as f:
 		all_tags = f.read()
 	all_tags = json.loads(all_tags)
 
-	dates = get_all_dates(data, '10-K')
+	dates = get_all_dates(data, '10-K', 'USD')
 
 	df = pd.DataFrame(columns = dates)
 	for tags in all_tags:
+		all_usgaap_rowData = []
 		rowData = {y:0 for y in dates}
 		for tag in all_tags[tags]:
-			if tag in data and tag in appeared_tags: 
+			#if tag in data and tag in appeared_tags: 
+			if tag in data: 
 				if 'USD' in data[tag]['units']:
 					d = list(data[tag]['units']['USD'])
 					for year in d:
 						if year['form'] == '10-K' and year['end'] in dates:
 							#TODO: I need to handle fields that adds up to one category. For example debt usually has multiple that adds up to one.
-							if rowData[year['end']] != 0: continue 
+							if rowData[year['end']] != 0: 
+								continue 
 							rowData[year['end']] += year['val']/div
-		appendRow = [rowData[key] for key in rowData]
+
+							# Adding this part to also export all of the elements that sums up to the calulation parameter for EPV
+							if {tag: rowData} not in all_usgaap_rowData:
+								all_usgaap_rowData.append({tag: rowData})
+
+		# Append the new category in EPV
+		appendRow = [rowData[key] for key in rowData]			
 		df.loc[tags] = appendRow
 
+		# Also show all the us-gaap tags that calculates up to it
+		for usgaap_rowData in all_usgaap_rowData:
+			for usgaap_tag in usgaap_rowData:
+				rowData = usgaap_rowData[usgaap_tag]
+				appendRow = [rowData[key] for key in rowData]			
+				df.loc[usgaap_tag] = appendRow
+		
 	#df.to_csv("ticker.csv")
 	return df
 					
@@ -201,6 +219,7 @@ def populate_fs_df(fs_list, all_fs_info):
 					break
 			if next: continue
 			all_fs_info.insert(index, fs_list[j])
+	
 	return all_fs_info
 
 def get_tags_from_df(fs_df):
@@ -210,6 +229,19 @@ def get_tags_from_df(fs_df):
 		tag = full_tag.split(':')[1]
 		just_tags.append(tag)
 	return just_tags
+
+def process_fs(cfiles, fs, mag):
+	all_fs_info = []
+	print(f"⏳ Attempting to parse {fs} for {directory_cfiles_10K[i]}.")
+	try:
+		FS = fs_process_from_cfiles(cfiles, fs, False)
+		fs_list = get_fs_list(FS, mag, fs)
+		all_fs_info = populate_fs_df(fs_list, all_fs_info)
+		print(f"	✅ Parsed successfully.\n")
+	except:
+		print(f"	❌ Could not parse {fs} for {directory_cfiles_10K[i]}.\n")
+	
+	return all_fs_info
 
 if __name__ == "__main__":
 	ticker = sys.argv[1]
@@ -238,10 +270,8 @@ if __name__ == "__main__":
 		if all_inline_10q_forms != []: retrieved_forms = save_all_forms(ticker,'10-Q',all_inline_10q_forms)
 
 	# Get the directory where the forms are/were stored and sort them in chronological order.1
-	directory_cfiles_10Q = find_all_form_dir(ticker,"10-Q")
-	directory_cfiles_10Q.sort(reverse=True)
-	directory_cfiles_10K = find_all_form_dir(ticker,"10-K")
-	directory_cfiles_10K.sort(reverse=True)
+	directory_cfiles_10Q = sorted(find_all_form_dir(ticker,"10-Q"), reverse=True)
+	directory_cfiles_10K = sorted(find_all_form_dir(ticker,"10-K"), reverse=True)
 	
 	if directory_cfiles_10K[0] > directory_cfiles_10Q[0]:
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[0]}")
@@ -258,30 +288,38 @@ if __name__ == "__main__":
 	all_bs_info = []
 	all_is_info = []
 	all_cf_info = []
+	directory_cfiles_10K.reverse()
 	for i in range(len(directory_cfiles_10K)):
 		cur_year = directory_cfiles_10K[i]
 		if cur_year == ".DS_Store":continue
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[i]}")
+		
+		print(f"⏳ Attempting to parse balance sheet for {directory_cfiles_10K[i]}.")
 		try:
 			BS = fs_process_from_cfiles(cfiles, 'bs', False)
 			bs_list = get_fs_list(BS, mag, 'bs')
 			all_bs_info = populate_fs_df(bs_list, all_bs_info)
+			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"Could not parse balance sheet for {directory_cfiles_10K[i]}.")
-		
+			print(f"	❌ Could not parse balance sheet for {directory_cfiles_10K[i]}.\n")
+
+		print(f"⏳ Attempting to parse income statement for {directory_cfiles_10K[i]}.")
 		try:
 			IS = fs_process_from_cfiles(cfiles, 'is', False)
 			is_list = get_fs_list(IS, mag, 'is')
 			all_is_info = populate_fs_df(is_list, all_is_info)
+			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"Could not parse income statement for {directory_cfiles_10K[i]}.")
-			
+			print(f"	❌ Could not parse income statement for {directory_cfiles_10K[i]}.\n")
+
+		print(f"⏳ Attempting to parse cash flow for {directory_cfiles_10K[i]}.")	
 		try:
 			CF = fs_process_from_cfiles(cfiles, 'cf', False)
 			cf_list = get_fs_list(CF, mag, 'cf')
 			all_cf_info = populate_fs_df(cf_list, all_cf_info)
+			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"Could not parse cash flow for {directory_cfiles_10K[i]}.")
+			print(f"	❌ Could not parse cash flow for {directory_cfiles_10K[i]}.\n")
 
 	df_bs = pd.DataFrame(all_bs_info)
 	df_is = pd.DataFrame(all_is_info)
@@ -314,3 +352,7 @@ if __name__ == "__main__":
 	EPV.to_excel(writer, sheet_name='EPV')
 	writer.save()
 	#writer.close()
+
+
+	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
+	# we don't override.
