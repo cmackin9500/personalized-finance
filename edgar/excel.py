@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import List
 import pandas as pd
 import json
+import openpyxl as xl
 
 from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
 from xbrl_parse import get_fs_fields, get_disclosure_fields
@@ -172,7 +173,7 @@ def fs_process_from_cfiles(cfiles, fs, get_both_dates = False):
 	fs_fields = get_fs_fields(ticker, fs, cfiles)
 	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
 	fs_table_from_html = derived_fs_table(all_tables, fs_fields)
-	
+
 	index = 0
 	if get_both_dates:
 		assert len(fs_table_from_html[0]) > 0, "Facts retrieved for the Financial Statement is empty."
@@ -353,6 +354,24 @@ if __name__ == "__main__":
 	writer.save()
 	#writer.close()
 
+	path = f"./excel/{ticker}.xlsx"
+	wb = xl.load_workbook(path)
+	source = wb['Balance Sheet']
+	target = wb.copy_worksheet(source)
+	target.title = "NAV BS"
+
+	col = 5
+	max_col = target.max_column
+	while col <= max_col:
+		target.insert_cols(col)
+		target.insert_cols(col)
+		col += 3
+		max_col += 2
+
+	wb.save(path)
+
+	#newBS = xl.copy_worksheet(xl_BS)
+	#newBS.insert_rows(7)
 
 	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
 	# we don't override.

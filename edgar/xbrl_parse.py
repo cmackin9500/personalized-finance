@@ -259,9 +259,13 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str, fs_fields):
 	calculationLink = soup_get_all_of(file_cal, ['link:calculationlink','calculationlink'])
 	arcs = ['link:calculationarc','calculationarc']
 	all_calculation_arc = find_all_arc(fs_URI, calculationLink, arcs)
+	
+	# Fail case for DELL dell-20220128_cal IS
+	if all_calculation_arc is None:
+		print("cal data not right. URI might not be loaded right.")
+		return fs_fields
 
 	assert all_calculation_arc != None, "cal_data not found"
-
 	for calculation_arc in all_calculation_arc:
 		tag, parent = None, None
 		# getting the tag
@@ -369,7 +373,7 @@ def get_fs_fields(ticker:str, fs, cfiles):
 	fs_fields = {}
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields)
 	fs_fields = cal_data(ticker, cfiles.cal, fs_URI, fs_fields)
-	
+
 	no_parent_tags = tags_without_parent(fs_fields)
 	if no_parent_tags != []:
 		cal_data_again(ticker, cfiles.cal, fs_URI, fs, fs_fields, no_parent_tags)
