@@ -1,7 +1,7 @@
 {
   "Operating Income": ["OperatingIncomeLoss"],
   "R&D": ["ResearchAndDevelopmentExpense"],
-  "Option Expenses": ["ShareBasedCompensation"],
+  "Option Expense": ["ShareBasedCompensation"],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
     "CashAndDueFromBanks",
@@ -19,18 +19,18 @@
     "LongTermDebt",
     "LongTermDebtAndCapitalLeaseObligations"
   ],
-  "PPE": [
+  "Premises and Equipment": [
     "PropertyPlantAndEquipmentNet",
     "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
     "PaymentsToAcquireOilAndGasProperty",
     "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization"
   ],
-  "Revenue": [
+  "Current Year Revenue": [
     "RevenueFromContractWithCustomerExcludingAssessedTax",
     "Revenues",
     "SalesRevenueNet"
   ],
-  "D&A": [
+  "Depreciation and Amortization": [
     "DepreciationAndAmortization",
     "DepreciationDepletionAndAmortization",
     "Depreciation",
@@ -38,7 +38,7 @@
     "OtherDepreciationAndAmortization",
     "DepreciationAmortizationAndAccretionNet"
   ],
-  "Capex": [
+  "CAPEX": [
     "PaymentsToAcquirePropertyPlantAndEquipment",
     "PaymentsToAcquireProductiveAssets",
     "PaymentsToAcquireRealEstate"

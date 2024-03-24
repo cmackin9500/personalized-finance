@@ -14,6 +14,7 @@ from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
 from util.write_to_csv import *
 from util.file_management import read_file
+from epv import *
 
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
@@ -252,9 +253,9 @@ def get_epv_info_from_fs(epv_info, epv_tags, fs_list):
 			epv_tag = epv_tags[key]
 			if tag in epv_tag:
 				if tag in epv_info[cur_year]:
-					epv_info[cur_year][tag] += tag_info[cur_year]
+					epv_info[cur_year][key] += tag_info[cur_year]
 				else:
-					epv_info[cur_year][tag] = tag_info[cur_year]
+					epv_info[cur_year][key] = tag_info[cur_year]
 
 if __name__ == "__main__":
 	ticker = sys.argv[1]
@@ -351,7 +352,6 @@ if __name__ == "__main__":
 		except:
 			print(f"	❌ Could not parse cash flow for {directory_cfiles_10K[i]}.\n")
 
-	print(epv_info)
 	df_bs = pd.DataFrame(all_bs_info)
 	df_is = pd.DataFrame(all_is_info)
 	df_cf = pd.DataFrame(all_cf_info)
@@ -398,21 +398,14 @@ if __name__ == "__main__":
 		col += 3
 		max_col += 2
 
+	wb.create_sheet("EPV test")
+	wb_EPV = wb["EPV test"]
+	fill_epv(wb_EPV, epv_info)
+
 	wb.save(path)
 
-	dates_bs = list(df_bs.columns)[2:]
-	dates_is = list(df_is.columns)[2:]
-	dates_cf = list(df_cf.columns)[2:]
-	dates = list(set(dates_bs+dates_cf+dates_is))
-	print(dates)
-	#years = [date.split('-')[0] for date in dates]
-	
 
-	#for i in range(len(df_is)):
-	#	print(df_is.loc[i, "Tag"], df_is.loc[i, "2017-12-30"])
 
-	#newBS = xl.copy_worksheet(xl_BS)
-	#newBS.insert_rows(7)
 
 	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
 	# we don't override.
