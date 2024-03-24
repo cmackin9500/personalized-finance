@@ -2,14 +2,45 @@
   "Operating Income": ["OperatingIncomeLoss"],
   "R&D": ["ResearchAndDevelopmentExpense"],
   "Option Expenses": ["ShareBasedCompensation"],
-  "Cash": ["CashAndCashEquivalentsAtCarryingValue", "CashAndDueFromBanks", "CashCashEquivalentsAndFederalFundsSold"],
-  "Debt": ["LongTermDebtNoncurrent", "OtherLongTermDebt", "UnsecuredLongTermDebt", "LongTermDebt", "FederalHomeLoanBankAdvancesLongTerm",
-           "JuniorSubordinatedNotes", "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust", "UnsecuredLongTermDebt",
-           "LongTermDebt", "LongTermDebtAndCapitalLeaseObligations"],
-  "PPE": ["PropertyPlantAndEquipmentNet", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
-          "PaymentsToAcquireOilAndGasProperty", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization"],
-  "Revenue": ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues"],
-  "D&A": ["DepreciationAndAmortization","DepreciationDepletionAndAmortization", "Depreciation", "AmortizationOfIntangibleAssets",
-          "OtherDepreciationAndAmortization", "DepreciationAmortizationAndAccretionNet"],
-  "Capex": ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets", "PaymentsToAcquireRealEstate"]
+  "Cash": [
+    "CashAndCashEquivalentsAtCarryingValue",
+    "CashAndDueFromBanks",
+    "CashCashEquivalentsAndFederalFundsSold"
+  ],
+  "Debt": [
+    "LongTermDebtNoncurrent",
+    "OtherLongTermDebt",
+    "UnsecuredLongTermDebt",
+    "LongTermDebt",
+    "FederalHomeLoanBankAdvancesLongTerm",
+    "JuniorSubordinatedNotes",
+    "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust",
+    "UnsecuredLongTermDebt",
+    "LongTermDebt",
+    "LongTermDebtAndCapitalLeaseObligations"
+  ],
+  "PPE": [
+    "PropertyPlantAndEquipmentNet",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
+    "PaymentsToAcquireOilAndGasProperty",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization"
+  ],
+  "Revenue": [
+    "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "Revenues",
+    "SalesRevenueNet"
+  ],
+  "D&A": [
+    "DepreciationAndAmortization",
+    "DepreciationDepletionAndAmortization",
+    "Depreciation",
+    "AmortizationOfIntangibleAssets",
+    "OtherDepreciationAndAmortization",
+    "DepreciationAmortizationAndAccretionNet"
+  ],
+  "Capex": [
+    "PaymentsToAcquirePropertyPlantAndEquipment",
+    "PaymentsToAcquireProductiveAssets",
+    "PaymentsToAcquireRealEstate"
+  ]
 }

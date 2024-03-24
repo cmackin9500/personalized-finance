@@ -13,6 +13,7 @@ from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_fac
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
 from util.write_to_csv import *
+from util.file_management import read_file
 
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
@@ -244,6 +245,17 @@ def process_fs(cfiles, fs, mag):
 	
 	return all_fs_info
 
+def get_epv_info_from_fs(epv_info, epv_tags, fs_list):
+	for tag_info in fs_list:
+		tag = tag_info['Tag'].split(":")[1]
+		for key in epv_tags:
+			epv_tag = epv_tags[key]
+			if tag in epv_tag:
+				if tag in epv_info[cur_year]:
+					epv_info[cur_year][tag] += tag_info[cur_year]
+				else:
+					epv_info[cur_year][tag] = tag_info[cur_year]
+
 if __name__ == "__main__":
 	ticker = sys.argv[1]
 	mag = sys.argv[2]
@@ -289,17 +301,26 @@ if __name__ == "__main__":
 	all_bs_info = []
 	all_is_info = []
 	all_cf_info = []
+	epv_info = {}
+	epv_tags = json.loads(read_file(f"./tags/epv_{industry}_tags.json"))
+
 	directory_cfiles_10K.reverse()
 	for i in range(len(directory_cfiles_10K)):
 		cur_year = directory_cfiles_10K[i]
 		if cur_year == ".DS_Store":continue
+		epv_info[cur_year] = {}
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[i]}")
 		
 		print(f"⏳ Attempting to parse balance sheet for {directory_cfiles_10K[i]}.")
 		try:
+			# For getting all balance sheet info
 			BS = fs_process_from_cfiles(cfiles, 'bs', False)
 			bs_list = get_fs_list(BS, mag, 'bs')
 			all_bs_info = populate_fs_df(bs_list, all_bs_info)
+
+			# For getting the EPV info
+			get_epv_info_from_fs(epv_info, epv_tags, bs_list)
+
 			print(f"	✅ Parsed successfully.\n")
 		except:
 			print(f"	❌ Could not parse balance sheet for {directory_cfiles_10K[i]}.\n")
@@ -309,6 +330,10 @@ if __name__ == "__main__":
 			IS = fs_process_from_cfiles(cfiles, 'is', False)
 			is_list = get_fs_list(IS, mag, 'is')
 			all_is_info = populate_fs_df(is_list, all_is_info)
+
+			# For getting the EPV info
+			get_epv_info_from_fs(epv_info, epv_tags, is_list)
+
 			print(f"	✅ Parsed successfully.\n")
 		except:
 			print(f"	❌ Could not parse income statement for {directory_cfiles_10K[i]}.\n")
@@ -318,10 +343,15 @@ if __name__ == "__main__":
 			CF = fs_process_from_cfiles(cfiles, 'cf', False)
 			cf_list = get_fs_list(CF, mag, 'cf')
 			all_cf_info = populate_fs_df(cf_list, all_cf_info)
+
+			# For getting the EPV info
+			get_epv_info_from_fs(epv_info, epv_tags, cf_list)
+			
 			print(f"	✅ Parsed successfully.\n")
 		except:
 			print(f"	❌ Could not parse cash flow for {directory_cfiles_10K[i]}.\n")
 
+	print(epv_info)
 	df_bs = pd.DataFrame(all_bs_info)
 	df_is = pd.DataFrame(all_is_info)
 	df_cf = pd.DataFrame(all_cf_info)
@@ -369,6 +399,17 @@ if __name__ == "__main__":
 		max_col += 2
 
 	wb.save(path)
+
+	dates_bs = list(df_bs.columns)[2:]
+	dates_is = list(df_is.columns)[2:]
+	dates_cf = list(df_cf.columns)[2:]
+	dates = list(set(dates_bs+dates_cf+dates_is))
+	print(dates)
+	#years = [date.split('-')[0] for date in dates]
+	
+
+	#for i in range(len(df_is)):
+	#	print(df_is.loc[i, "Tag"], df_is.loc[i, "2017-12-30"])
 
 	#newBS = xl.copy_worksheet(xl_BS)
 	#newBS.insert_rows(7)
