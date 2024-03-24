@@ -19,9 +19,12 @@ redTextFont = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=Non
 
 greyFill = PatternFill(fill_type="solid", start_color='999997', end_color='999997')
 yellowFill = PatternFill(fill_type="solid", start_color='ffff01', end_color='ffff01')
+orangeFill = PatternFill(fill_type="solid", start_color='fde599', end_color='fde599')
 
 epvFill = PatternFill(fill_type="solid", start_color="c6e6c1", end_color="c6e6c1")
 greenFill = PatternFill(fill_type="solid", start_color='7eab76', end_color='7eab76')
+notesFill = PatternFill(fill_type="solid", start_color='fdd966', end_color='fdd966')
+greeNotesFill = PatternFill(fill_type="solid", start_color='b6d7a8', end_color='b6d7a8')
 
 depAdjFill = PatternFill(fill_type="solid", start_color="fef2cc", end_color="fef2cc")
 depAdjDataFill = PatternFill(fill_type="solid", start_color="cfe2f3", end_color="cfe2f3")
@@ -249,6 +252,61 @@ def fill_dep_adj_data(wb_EPV, row, col, epv_info):
             row += 1
         col += 1
 
+def fill_notes(wb_EPV, row, col):
+    cell = wb_EPV[f"{letters[col]}{row}"]
+    wb_EPV.cell(row=row, column=col, value="Notes")
+    wb_EPV.column_dimensions[f"{letters[col]}"].width = 15
+    cell.font = boldFont
+    cell.alignment = Alignment(horizontal="center")
+    cell.fill = notesFill
+    cell.border = Border(left=thinBorder, top=thickBorder, right=thickBorder, bottom=noBorder)
+
+    # EPV notes
+    row = 3
+    for _ in range(3, 23):
+        wb_EPV.cell(row=row, column=col, value=None)
+        cell = wb_EPV[f"{letters[col]}{row}"]
+        cell.fill = orangeFill  
+
+        if (row == 22):
+            cell.border = Border(left=thinBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
+        else:
+            cell.border = Border(left=thinBorder, top=noBorder, right=thickBorder, bottom=noBorder)
+        row += 1
+    
+    # DA Notes
+    row = 24
+    for _ in range(24, 33):
+        wb_EPV.cell(row=row, column=col, value=None)
+        cell = wb_EPV[f"{letters[col]}{row}"]
+        cell.fill = greeNotesFill
+        cell.alignment = Alignment(horizontal="center")
+        cell.border = Border(left=thinBorder, top=noBorder, right=thickBorder, bottom=noBorder)
+
+        if (row == 24):
+            wb_EPV.cell(row=row, column=col, value="(a)")
+            cell.border = Border(left=thinBorder, top=thickBorder, right=thickBorder, bottom=noBorder)
+        elif (row == 25):
+            wb_EPV.cell(row=row, column=col, value="(b)")
+        elif (row == 26):
+            wb_EPV.cell(row=row, column=col, value="(c)")
+        elif (row == 27):
+            wb_EPV.cell(row=row, column=col, value="(d) = (b) - (c)")
+        elif (row == 28):
+            wb_EPV.cell(row=row, column=col, value="(e)")
+        elif (row == 29):
+            wb_EPV.cell(row=row, column=col, value="(f)")
+        elif (row == 30):
+            wb_EPV.cell(row=row, column=col, value="(g) = (a)/(b) x (d)")
+        elif (row == 31):
+            cell.border = Border(left=thinBorder, top=noBorder, right=thickBorder, bottom=thinBorder)
+            wb_EPV.cell(row=row, column=col, value="(h) = (f) - (g)")
+        elif row == 32:
+            cell.border = Border(left=thinBorder, top=thinBorder, right=thickBorder, bottom=thickBorder)
+            wb_EPV.cell(row=row, column=col, value="(i) = (e) - (h)")
+        row += 1
+    
+
 def fill_epv(wb_EPV, epv_info):
     row, col = 3, 2
     EPV_titles(wb_EPV, row, col)
@@ -258,7 +316,8 @@ def fill_epv(wb_EPV, epv_info):
     fill_EPV_data(wb_EPV, row, col, epv_info)
     row = 24
     fill_dep_adj_data(wb_EPV, row, col, epv_info)
-    #wb_EPV.save(path)
+    row, col = 2, 3+len(epv_info)
+    fill_notes(wb_EPV, row, col)
 
 if __name__ == "__main__":
     ticker = "DOMI"
