@@ -407,7 +407,7 @@ if __name__ == "__main__":
 
 	wb.create_sheet("WACC")
 	wb_WACC = wb["WACC"]
-	wacc_titles(wb_WACC)
+	fill_wacc(wb_WACC)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]

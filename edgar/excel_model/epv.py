@@ -93,7 +93,8 @@ def fill_EPV_data(wb_EPV, row, col, epv_info):
             value = epv_info[date][epv_value] if epv_value in epv_info[date] else None
             # Debt needs to be negative
             if epv_value == "Debt":
-                value = -abs(value)
+                if value is not None:
+                    value = -abs(value)
 
             wb_EPV.cell(row=row, column=col, value=value)
             cell = wb_EPV[f"{letters[col]}{row}"]

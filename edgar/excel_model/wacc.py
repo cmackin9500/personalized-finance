@@ -2,6 +2,7 @@ import openpyxl as xl
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font
 import openpyxl.styles.numbers as format
 
+CUSTOM_FORMAT_CURRENCY_ZERO = '_($* #,##0_);[Red]_($* (#,##0);_($* "-"??_)'
 CUSTOM_FORMAT_CURRENCY_ONE = '_($* #,##0.0_);[Red]_($* (#,##0.0);_($* "-"??_)'
 CUSTOM_FORMAT_CURRENCY_TWO = '_($* #,##0.00_);[Red]_($* (#,##0.00);_($* "-"??_)'
 CUSTOM_FORMAT_PE = '0.00x'
@@ -27,25 +28,28 @@ thinBorder = Side(style="thin", color="000000")
 thickBorder = Side(style="thick", color="000000")
 noBorder = Side(style="none")
 
-def wacc_titles(wb_WACC):
-    for col in range(2,10):
-        cell = wb_WACC[f"{letters[col]}{2}"]
+def create_box(wb_WACC, x, y, dx, dy):
+    for col in range(x,x+dx):
+        cell = wb_WACC[f"{letters[col]}{x}"]
         cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder)
-        cell = wb_WACC[f"{letters[col]}{11}"]
+        cell = wb_WACC[f"{letters[col]}{y+dy-1}"]
         cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=thinBorder)
-    for row in range(2,12):
-        cell_left = wb_WACC[f"B{row}"]
-        cell_right = wb_WACC[f"I{row}"]
-        if row == 2:
+    for row in range(y,y+dy):
+        cell_left = wb_WACC[f"{letters[x]}{row}"]
+        cell_right = wb_WACC[f"{letters[x+dx-1]}{row}"]
+        if row == y:
             cell_left.border = Border(left=thinBorder, top=thinBorder, right=noBorder, bottom=noBorder)
             cell_right.border = Border(left=noBorder, top=thinBorder, right=thinBorder, bottom=noBorder)
-        elif row == 11:
+        elif row == y+dy-1:
             cell_left.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=thinBorder)
             cell_right.border = Border(left=noBorder, top=noBorder, right=thinBorder, bottom=thinBorder)
         else:
             cell_left.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=noBorder)
             cell_right.border = Border(left=noBorder, top=noBorder, right=thinBorder, bottom=noBorder)
 
+
+def wacc_box_one(wb_WACC):
+    create_box(wb_WACC, 2, 2, 8, 10)
 
     row = 2
     for col in range(2,10):
@@ -60,7 +64,8 @@ def wacc_titles(wb_WACC):
     for col in range(2,10):
         cell = wb_WACC[f"{letters[col]}{row}"]
         if col == 2:
-            wb_WACC.cell(row=row, column=col, value="http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ratings.htm")
+            link = "http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ratings.htm"
+            wb_WACC.cell(row=row, column=col, value='=HYPERLINK("{}", "{}")'.format(link, f"http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/ratings.htm"))
 
     row = 4
     for col in range(2,10):
@@ -75,6 +80,7 @@ def wacc_titles(wb_WACC):
     row = 5
     for col in range(2,10):
         cell = wb_WACC[f"{letters[col]}{row}"]
+        cell.alignment = Alignment(horizontal="center")
         if col == 2:
             wb_WACC.cell(row=row, column=col, value=None)
             cell.font = boldFont
@@ -97,6 +103,7 @@ def wacc_titles(wb_WACC):
         elif col == 5:
             wb_WACC.cell(row=row, column=col, value=None)
             cell.fill = yellowFill
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
         elif col == 6:
             wb_WACC.cell(row=row, column=col, value=None)
             cell.fill = yellowFill
@@ -109,6 +116,7 @@ def wacc_titles(wb_WACC):
         elif col == 9:
             wb_WACC.cell(row=row, column=col, value=None)
             cell.fill = yellowFill
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
 
     row = 7
     for col in range(2,10):
@@ -120,12 +128,183 @@ def wacc_titles(wb_WACC):
             cell.number_format = format.FORMAT_PERCENTAGE_00
             cell.fill = yellowFill
 
-    row = 7
+    row = 9
     for col in range(2,10):
         cell = wb_WACC[f"{letters[col]}{row}"]
         if col == 2:
-            wb_WACC.cell(row=row, column=col, value="Risk Spread")
+            wb_WACC.cell(row=row, column=col, value="US risk free rate normalized")
+            cell.font = boldFont
         elif col == 3:
-            wb_WACC.cell(row=row, column=col, value=RISK_SPREAD)
+            wb_WACC.cell(row=row, column=col, value=0.04)
             cell.number_format = format.FORMAT_PERCENTAGE_00
             cell.fill = yellowFill
+        elif col == 5:
+            wb_WACC.cell(row=row, column=col, value="Mkt Value of Debt")
+            cell.font = boldFont
+        elif col == 8:
+            wb_WACC.cell(row=row, column=col, value="=(I6*((1-(1/(1+C11)^H6))/C11)+E6/(1+C11)^H6)")
+            cell.fill = yellowFill
+            cell.font = boldFont
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
+        elif col == 9:
+            wb_WACC.cell(row=row, column=col, value=None)
+            cell.fill = greyFill
+  
+    row = 11
+    for col in range(2,10):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Pretax cost of debt")
+            cell.font = boldFont
+        elif col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C7+C9")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+            cell.fill = yellowFill
+            
+def wacc_box_two(wb_WACC):
+    create_box(wb_WACC, 2, 13, 2, 4)
+    row = 13
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Market Value of Equity")
+            cell.font = boldFont
+
+    row = 14
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Shares Outstanding")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=COVER!C5")
+
+    row = 15
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Price")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=COVER!C2")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
+
+    row = 16
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Market Cap ($m)")
+            cell.font = boldFont
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C14*C15")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_ZERO
+
+def wacc_box_three(wb_WACC):
+    create_box(wb_WACC, 2, 18, 2, 6)
+    row = 18
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Debt")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value='=SWITCH(I9,"thousands",H9/1000,"millions",H9,H9/1000000)')
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
+
+    row = 19
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Equity")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C16")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_ZERO
+
+    row = 20
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Debt Weight")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C18/(C18+C19)")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_ZERO
+
+    row = 21
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Equity Weight")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=1-C20")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+
+    row = 23
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="D/E Ratio")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C18/C19x`")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+
+def wacc_box_four(wb_WACC):
+    create_box(wb_WACC, 2, 25, 2, 10)
+    row = 25
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Beta")
+            cell.font = boldFont
+
+    row = 26
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            link = "http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html"
+            wb_WACC.cell(row=row, column=col, value='=HYPERLINK("{}", "{}")'.format(link, f"http://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html"))
+            #wb_WACC.cell(row=row, column=col, value=link)
+
+    row = 27
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 3:
+            cell.fill = yellowFill
+    
+    row = 29
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="B Unlevered")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C27")
+ 
+    row = 31
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="Tax Rate")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value=0.35)
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+ 
+    row = 32
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="D/E")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C23")
+            cell.number_format = CUSTOM_FORMAT_PE
+
+    row = 34
+    for col in range(2,4):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        cell.font = boldFont
+        if col == 2:
+            wb_WACC.cell(row=row, column=col, value="B Unlevered")
+        if col == 3:
+            wb_WACC.cell(row=row, column=col, value="=C29*(1+(1-C31)*(C32))")
+            cell.fill = yellowFill
+
+def fill_wacc(wb_WACC):
+    wacc_box_one(wb_WACC)
+    wacc_box_two(wb_WACC)
+    wacc_box_three(wb_WACC)
+    wacc_box_four(wb_WACC)
