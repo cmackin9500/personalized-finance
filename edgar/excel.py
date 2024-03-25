@@ -17,6 +17,7 @@ from util.file_management import read_file
 from excel_model.epv import *
 from excel_model.cover import *
 from excel_model.gv import *
+from excel_model.wacc import *
 
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
@@ -403,6 +404,11 @@ if __name__ == "__main__":
 	wb.create_sheet("COVER")
 	wb_cover = wb["COVER"]
 	fill_cover(wb_cover, ticker, 5)
+
+	wb.create_sheet("WACC")
+	wb_WACC = wb["WACC"]
+	wacc_titles(wb_WACC)
+
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
 	fill_epv(wb_EPV, epv_info)
