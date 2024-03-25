@@ -1,11 +1,11 @@
 import openpyxl as xl
-from openpyxl import formatting
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Font
 import openpyxl.styles.numbers as format
 
 CUSTOM_FORMAT_CURRENCY_ONE = '_($* #,##0.0_);[Red]_($* (#,##0.0);_($* "-"??_)'
 CUSTOM_FORMAT_CURRENCY_TWO = '_($* #,##0.00_);[Red]_($* (#,##0.00);_($* "-"??_)'
 letters = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
 titles = ["Operating Income", "Depreciation Adjustment", "Depreciation", "CAPEX", "Growth CAPEX", "Option Expense", "Interest Earned on Cash",
           "Cash", "Interest Rate", "Pretax Earnings", "Tax Rate", "Taxes", "Earnings", "Earnings Power Value", "Cash", "Debt",
           "Total EV in Equity", "Shares Outstanding", "EPV/share", "Current Share Price"]
@@ -15,7 +15,6 @@ depreciation_adjustment = ["Premises and Equipment", "Current Year Revenue", "Pr
 
 boldFont = Font(name='Arial',size=10, bold=True, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
 textFont  = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
-redTextFont = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=None, underline='none', strike=False, color='ff0000')
 
 greyFill = PatternFill(fill_type="solid", start_color='999997', end_color='999997')
 yellowFill = PatternFill(fill_type="solid", start_color='ffff01', end_color='ffff01')
@@ -24,7 +23,7 @@ orangeFill = PatternFill(fill_type="solid", start_color='fde599', end_color='fde
 epvFill = PatternFill(fill_type="solid", start_color="c6e6c1", end_color="c6e6c1")
 greenFill = PatternFill(fill_type="solid", start_color='7eab76', end_color='7eab76')
 notesFill = PatternFill(fill_type="solid", start_color='fdd966', end_color='fdd966')
-greeNotesFill = PatternFill(fill_type="solid", start_color='b6d7a8', end_color='b6d7a8')
+greenNotesFill = PatternFill(fill_type="solid", start_color='b6d7a8', end_color='b6d7a8')
 
 depAdjFill = PatternFill(fill_type="solid", start_color="fef2cc", end_color="fef2cc")
 depAdjDataFill = PatternFill(fill_type="solid", start_color="cfe2f3", end_color="cfe2f3")
@@ -36,9 +35,6 @@ noBorder = Side(style="none")
 
 def cell_address(col, row):
     return f"{letters[col]}{row}"
-
-def format_for_sign(value):
-    return textFont if value >= 0 else redTextFont
 
 def EPV_titles(wb_EPV, row, col):
     wb_EPV.column_dimensions['B'].width = 30
@@ -279,7 +275,7 @@ def fill_notes(wb_EPV, row, col):
     for _ in range(24, 33):
         wb_EPV.cell(row=row, column=col, value=None)
         cell = wb_EPV[f"{letters[col]}{row}"]
-        cell.fill = greeNotesFill
+        cell.fill = greenNotesFill
         cell.alignment = Alignment(horizontal="center")
         cell.border = Border(left=thinBorder, top=noBorder, right=thickBorder, bottom=noBorder)
 
@@ -308,6 +304,7 @@ def fill_notes(wb_EPV, row, col):
     
 
 def fill_epv(wb_EPV, epv_info):
+    wb_EPV.column_dimensions['A'].width = 2
     row, col = 3, 2
     EPV_titles(wb_EPV, row, col)
     row = 24

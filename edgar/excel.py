@@ -14,7 +14,9 @@ from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
 from util.write_to_csv import *
 from util.file_management import read_file
-from epv import *
+from excel_model.epv import *
+from excel_model.cover import *
+from excel_model.gv import *
 
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
@@ -380,7 +382,7 @@ if __name__ == "__main__":
 	df_is.to_excel(writer, sheet_name='Income Statement')
 	df_cf.to_excel(writer, sheet_name='Cash Flow')
 	TAGS.to_excel(writer, sheet_name='Tags')
-	EPV.to_excel(writer, sheet_name='EPV')
+	EPV.to_excel(writer, sheet_name='EPV Data')
 	writer.save()
 	#writer.close()
 
@@ -398,9 +400,17 @@ if __name__ == "__main__":
 		col += 3
 		max_col += 2
 
-	wb.create_sheet("EPV test")
-	wb_EPV = wb["EPV test"]
+	wb.create_sheet("COVER")
+	wb_cover = wb["COVER"]
+	fill_cover(wb_cover, ticker, 5)
+	wb.create_sheet("EPV")
+	wb_EPV = wb["EPV"]
 	fill_epv(wb_EPV, epv_info)
+
+	years = [date.split('-')[0] for date in epv_info]
+	wb.create_sheet("GV")
+	wb_GV = wb["GV"]
+	fill_gv(wb_GV, years)
 
 	wb.save(path)
 
