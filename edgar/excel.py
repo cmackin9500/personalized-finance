@@ -18,6 +18,7 @@ from excel_model.epv import *
 from excel_model.cover import *
 from excel_model.gv import *
 from excel_model.wacc import *
+from excel_model.nav import *
 
 def get_fs_list(fs_fields, mag, fs):
 	div = 1000
@@ -355,6 +356,24 @@ if __name__ == "__main__":
 		except:
 			print(f"	❌ Could not parse cash flow for {directory_cfiles_10K[i]}.\n")
 
+	iAsset, iLiabilities = None, None
+	for i, info in enumerate(all_bs_info):
+		if info["Tag"] == "us-gaap:Assets":
+			iAsset = i
+			continue
+		if info["Tag"] == "us-gaap:Liabilities":
+			iLiabilities = i
+			break
+		if info["Tag"] == "us-gaap:PreferredStockValue" or info["Tag"] == "us-gaap:CommitmentsAndContingencies" or info["Tag"] == "us-gaap:CommonStockValue":
+			iLiabilities = i-1
+			break
+	if iAsset is None:
+		print("iAsset is not found")
+	if iLiabilities is None:
+		print("iLiabilities is not found")
+	assets_info = all_bs_info[:iAsset+1]
+	liabilities_info = all_bs_info[iAsset+1:iLiabilities+1]
+
 	df_bs = pd.DataFrame(all_bs_info)
 	df_is = pd.DataFrame(all_is_info)
 	df_cf = pd.DataFrame(all_cf_info)
@@ -378,7 +397,7 @@ if __name__ == "__main__":
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
 	writer = pd.ExcelWriter(f"./excel/{ticker}.xlsx", engine='xlsxwriter')
-	df_nav.to_excel(writer, sheet_name='NAV')
+	df_nav.to_excel(writer, sheet_name='Recent NAV')
 	df_bs.to_excel(writer, sheet_name='Balance Sheet')
 	df_is.to_excel(writer, sheet_name='Income Statement')
 	df_cf.to_excel(writer, sheet_name='Cash Flow')
@@ -400,6 +419,8 @@ if __name__ == "__main__":
 		target.insert_cols(col)
 		col += 3
 		max_col += 2
+	
+	years = [date.split('-')[0] for date in epv_info]
 
 	wb.create_sheet("COVER")
 	wb_cover = wb["COVER"]
@@ -409,11 +430,13 @@ if __name__ == "__main__":
 	wb_WACC = wb["WACC"]
 	fill_wacc(wb_WACC)
 
+	wb.create_sheet("NAV")
+	wb_NAV = wb["NAV"]
+	fill_NAV(wb_NAV, assets_info, liabilities_info, years)
+
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
 	fill_epv(wb_EPV, epv_info)
-
-	years = [date.split('-')[0] for date in epv_info]
 	wb.create_sheet("GV")
 	wb_GV = wb["GV"]
 	fill_gv(wb_GV, years)
