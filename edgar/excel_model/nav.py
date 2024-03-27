@@ -13,11 +13,12 @@ textFont  = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=None,
 
 greyFill = PatternFill(fill_type="solid", start_color='ebebeb', end_color='ebebeb')
 greyerFill = PatternFill(fill_type="solid", start_color='999997', end_color='999997')
-
-epvFill = PatternFill(fill_type="solid", start_color="c6e6c1", end_color="c6e6c1")
-greenFill = PatternFill(fill_type="solid", start_color='7eab76', end_color='7eab76')
-notesFill = PatternFill(fill_type="solid", start_color='fdd966', end_color='fdd966')
-greenNotesFill = PatternFill(fill_type="solid", start_color='b6d7a8', end_color='b6d7a8')
+purpleFill = PatternFill(fill_type="solid", start_color='d9d2e9', end_color='d9d2e9')
+purplerFill = PatternFill(fill_type="solid", start_color='b4a7d7', end_color='b4a7d7')
+blueFill = PatternFill(fill_type="solid", start_color='c9dbf8', end_color='c9dbf8')
+bluerFill = PatternFill(fill_type="solid", start_color='a4c2f4', end_color='a4c2f4')
+greenFill = PatternFill(fill_type="solid", start_color='b7d7a8', end_color='b7d7a8')
+greenerFill = PatternFill(fill_type="solid", start_color='93c47d', end_color='93c47d')
 
 depAdjFill = PatternFill(fill_type="solid", start_color="fef2cc", end_color="fef2cc")
 depAdjDataFill = PatternFill(fill_type="solid", start_color="cfe2f3", end_color="cfe2f3")
@@ -222,8 +223,87 @@ def NAV_liabilities_titiles(wb_NAV, liabilities_info, row, years):
     cell = wb_NAV[f"{letters[col]}{row}"]
     cell.font = boldFont
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
+    return row
 
-def fill_NAV(wb_NAV, assets_info, liabilities_info, years):
+def NAV_assets_data(wb_NAV, assets_info, col, end_row, date):
+    wb_NAV.column_dimensions[letters[col]].width = 15
+    year = date.split('-')[0]
+    # Title Assets
+    wb_NAV.cell(row=2, column=col, value=f"FY {year}")
+    cell = wb_NAV[f"{letters[col]}2"]
+    cell.fill = purplerFill
+    cell.font = boldFont
+    cell.alignment = Alignment(horizontal="center")
+    cell.border = Border(left=thickBorder, top=thickBorder, right=noBorder, bottom=thinBorder)
+
+    # Start of Current Assets (for now, it will also add data for all Non-Current Assets)
+    cell = wb_NAV[f"{letters[col]}3"]
+    cell.fill = purplerFill
+    cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=noBorder) 
+
+    row = 4
+    for asset_tag_info in assets_info:
+        value = asset_tag_info[date] if date in asset_tag_info else 0
+        wb_NAV.cell(row=row, column=col, value=value)
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = purpleFill
+        cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+        row += 1
+    
+    for _ in range(row, end_row):
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = purpleFill
+        if row == end_row-2:
+            cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=noBorder)
+        else:
+            cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        row += 1
+
+def NAV_liabilities_data(wb_NAV, liabilities_info, col, start_row, end_row, date):
+    wb_NAV.column_dimensions[letters[col]].width = 15
+    row = start_row
+    # Title Liabilities
+    year = str(date.split('-')[0])
+    wb_NAV.cell(row=row, column=col, value=f"FY {year}")
+    cell = wb_NAV[f"{letters[col]}{row}"]
+    cell.fill = purplerFill
+    cell.font = boldFont
+    cell.alignment = Alignment(horizontal="center")
+    cell.border = Border(left=thickBorder, top=thickBorder, right=noBorder, bottom=thinBorder)
+    row += 1
+
+    # Start of Current Liabilities (for now, it will also add data for all Non-Current Liabilities)
+    cell = wb_NAV[f"{letters[col]}{row}"]
+    cell.fill = purplerFill
+    cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=noBorder) 
+
+    row += 1
+    for liabilities_tag_info in liabilities_info:
+        value = liabilities_tag_info[date] if date in liabilities_tag_info else 0
+        wb_NAV.cell(row=row, column=col, value=value)
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = purpleFill
+        cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+        row += 1
+    
+    for _ in range(row, end_row):
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = purpleFill
+        if row == end_row-2:
+            cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=noBorder)
+        else:
+            cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        row += 1
+
+def fill_NAV(wb_NAV, assets_info, liabilities_info, dates):
+    years = [date.split('-')[0] for date in dates]
     wb_NAV.column_dimensions['B'].width = 2
-    row = NAV_assets_titiles(wb_NAV, assets_info, years)
-    NAV_liabilities_titiles(wb_NAV, liabilities_info, row, years)
+    asset_row = NAV_assets_titiles(wb_NAV, assets_info, years)
+    liability_row = NAV_liabilities_titiles(wb_NAV, liabilities_info, asset_row, years)
+
+    for i, date in enumerate(dates):
+        NAV_assets_data(wb_NAV, assets_info, 3+i, asset_row, date)
+        NAV_liabilities_data(wb_NAV, liabilities_info, 3+i, asset_row, liability_row, date)
+

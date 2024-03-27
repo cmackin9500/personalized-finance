@@ -421,6 +421,7 @@ if __name__ == "__main__":
 		max_col += 2
 	
 	years = [date.split('-')[0] for date in epv_info]
+	dates = [date for date in epv_info]
 
 	wb.create_sheet("COVER")
 	wb_cover = wb["COVER"]
@@ -432,7 +433,7 @@ if __name__ == "__main__":
 
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
-	fill_NAV(wb_NAV, assets_info, liabilities_info, years)
+	fill_NAV(wb_NAV, assets_info, liabilities_info, dates)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
