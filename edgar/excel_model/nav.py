@@ -29,6 +29,28 @@ thinBorder = Side(style="thin", color="000000")
 thickBorder = Side(style="thick", color="000000")
 noBorder = Side(style="none")
 
+class AssetRow:
+    start = None
+    current_asset = None
+    non_current_assert = None
+    PPE = None
+    SGA = None
+    end = None
+
+class LiabilityRow:
+    start = None
+    current_liability = None
+    non_current_liability = None
+    contract = None
+    option = None
+    end = None
+
+class TotalRow:
+    NAV = None
+    shares = None
+    NAV_price = None
+    current_price = None
+
 def NAV_assets_titiles(wb_NAV, assets_info, years):
     wb_NAV.column_dimensions['B'].width = 70
     # Title Assets
@@ -327,7 +349,7 @@ def NAV_liabilities_data(wb_NAV, liabilities_info, col, start_row, end_row, date
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
             #   Shares Oustanding
             elif row == end_row-2:
-                wb_NAV.cell(row=row, column=col, value='=SWITCH(NAV!I9,"thousands",COVER!C5*1000,"millions",COVER!C5,COVER!C5*1000000)')
+                wb_NAV.cell(row=row, column=col, value='=SWITCH(WACC!I9,"thousands",COVER!C5*1000,"millions",COVER!C5,COVER!C5*1000000)')
                 cell.number_format = format.FORMAT_NUMBER_COMMA_SEPARATED2
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
