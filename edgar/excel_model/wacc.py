@@ -12,6 +12,7 @@ gv_titles = ["Earnings", "Net Asset Value", "Return on Net Asset Value", "Cost o
              "Shares outstanding", "Growth Value Per Share", "Current Share Price", "Upside"]
 
 boldFont = Font(name='Arial',size=10, bold=True, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
+boldRedFont = Font(name='Arial',size=10, bold=True, italic=False, vertAlign=None, underline='none', strike=False, color='FF0000')
 textFont  = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
 
 orangeFill = PatternFill(fill_type="solid", start_color='fde599', end_color='fde599')
@@ -29,8 +30,9 @@ thickBorder = Side(style="thick", color="000000")
 noBorder = Side(style="none")
 
 def create_box(wb_WACC, x, y, dx, dy):
+    #create_box(wb_WACC, 5, 13, 5, 8)
     for col in range(x,x+dx):
-        cell = wb_WACC[f"{letters[col]}{x}"]
+        cell = wb_WACC[f"{letters[col]}{y}"]
         cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder)
         cell = wb_WACC[f"{letters[col]}{y+dy-1}"]
         cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=thinBorder)
@@ -224,7 +226,7 @@ def wacc_box_three(wb_WACC):
             wb_WACC.cell(row=row, column=col, value="Debt Weight")
         if col == 3:
             wb_WACC.cell(row=row, column=col, value="=C18/(C18+C19)")
-            cell.number_format = CUSTOM_FORMAT_CURRENCY_ZERO
+            cell.number_format = format.FORMAT_PERCENTAGE_00
 
     row = 21
     for col in range(2,4):
@@ -303,8 +305,72 @@ def wacc_box_four(wb_WACC):
             wb_WACC.cell(row=row, column=col, value="=C29*(1+(1-C31)*(C32))")
             cell.fill = yellowFill
 
+def wacc_box_five(wb_WACC):
+    create_box(wb_WACC, 5, 13, 5, 8)
+    row = 13
+    for col in range(5,10):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 5:
+            wb_WACC.cell(row=row, column=col, value="Equity Risk Premium")
+        elif col == 6:
+            wb_WACC.cell(row=row, column=col, value=0.06)
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+            cell.fill = yellowFill
+        elif col == 8:
+            wb_WACC.cell(row=row, column=col, value="http://pages.stern.nyu.edu/~adamodar/")
+
+    row = 15
+    for col in range(5,10):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 5:
+            wb_WACC.cell(row=row, column=col, value="Cost of Debt")
+        elif col == 6:
+            wb_WACC.cell(row=row, column=col, value="=C11")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+    
+    row = 16
+    for col in range(5,10):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 5:
+            wb_WACC.cell(row=row, column=col, value="Cost of Equity")
+        elif col == 6:
+            wb_WACC.cell(row=row, column=col, value="=C9+C34*F13")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+
+    row = 17
+    for col in range(5,10):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 5:
+            wb_WACC.cell(row=row, column=col, value="Debt Weight")
+        elif col == 6:
+            wb_WACC.cell(row=row, column=col, value="=C20")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+
+    row = 18
+    for col in range(5,10):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 5:
+            wb_WACC.cell(row=row, column=col, value="Equity Weight")
+        elif col == 6:
+            wb_WACC.cell(row=row, column=col, value="=C21")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+
+    row = 20
+    for col in range(5,10):
+        cell = wb_WACC[f"{letters[col]}{row}"]
+        if col == 5:
+            wb_WACC.cell(row=row, column=col, value="WACC")
+            cell.fill = yellowFill
+            cell.font = boldRedFont
+        elif col == 6:
+            wb_WACC.cell(row=row, column=col, value="=F15*F17*(1-C31)+F18*F16")
+            cell.number_format = format.FORMAT_PERCENTAGE_00
+            cell.fill = yellowFill
+            cell.font = boldRedFont
+
 def fill_wacc(wb_WACC):
     wacc_box_one(wb_WACC)
     wacc_box_two(wb_WACC)
     wacc_box_three(wb_WACC)
     wacc_box_four(wb_WACC)
+    wacc_box_five(wb_WACC)
