@@ -304,7 +304,7 @@ def NAV_summary_titles(wb_NAV, row, summary_row):
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
     summary_row.end = row
 
-def NAV_assets_data(wb_NAV, assets_info, col, end_row, date):
+def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA):
     wb_NAV.column_dimensions[letters[col]].width = 15
     year = date.split('-')[0]
     # Title Assets
@@ -330,15 +330,40 @@ def NAV_assets_data(wb_NAV, assets_info, col, end_row, date):
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1
     
-    for _ in range(row, end_row):
+    for _ in range(row, asset_row.SGA):
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = purpleFill
-        if row == end_row-2:
+        cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+        row += 1
+    
+    # SG&A and Total Asset
+    for _ in range(row, asset_row.end):
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = purpleFill
+        # Fill in 0 for SG&A values for now
+        if row > asset_row.SGA and row < asset_row.total_asset-1:
+            if iSGA == 0:
+                wb_NAV.cell(row=row, column=col, value=0)
+            else:
+                wb_NAV.cell(row=row, column=col, value=f"={letters[col-3]}{row}")
+        # Total Asset
+        if row == asset_row.end-2:
+            wb_NAV.cell(row=row, column=col, value=f"=SUM({letters[col]}{asset_row.current_asset}:{letters[col]}{asset_row.PPE+1})+{letters[col]}{asset_row.total_asset-1}")
             cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=noBorder)
+        # Fill in the AVERAGE formula for SG&A
+        elif row == asset_row.total_asset-1:
+            iAvgRow = asset_row.total_asset - 1
+            cell = wb_NAV[f"{letters[col]}{iAvgRow}"]
+            iStartAvgRow = iAvgRow - 3 - iSGA
+            iEndAvgRow = iAvgRow - 1 -iSGA
+            wb_NAV.cell(row=iAvgRow, column=col, value=f"=AVERAGE({letters[col]}{iStartAvgRow}:{letters[col]}{iEndAvgRow})")
         else:
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1
+    
+    # Total Asset Calculation (unadjusted)
 
 def NAV_liabilities_data(wb_NAV, liabilities_info, col, start_row, end_row, date):
     row = start_row
@@ -519,6 +544,7 @@ def NAV_summary_filler(wb_NAV, col, start_row, end_row):
 
 def fill_NAV(wb_NAV, assets_info, liabilities_info, dates):
     years = [date.split('-')[0] for date in dates]
+    iYears = len(years)
     wb_NAV.column_dimensions['B'].width = 2
     asset_row = AssetRow()
     liability_row = LiabilityRow()
@@ -530,7 +556,7 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, dates):
     iAsset, iLiability = len(assets_info), len(liabilities_info)
     for i, date in enumerate(dates):
         col = i*3+3
-        NAV_assets_data(wb_NAV, assets_info, col, asset_row.end, date)
+        NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i)
         NAV_liabilities_data(wb_NAV, liabilities_info, col, asset_row.end, liability_row.end, date)
         NAV_summary_data(wb_NAV, col, summary_row.start, summary_row.end)
 
