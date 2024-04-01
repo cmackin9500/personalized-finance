@@ -433,11 +433,11 @@ if __name__ == "__main__":
 
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
-	fill_NAV(wb_NAV, assets_info, liabilities_info, dates)
+	iSharesRow = fill_NAV(wb_NAV, assets_info, liabilities_info, dates)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
-	fill_epv(wb_EPV, epv_info)
+	fill_epv(wb_EPV, epv_info, iSharesRow)
 	wb.create_sheet("GV")
 	wb_GV = wb["GV"]
 	fill_gv(wb_GV, years)

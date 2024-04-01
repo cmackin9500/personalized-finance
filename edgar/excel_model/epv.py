@@ -75,7 +75,7 @@ def dep_adj_titles(wb_EPV, row, col):
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
-def fill_EPV_data(wb_EPV, row, col, epv_info):
+def fill_EPV_data(wb_EPV, row, col, epv_info, iSharesRow):
     col = 3
     for y, date in enumerate(epv_info):
         wb_EPV.column_dimensions[f"{letters[col]}"].width = 25
@@ -174,9 +174,10 @@ def fill_EPV_data(wb_EPV, row, col, epv_info):
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
             # Shares Outstanding
             elif row == 20:
-                wb_EPV.cell(row=row, column=col, value=8650)
+                iNAVSharesCol = 3*(y+3) - 6
+                wb_EPV.cell(row=row, column=col, value=f"=NAV!{letters[iNAVSharesCol]}{iSharesRow}")
                 cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=thinBorder)
-                cell.number_format = format.FORMAT_NUMBER
+                cell.number_format = format.FORMAT_NUMBER_COMMA_SEPARATED1
             # EPV/Share
             elif row == 21:
                 wb_EPV.cell(row=row, column=col, value=f"={letters[col]}{19}/{letters[col]}{20}")
@@ -304,14 +305,14 @@ def fill_notes(wb_EPV, row, col):
         row += 1
     
 
-def fill_epv(wb_EPV, epv_info):
+def fill_epv(wb_EPV, epv_info, iSharesRow):
     wb_EPV.column_dimensions['A'].width = 2
     row, col = 3, 2
     EPV_titles(wb_EPV, row, col)
     row = 24
     dep_adj_titles(wb_EPV, row, col)
     row, col = 2, 3
-    fill_EPV_data(wb_EPV, row, col, epv_info)
+    fill_EPV_data(wb_EPV, row, col, epv_info, iSharesRow)
     row = 24
     fill_dep_adj_data(wb_EPV, row, col, epv_info)
     row, col = 2, 3+len(epv_info)

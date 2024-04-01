@@ -431,7 +431,7 @@ def NAV_summary_data(wb_NAV, col, start_row, end_row):
             #   Shares Oustanding
             elif row == end_row-2:
                 wb_NAV.cell(row=row, column=col, value='=SWITCH(WACC!I9,"thousands",COVER!C5*1000,"millions",COVER!C5,COVER!C5*1000000)')
-                cell.number_format = format.FORMAT_NUMBER_COMMA_SEPARATED2
+                cell.number_format = format.FORMAT_NUMBER_COMMA_SEPARATED1
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
@@ -583,3 +583,5 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, dates):
                     cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
                 else:
                     cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
+
+    return summary_row.shares

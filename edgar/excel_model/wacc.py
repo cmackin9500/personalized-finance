@@ -61,6 +61,8 @@ def wacc_box_one(wb_WACC):
             wb_WACC.column_dimensions[letters[col]].width = 30
             wb_WACC.cell(row=row, column=col, value="Debt Breakdown")
             cell.font = boldFont
+        elif col == 5:
+            wb_WACC.column_dimensions[letters[col]].width = 20
 
     row = 3
     for col in range(2,10):
