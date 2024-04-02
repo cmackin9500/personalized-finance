@@ -365,8 +365,8 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA):
     
     # Total Asset Calculation (unadjusted)
 
-def NAV_liabilities_data(wb_NAV, liabilities_info, col, start_row, end_row, date):
-    row = start_row
+def NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date):
+    row = liability_row.start
     # Title Liabilities
     year = str(date.split('-')[0])
     wb_NAV.cell(row=row, column=col, value=f"FY {year}")
@@ -392,17 +392,18 @@ def NAV_liabilities_data(wb_NAV, liabilities_info, col, start_row, end_row, date
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1
     
-    for _ in range(row, end_row-1):
+    for _ in range(row, liability_row.end-1):
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = purpleFill
-        if row == end_row-2:
+        if row == liability_row.total_liability:
+            wb_NAV.cell(row=row, column=col, value=f"=SUM({letters[col]}{liability_row.current_liability+1}:{letters[col]}{liability_row.options-1})+{letters[col]}{liability_row.total_liability-1}")
             cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=thinBorder)
         else:
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1
 
-def NAV_summary_data(wb_NAV, col, start_row, end_row, shares):
+def NAV_summary_data(wb_NAV, col, total_asset_row, start_row, end_row, shares):
     row = start_row
     for _ in range(start_row, end_row+1):
         cell = wb_NAV[f"{letters[col]}{row}"]   
@@ -423,7 +424,7 @@ def NAV_summary_data(wb_NAV, col, start_row, end_row, shares):
         else:
             # Net Asset Value (NAV)
             if row == end_row-3:
-                wb_NAV.cell(row=row, column=col, value=f"={letters[col+2]}{start_row-2}+{letters[col+2]}{row-2}")
+                wb_NAV.cell(row=row, column=col, value=f"={letters[col+2]}{total_asset_row}+{letters[col+2]}{row-2}")
                 cell.font = boldFont
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
             #   Shares Oustanding
@@ -558,8 +559,8 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
         col = i*3+3
         shares = shares_outstanding[date] if date in shares_outstanding else 0
         NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i)
-        NAV_liabilities_data(wb_NAV, liabilities_info, col, asset_row.end, liability_row.end, date)
-        NAV_summary_data(wb_NAV, col, summary_row.start, summary_row.end, shares)
+        NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date)
+        NAV_summary_data(wb_NAV, col, asset_row.total_asset, summary_row.start, summary_row.end, shares)
 
         #Report date
         col += 1
