@@ -389,6 +389,11 @@ def get_disclosure_fields(ticker:str, disclosure, cfiles):
 	assert fs_fields != {}, "fs_fields is empty"
 	return fs_fields
 
+def get_common_shares_outstanding(htm_xml):
+	soup = BeautifulSoup(htm_xml, "xml")
+	sharesOutstanding = soup.find("dei:EntityCommonStockSharesOutstanding")
+	return sharesOutstanding.get_text()
+
 if __name__ == "__main__":
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]

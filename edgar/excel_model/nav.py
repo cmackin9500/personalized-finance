@@ -402,14 +402,12 @@ def NAV_liabilities_data(wb_NAV, liabilities_info, col, start_row, end_row, date
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1
 
-def NAV_summary_data(wb_NAV, col, start_row, end_row):
+def NAV_summary_data(wb_NAV, col, start_row, end_row, shares):
     row = start_row
     for _ in range(start_row, end_row+1):
-        cell = wb_NAV[f"{letters[col]}{row}"]
-        if row == start_row+1:
-            cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)        
+        cell = wb_NAV[f"{letters[col]}{row}"]   
         # NAV Share Price
-        elif row == end_row-1:
+        if row == end_row-1:
             wb_NAV.cell(row=row, column=col, value=f"={letters[col]}{row-2}/{letters[col]}{row-1}")
             cell.fill = yellowishFill
             cell.font = boldFont
@@ -430,7 +428,9 @@ def NAV_summary_data(wb_NAV, col, start_row, end_row):
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
             #   Shares Oustanding
             elif row == end_row-2:
-                wb_NAV.cell(row=row, column=col, value='=SWITCH(WACC!I9,"thousands",COVER!C5*1000,"millions",COVER!C5,COVER!C5*1000000)')
+                shares_string = f'''=SWITCH(,"thousands",{shares}/1000,"millions",{shares}/1000000,{shares})'''
+                shares_string = shares
+                wb_NAV.cell(row=row, column=col, value=shares)
                 cell.number_format = format.FORMAT_NUMBER_COMMA_SEPARATED1
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
@@ -542,7 +542,7 @@ def NAV_summary_filler(wb_NAV, col, start_row, end_row):
             cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
 
-def fill_NAV(wb_NAV, assets_info, liabilities_info, dates):
+def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
     years = [date.split('-')[0] for date in dates]
     iYears = len(years)
     wb_NAV.column_dimensions['B'].width = 2
@@ -556,9 +556,10 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, dates):
     iAsset, iLiability = len(assets_info), len(liabilities_info)
     for i, date in enumerate(dates):
         col = i*3+3
+        shares = shares_outstanding[date] if date in shares_outstanding else 0
         NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i)
         NAV_liabilities_data(wb_NAV, liabilities_info, col, asset_row.end, liability_row.end, date)
-        NAV_summary_data(wb_NAV, col, summary_row.start, summary_row.end)
+        NAV_summary_data(wb_NAV, col, summary_row.start, summary_row.end, shares)
 
         #Report date
         col += 1

@@ -8,7 +8,7 @@ import json
 import openpyxl as xl
 
 from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
-from xbrl_parse import get_fs_fields, get_disclosure_fields
+from xbrl_parse import get_fs_fields, get_disclosure_fields, get_common_shares_outstanding
 from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
@@ -308,6 +308,7 @@ if __name__ == "__main__":
 	all_cf_info = []
 	epv_info = {}
 	epv_tags = json.loads(read_file(f"./tags/epv_{industry}_tags.json"))
+	shares_outsanding = {}
 
 	directory_cfiles_10K.reverse()
 	for i in range(len(directory_cfiles_10K)):
@@ -325,6 +326,10 @@ if __name__ == "__main__":
 
 			# For getting the EPV info
 			get_epv_info_from_fs(epv_info, epv_tags, bs_list)
+
+			# Get Shares Outstanding
+			shares_outsanding[cur_year] = int(get_common_shares_outstanding(cfiles.htm_xml))/div
+			#shares_outsanding[cur_year] = int(get_common_shares_outstanding(cfiles.htm_xml))
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -433,7 +438,7 @@ if __name__ == "__main__":
 
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
-	iSharesRow = fill_NAV(wb_NAV, assets_info, liabilities_info, dates)
+	iSharesRow = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, dates)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
