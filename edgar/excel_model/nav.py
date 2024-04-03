@@ -475,6 +475,10 @@ def NAV_adjustment(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset, bIsFi
             break
 
         cell.fill = blueFill
+        # Add SG&A percentage adjustment
+        if row == end_row-3 and bIsAsset:
+            wb_NAV.cell(row=row, column=col, value=1)
+            cell.number_format = format.FORMAT_PERCENTAGE
         if row == end_row-2:
             if bIsAsset:
                 cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder)
@@ -520,6 +524,10 @@ def NAV_adjusted_data(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset):
             break
 
         cell.fill = greenFill
+        # SG&A Average * Adjustment
+        if row == end_row-3 and bIsAsset:
+            wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         if row == end_row-2:
             wb_NAV.cell(row=row, column=col, value=f"=sum({letters[col]}{start_row+2}:{letters[col]}{end_row-3})")
             cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE

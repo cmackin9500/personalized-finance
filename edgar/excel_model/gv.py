@@ -78,6 +78,7 @@ def fill_gv_data(wb_GV, row, col, years):
             # Return on Net Asset Value
             elif row == 5:
                 wb_GV.cell(row=row, column=col, value=f"={letters[col]}3/{letters[col]}4")
+                cell.number_format = CUSTOM_FORMAT_PE
             # Cost of Equity
             elif row == 6:
                 wb_GV.cell(row=row, column=col, value=0.12)
