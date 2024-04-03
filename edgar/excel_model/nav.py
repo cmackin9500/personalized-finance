@@ -488,9 +488,9 @@ def NAV_adjustment(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset, bIsFi
             cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
    
-def NAV_adjusted_data(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset):
+def NAV_asset_adjusted_data(wb_NAV, col, iDataLength, asset_row):
     wb_NAV.column_dimensions[letters[col]].width = 15
-    row = start_row
+    row = asset_row.start
 
     # Adjusted
     wb_NAV.cell(row=row, column=col, value="Value")
@@ -498,10 +498,7 @@ def NAV_adjusted_data(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset):
     cell.fill = greenerFill
     cell.font = boldFont
     cell.alignment = Alignment(horizontal="center")
-    if bIsAsset:
-        cell.border = Border(left=noBorder, top=thickBorder, right=thickBorder, bottom=thinBorder)
-    else:
-        cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=thinBorder)
+    cell.border = Border(left=noBorder, top=thickBorder, right=thickBorder, bottom=thinBorder)
     row += 1
 
     # Start of Current Assets (for now, it will also add data for all Non-Current Assets)
@@ -518,23 +515,58 @@ def NAV_adjusted_data(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset):
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1 
 
-    for _ in range(row, end_row):
+    for _ in range(row, asset_row.end):
         cell = wb_NAV[f"{letters[col]}{row}"]
-        if not bIsAsset and row == end_row-1:
+        cell.fill = greenFill
+        # SG&A Average * Adjustment
+        if row == asset_row.end-3:
+            wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+        if row == asset_row.end-2:
+            wb_NAV.cell(row=row, column=col, value=f"=sum({letters[col]}{asset_row.current_asset}:{letters[col]}{asset_row.end-3})")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+            cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=noBorder)
+        else:
+            cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
+        row += 1
+
+def NAV_liability_adjusted_data(wb_NAV, col, iDataLength, liability_row):
+    wb_NAV.column_dimensions[letters[col]].width = 15
+    row = liability_row.start
+
+    # Adjusted
+    wb_NAV.cell(row=row, column=col, value="Value")
+    cell = wb_NAV[f"{letters[col]}{row}"]
+    cell.fill = greenerFill
+    cell.font = boldFont
+    cell.alignment = Alignment(horizontal="center")
+    cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=thinBorder)
+    row += 1
+
+    # Start of Current Liability (for now, it will also add data for all Non-Current Liability)
+    cell = wb_NAV[f"{letters[col]}{row}"]
+    cell.fill = greenFill
+    cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=noBorder) 
+    row += 1
+
+    for _ in range(iDataLength):
+        wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = greenFill
+        cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
+        cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+        row += 1 
+
+    for _ in range(row, liability_row.end):
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        if row == liability_row.end-1:
             break
 
         cell.fill = greenFill
-        # SG&A Average * Adjustment
-        if row == end_row-3 and bIsAsset:
-            wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
+        if row == liability_row.end-2:
+            wb_NAV.cell(row=row, column=col, value=f"=sum({letters[col]}{liability_row.start+2}:{letters[col]}{liability_row.end-3})")
             cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
-        if row == end_row-2:
-            wb_NAV.cell(row=row, column=col, value=f"=sum({letters[col]}{start_row+2}:{letters[col]}{end_row-3})")
-            cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
-            if bIsAsset:
-                cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=noBorder)
-            else:
-                cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=thinBorder)
+            cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=thinBorder)
         else:
             cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
@@ -578,8 +610,8 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
         cell = wb_NAV[f"{letters[col]}{summary_row.end}"]
         cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=thickBorder)
         col += 1
-        NAV_adjusted_data(wb_NAV, col, iAsset, 2, asset_row.end, True)
-        NAV_adjusted_data(wb_NAV, col, iLiability, asset_row.end, liability_row.end, False)
+        NAV_asset_adjusted_data(wb_NAV, col, iAsset, asset_row)
+        NAV_liability_adjusted_data(wb_NAV, col, iLiability, liability_row)
 
         NAV_summary_filler(wb_NAV, col, summary_row.start-1, summary_row.end)
 
