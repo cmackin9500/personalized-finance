@@ -48,9 +48,9 @@ def GV_titles(wb_GV, row, col):
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
-def fill_gv_data(wb_GV, row, col, years):
+def fill_gv_data(wb_GV, row, col, years, iNAVRow):
     col = 3
-    for year in years:
+    for i, year in enumerate(years):
         row = 2
         wb_GV.column_dimensions[letters[col]].width = 15
         for _ in range(2, 14):
@@ -74,7 +74,7 @@ def fill_gv_data(wb_GV, row, col, years):
                 wb_GV.cell(row=row, column=col, value=f"=EPV!{letters[col]}3")
             # Net Asset Value
             elif row  == 4:
-                wb_GV.cell(row=row, column=col, value=f"=NAV!C58")
+                wb_GV.cell(row=row, column=col, value=f"=NAV!{letters[3+i*3]}{iNAVRow}")
             # Return on Net Asset Value
             elif row == 5:
                 wb_GV.cell(row=row, column=col, value=f"={letters[col]}3/{letters[col]}4")
@@ -157,10 +157,10 @@ def GV_notes(wb_GV, row, col):
             cell.border = Border(left=thinBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
         row += 1
 
-def fill_gv(wb_GV, years):
+def fill_gv(wb_GV, years, iNAVRow):
     wb_GV.column_dimensions['A'].width = 2
     row, col = 2,2
     GV_titles(wb_GV, row, col)
-    fill_gv_data(wb_GV, row, col, years)
+    fill_gv_data(wb_GV, row, col, years, iNAVRow)
     col = 3 + len(years)
     GV_notes(wb_GV, row, col)

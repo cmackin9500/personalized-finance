@@ -443,9 +443,11 @@ if __name__ == "__main__":
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
 	fill_epv(wb_EPV, epv_info, iSharesRow)
+
+	iNAVRow = iSharesRow-1
 	wb.create_sheet("GV")
 	wb_GV = wb["GV"]
-	fill_gv(wb_GV, years)
+	fill_gv(wb_GV, years, iNAVRow)
 
 	wb.save(path)
 
