@@ -4,7 +4,14 @@ import openpyxl.styles.numbers as format
 
 CUSTOM_FORMAT_CURRENCY_ONE = '_($* #,##0.0_);[Red]_($* (#,##0.0);_($* "-"??_)'
 CUSTOM_FORMAT_CURRENCY_TWO = '_($* #,##0.00_);[Red]_($* (#,##0.00);_($* "-"??_)'
-letters = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+letters = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 
+           15: 'O', 16: 'P', 17: 'Q', 18: 'R', 19: 'S', 20: 'T', 21: 'U', 22: 'V', 23: 'W', 24: 'X', 25: 'Y', 26: 'Z', 27: 'AA', 
+           28: 'AB', 29: 'AC', 30: 'AD', 31: 'AE', 32: 'AF', 33: 'AG', 34: 'AH', 35: 'AI', 36: 'AJ', 37: 'AK', 38: 'AL', 39: 'AM', 
+           40: 'AN', 41: 'AO', 42: 'AP', 43: 'AQ', 44: 'AR', 45: 'AS', 46: 'AT', 47: 'AU', 48: 'AV', 49: 'AW', 50: 'AX', 51: 'AY', 
+           52: 'AZ', 53: 'BA', 54: 'BB', 55: 'BC', 56: 'BD', 57: 'BE', 58: 'BF', 59: 'BG', 60: 'BH', 61: 'BI', 62: 'BJ', 63: 'BK', 
+           64: 'BL', 65: 'BM', 66: 'BN', 67: 'BO', 68: 'BP', 69: 'BQ', 70: 'BR', 71: 'BS', 72: 'BT', 73: 'BU', 74: 'BV', 75: 'BW', 
+           76: 'BX', 77: 'BY', 78: 'BZ'
+           }
 
 boldFont = Font(name='Arial',size=10, bold=True, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
 titleFont = Font(name='Arial',size=14, bold=True, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
@@ -392,16 +399,38 @@ def NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date):
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1
     
-    for _ in range(row, liability_row.end-1):
+    # Rows up till Options
+    for _ in range(row, liability_row.options+1):
         cell = wb_NAV[f"{letters[col]}{row}"]
-        cell.fill = purpleFill
-        if row == liability_row.total_liability:
-            wb_NAV.cell(row=row, column=col, value=f"=SUM({letters[col]}{liability_row.current_liability+1}:{letters[col]}{liability_row.options-1})+{letters[col]}{liability_row.total_liability-1}")
-            cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=thinBorder)
-        else:
-            cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        cell.fill = purpleFill        
+        cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1
+    
+    # Options
+    i = 0
+    for _ in range(row, liability_row.total_liability):
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = purpleFill        
+        cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        if i%2 == 0:
+            cell.number_format = format.BUILTIN_FORMATS[3]
+        else:
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
+        
+        if row == liability_row.total_liability-1:
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
+            wb_NAV.cell(row=row, column=col, value=f"={letters[col]}{row-6}*{letters[col]}{row-5}+{letters[col]}{row-4}*{letters[col]}{row-3}+{letters[col]}{row-2}*{letters[col]}{row-1}")
+
+        row += 1
+        i += 1
+
+    # Total Liability
+    cell = wb_NAV[f"{letters[col]}{row}"]
+    cell.fill = purpleFill
+    wb_NAV.cell(row=row, column=col, value=f"=SUM({letters[col]}{liability_row.current_liability+1}:{letters[col]}{liability_row.options-1})+{letters[col]}{liability_row.total_liability-1}")
+    cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=thinBorder)
+    cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
 
 def NAV_summary_data(wb_NAV, col, total_asset_row, start_row, end_row, shares):
     row = start_row
@@ -436,9 +465,9 @@ def NAV_summary_data(wb_NAV, col, total_asset_row, start_row, end_row, shares):
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
-def NAV_adjustment(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset, bIsFirstCol):
+def NAV_asset_adjustment(wb_NAV, col, iDataLength, asset_row, bIsFirstCol):
     wb_NAV.column_dimensions[letters[col]].width = 15
-    row = start_row
+    row = asset_row.start
 
     # Adjusted
     wb_NAV.cell(row=row, column=col, value="Adjusted")
@@ -446,10 +475,7 @@ def NAV_adjustment(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset, bIsFi
     cell.fill = bluerFill
     cell.font = boldFont
     cell.alignment = Alignment(horizontal="center")
-    if bIsAsset:
-        cell.border = Border(left=noBorder, top=thickBorder, right=noBorder, bottom=thinBorder)
-    else:
-        cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=thinBorder)
+    cell.border = Border(left=noBorder, top=thickBorder, right=noBorder, bottom=thinBorder)
     row += 1
 
     # Start of Current Assets (for now, it will also add data for all Non-Current Assets)
@@ -458,10 +484,11 @@ def NAV_adjustment(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset, bIsFi
     cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder) 
     row += 1
 
+    # Adjustments for Asset Data
     for _ in range(iDataLength):
-        if bIsFirstCol: 
-            value = 1 if bIsAsset else -1
+        if bIsFirstCol: value = 1
         else: value = f"={letters[col-3]}{row}"
+
         wb_NAV.cell(row=row, column=col, value=value)
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = blueFill
@@ -469,22 +496,62 @@ def NAV_adjustment(wb_NAV, col, iDataLength, start_row, end_row, bIsAsset, bIsFi
         cell.number_format = format.FORMAT_PERCENTAGE
         row += 1 
 
-    for _ in range(row, end_row):
+    for _ in range(row, asset_row.end):
         cell = wb_NAV[f"{letters[col]}{row}"]
-        if not bIsAsset and row == end_row-1:
+        cell.fill = blueFill
+        # Add SG&A percentage adjustment
+        if row == asset_row.end-3:
+            wb_NAV.cell(row=row, column=col, value=1)
+            cell.number_format = format.FORMAT_PERCENTAGE
+        if row == asset_row.end-2:
+            cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder)
+        else:
+            cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        row += 1
+
+def NAV_liability_adjustment(wb_NAV, col, iDataLength, liability_row, bIsFirstCol):
+    row = liability_row.start
+    # Adjusted
+    wb_NAV.cell(row=row, column=col, value="Adjusted")
+    cell = wb_NAV[f"{letters[col]}{row}"]
+    cell.fill = bluerFill
+    cell.font = boldFont
+    cell.alignment = Alignment(horizontal="center")
+    cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=thinBorder)
+    row += 1
+
+    # Start of Current Liability (for now, it will also add data for all Non-Current Assets)
+    cell = wb_NAV[f"{letters[col]}{row}"]
+    cell.fill = blueFill
+    cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder) 
+    row += 1
+
+    # Adjustments for Liability Data
+    for _ in range(iDataLength):
+        if bIsFirstCol: value = -1
+        else: value = f"={letters[col-3]}{row}"
+
+        wb_NAV.cell(row=row, column=col, value=value)
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = blueFill
+        cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=noBorder)
+        cell.number_format = format.FORMAT_PERCENTAGE
+        row += 1 
+
+    for _ in range(row, liability_row.end):
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        if row == liability_row.end-1:
             break
 
         cell.fill = blueFill
-        # Add SG&A percentage adjustment
-        if row == end_row-3 and bIsAsset:
-            wb_NAV.cell(row=row, column=col, value=1)
-            cell.number_format = format.FORMAT_PERCENTAGE
-        if row == end_row-2:
-            if bIsAsset:
-                cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder)
-            else:
-                cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=thinBorder)
+        # Total Liabilities
+        if row == liability_row.end-2:
+            cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=thinBorder)
         else:
+            # Estimated Option Liability
+            if row == liability_row.end-3:
+                wb_NAV.cell(row=row, column=col, value=-1)
+                cell.number_format = format.FORMAT_PERCENTAGE
             cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
    
@@ -557,12 +624,15 @@ def NAV_liability_adjusted_data(wb_NAV, col, iDataLength, liability_row):
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         row += 1 
 
-    for _ in range(row, liability_row.end):
+    for _ in range(row, liability_row.end-1):
         cell = wb_NAV[f"{letters[col]}{row}"]
-        if row == liability_row.end-1:
-            break
 
         cell.fill = greenFill
+        # Estimated Option Liability
+        if row == liability_row.end-3:
+            wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
+            cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+        # Total Liabilities
         if row == liability_row.end-2:
             wb_NAV.cell(row=row, column=col, value=f"=sum({letters[col]}{liability_row.start+2}:{letters[col]}{liability_row.end-3})")
             cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
@@ -605,8 +675,10 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
         #Report date
         col += 1
         wb_NAV.cell(row=1, column=col, value=f"{date}")
-        NAV_adjustment(wb_NAV, col, iAsset, 2, asset_row.end, True, i == 0)
-        NAV_adjustment(wb_NAV, col, iLiability, asset_row.end, liability_row.end, False, i == 0)
+        cell = wb_NAV[f"{letters[col]}1"]
+        cell.alignment = Alignment(horizontal="center")
+        NAV_asset_adjustment(wb_NAV, col, iAsset, asset_row, i == 0)
+        NAV_liability_adjustment(wb_NAV, col, iLiability, liability_row, i == 0)
         cell = wb_NAV[f"{letters[col]}{summary_row.end}"]
         cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=thickBorder)
         col += 1

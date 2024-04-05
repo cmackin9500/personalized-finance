@@ -60,7 +60,7 @@ def fill_cover(wb_cover, ticker, iYears):
             cell.border = Border(left=thickBorder, top=thickBorder, right=thickBorder, bottom=noBorder)
             cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
         if row == 3:
-            wb_cover.cell(row=row, column=col, value=f"=WACC!F33")
+            wb_cover.cell(row=row, column=col, value=f"=WACC!F20")
             cell.number_format = format.BUILTIN_FORMATS[10]
         if row == 4:
             wb_cover.cell(row=row, column=col, value=f"=B2.[P/E]")

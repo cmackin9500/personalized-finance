@@ -7,7 +7,14 @@ CUSTOM_FORMAT_CURRENCY_ONE = '_($* #,##0.0_);[Red]_($* (#,##0.0);_($* "-"??_)'
 CUSTOM_FORMAT_CURRENCY_TWO = '_($* #,##0.00_);[Red]_($* (#,##0.00);_($* "-"??_)'
 CUSTOM_FORMAT_PE = '0.00x'
 RISK_SPREAD = '=SWITCH(B6, "Aaa", 0.63%,"AAA",0.63%,"AA",0.78%,"Aa2",0.78%,"A1",0.98%,"A+",0.98%,"A",1.08%,"A2",1.08%,"A3",1.22%,"A-",1.22%,"BBB",1.56%,"Baa2",1.56%,"Ba1",2%,"BB+",2%,"Ba2",2.4%,"BB",2.4%,"B1",3.51%,"B+",3.51%,"B2",4.21%,"B",4.21%,"B3",5.15%,"B-",5.15%,"Caa",8.2%,"CCC",8.2%,"Ca2",8.64%,"CC",8.64%,"C2",11.34%,"C",11.34%,"D2",15.12%,"D",15.12%,"AA+",0.71%,"Aa1",0.71%,"Aa3",0.88%,"AA-",0.88%,"BBB+",1.39%,"Baa1",1.39%,"BBB-",1.78%,"Baa3",1.78%,"BB-",2.96%,"Ba3",2.96%,2%)'
-letters = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+letters = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 
+           15: 'O', 16: 'P', 17: 'Q', 18: 'R', 19: 'S', 20: 'T', 21: 'U', 22: 'V', 23: 'W', 24: 'X', 25: 'Y', 26: 'Z', 27: 'AA', 
+           28: 'AB', 29: 'AC', 30: 'AD', 31: 'AE', 32: 'AF', 33: 'AG', 34: 'AH', 35: 'AI', 36: 'AJ', 37: 'AK', 38: 'AL', 39: 'AM', 
+           40: 'AN', 41: 'AO', 42: 'AP', 43: 'AQ', 44: 'AR', 45: 'AS', 46: 'AT', 47: 'AU', 48: 'AV', 49: 'AW', 50: 'AX', 51: 'AY', 
+           52: 'AZ', 53: 'BA', 54: 'BB', 55: 'BC', 56: 'BD', 57: 'BE', 58: 'BF', 59: 'BG', 60: 'BH', 61: 'BI', 62: 'BJ', 63: 'BK', 
+           64: 'BL', 65: 'BM', 66: 'BN', 67: 'BO', 68: 'BP', 69: 'BQ', 70: 'BR', 71: 'BS', 72: 'BT', 73: 'BU', 74: 'BV', 75: 'BW', 
+           76: 'BX', 77: 'BY', 78: 'BZ'
+           }
 gv_titles = ["Earnings", "Net Asset Value", "Return on Net Asset Value", "Cost of Equity", "Growth Multiple (x)", "EPV", "Growth Value", 
              "Shares outstanding", "Growth Value Per Share", "Current Share Price", "Upside"]
 

@@ -265,6 +265,10 @@ if __name__ == "__main__":
 	ticker = sys.argv[1]
 	mag = sys.argv[2]
 	industry = sys.argv[3]
+	sIncludeQuarter = (sys.argv[4] == 'q')
+
+	if sIncludeQuarter == 'q':
+		print("Parsing all 10-K and 10-Q...")
 	
 	div = 1000
 	if mag == 't':
@@ -275,7 +279,7 @@ if __name__ == "__main__":
 		div = 1
 
 	offline = False
-	if len(sys.argv) > 4:
+	if len(sys.argv) > 5:
 		offline = True
 	
 	if not offline:
@@ -287,9 +291,15 @@ if __name__ == "__main__":
 		if all_inline_10k_forms != []: retrieved_forms = save_all_forms(ticker,'10-K',all_inline_10k_forms)
 		if all_inline_10q_forms != []: retrieved_forms = save_all_forms(ticker,'10-Q',all_inline_10q_forms)
 
-	# Get the directory where the forms are/were stored and sort them in chronological order.1
+	directory_cfiles = []
 	directory_cfiles_10Q = sorted(find_all_form_dir(ticker,"10-Q"), reverse=True)
 	directory_cfiles_10K = sorted(find_all_form_dir(ticker,"10-K"), reverse=True)
+	if sIncludeQuarter:
+		directory_cfiles = sorted(directory_cfiles_10Q + directory_cfiles_10K, reverse=True)
+	else:
+		directory_cfiles = directory_cfiles_10K
+	# Get the directory where the forms are/were stored and sort them in chronological order.1
+	list_10K_directory = [date for date in directory_cfiles_10K]
 	
 	if directory_cfiles_10K[0] > directory_cfiles_10Q[0]:
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[0]}")
@@ -310,14 +320,17 @@ if __name__ == "__main__":
 	epv_tags = json.loads(read_file(f"./tags/epv_{industry}_tags.json"))
 	shares_outsanding = {}
 
-	directory_cfiles_10K.reverse()
-	for i in range(len(directory_cfiles_10K)):
-		cur_year = directory_cfiles_10K[i]
+	directory_cfiles.reverse()
+	for i in range(len(directory_cfiles)):
+		cur_year = directory_cfiles[i]
 		if cur_year == ".DS_Store":continue
 		epv_info[cur_year] = {}
-		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[i]}")
+		if cur_year in list_10K_directory:
+			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles[i]}")
+		else:
+			cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles[i]}")
 		
-		print(f"⏳ Attempting to parse balance sheet for {directory_cfiles_10K[i]}.")
+		print(f"⏳ Attempting to parse balance sheet for {directory_cfiles[i]}.")
 		try:
 			# For getting all balance sheet info
 			BS = fs_process_from_cfiles(cfiles, 'bs', False)
@@ -325,7 +338,8 @@ if __name__ == "__main__":
 			all_bs_info = populate_fs_df(bs_list, all_bs_info)
 
 			# For getting the EPV info
-			get_epv_info_from_fs(epv_info, epv_tags, bs_list)
+			if cur_year in list_10K_directory:
+				get_epv_info_from_fs(epv_info, epv_tags, bs_list)
 
 			# Get Shares Outstanding
 			shares_outsanding[cur_year] = int(get_common_shares_outstanding(cfiles.htm_xml))/div
@@ -333,9 +347,9 @@ if __name__ == "__main__":
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"	❌ Could not parse balance sheet for {directory_cfiles_10K[i]}.\n")
+			print(f"	❌ Could not parse balance sheet for {directory_cfiles[i]}.\n")
 
-		print(f"⏳ Attempting to parse income statement for {directory_cfiles_10K[i]}.")
+		print(f"⏳ Attempting to parse income statement for {directory_cfiles[i]}.")
 		try:
 			IS = fs_process_from_cfiles(cfiles, 'is', False)
 			is_list = get_fs_list(IS, mag, 'is')
@@ -346,9 +360,9 @@ if __name__ == "__main__":
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"	❌ Could not parse income statement for {directory_cfiles_10K[i]}.\n")
+			print(f"	❌ Could not parse income statement for {directory_cfiles[i]}.\n")
 
-		print(f"⏳ Attempting to parse cash flow for {directory_cfiles_10K[i]}.")	
+		print(f"⏳ Attempting to parse cash flow for {directory_cfiles[i]}.")	
 		try:
 			CF = fs_process_from_cfiles(cfiles, 'cf', False)
 			cf_list = get_fs_list(CF, mag, 'cf')
@@ -359,7 +373,7 @@ if __name__ == "__main__":
 			
 			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"	❌ Could not parse cash flow for {directory_cfiles_10K[i]}.\n")
+			print(f"	❌ Could not parse cash flow for {directory_cfiles[i]}.\n")
 
 	iAsset, iLiabilities = None, None
 	for i, info in enumerate(all_bs_info):
