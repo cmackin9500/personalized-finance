@@ -126,7 +126,7 @@ def get_tags(destination, period):
 				df.loc[usgaap_tag] = appendRow
 	return df
 
-def epv(epv_path, json_path, appeared_tags):
+def epv(epv_path, json_path):
 	with open(json_path, 'r') as f:
 		data = f.read()
 	data = json.loads(data)['facts']['us-gaap']
@@ -411,7 +411,7 @@ if __name__ == "__main__":
 		retreieved_facts = True
 	if retreieved_facts:
 		TAGS = get_tags(f"./forms/{ticker}/{ticker}.json", "10-K")
-		EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json", appeared_tags)
+		EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json")
 	else:
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
@@ -448,7 +448,7 @@ if __name__ == "__main__":
 
 	wb.create_sheet("WACC")
 	wb_WACC = wb["WACC"]
-	fill_wacc(wb_WACC)
+	fill_wacc(wb_WACC, mag)
 
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]

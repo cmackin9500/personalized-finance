@@ -241,7 +241,7 @@ def fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow):
                 cell.font = boldFont
             # Current Share Price
             elif epv_title == "Current Share Price":
-                wb_EPV.cell(row=row, column=col, value=130.00)
+                wb_EPV.cell(row=row, column=col, value="=COVER!C2")
                 cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=thickBorder)
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
                 cell.fill = yellowFill

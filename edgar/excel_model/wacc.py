@@ -57,7 +57,7 @@ def create_box(wb_WACC, x, y, dx, dy):
             cell_right.border = Border(left=noBorder, top=noBorder, right=thinBorder, bottom=noBorder)
 
 
-def wacc_box_one(wb_WACC):
+def wacc_box_one(wb_WACC, mag):
     create_box(wb_WACC, 2, 2, 8, 10)
 
     row = 2
@@ -158,7 +158,10 @@ def wacc_box_one(wb_WACC):
             cell.font = boldFont
             cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
         elif col == 9:
-            wb_WACC.cell(row=row, column=col, value=None)
+            if mag == 'm': value = "millions"
+            elif mag == 't': value = "thousands"
+            else: value = None
+            wb_WACC.cell(row=row, column=col, value=value)
             cell.fill = greyFill
   
     row = 11
@@ -377,8 +380,8 @@ def wacc_box_five(wb_WACC):
             cell.fill = yellowFill
             cell.font = boldRedFont
 
-def fill_wacc(wb_WACC):
-    wacc_box_one(wb_WACC)
+def fill_wacc(wb_WACC, mag):
+    wacc_box_one(wb_WACC, mag)
     wacc_box_two(wb_WACC)
     wacc_box_three(wb_WACC)
     wacc_box_four(wb_WACC)
