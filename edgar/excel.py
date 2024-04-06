@@ -332,8 +332,9 @@ if __name__ == "__main__":
 	epv_info = {}
 	epv_tags = json.loads(read_file(f"./tags/epv_{industry}_tags.json"))
 	shares_outsanding = {}
-
-	directory_cfiles.remove(".DS_Store")
+	
+	if ".DS_Store" in directory_cfiles:
+		directory_cfiles.remove(".DS_Store")
 	directory_cfiles.reverse()
 	for i in range(len(directory_cfiles)):
 		cur_year = directory_cfiles[i]

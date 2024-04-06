@@ -21,6 +21,10 @@ tech_titles = ["Operating Income", "R&D Expenses", "Depreciation Adjustment", "D
           "Cash", "Interest Rate", "Pretax Earnings", "Tax Rate", "Taxes", "Earnings", "Earnings Power Value", "Cash", "Debt",
           "Total EV in Equity", "Shares Outstanding", "EPV/Share", "Current Share Price"]
 
+finance_titles = ["Income before income tax expense ", "Provision for Credit Losses", "Interest Expenses", "Depreciation Adjustment", "Depreciation", "CAPEX", "Growth CAPEX", "Option Expense", "Interest Earned on Cash",
+          "Cash", "Interest Rate", "Pretax Earnings", "Tax Rate", "Taxes", "Earnings", "Earnings Power Value", "Cash", "Debt",
+          "Total EV in Equity", "Shares Outstanding", "EPV/Share", "Current Share Price"]
+
 
 depreciation_adjustment = ["Premises and Equipment", "Current Year Revenue", "Prior Year Revenue", "Change in Revenue", 
                            "Depreciation and Amortization", "CAPEX", "Growth CAPEX", "Zero-Growth CAPEX", "Depreciation Adjustment"]
@@ -109,7 +113,7 @@ def dep_adj_titles(wb_EPV, epv_row, col):
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
-def fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow):
+def fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow, industry):
     col = 3
     for y, date in enumerate(epv_info):
         wb_EPV.column_dimensions[f"{letters[col]}"].width = 25
@@ -136,6 +140,21 @@ def fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow):
                 wb_EPV.cell(row=row, column=col, value=value)
                 cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=noBorder)
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+            # Income Before Income Tax Expense
+            if epv_title == "Income Before Income Tax Expense":
+                wb_EPV.cell(row=row, column=col, value=value)
+                cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=noBorder)
+                cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+            # Provision for Credit Losses
+            if epv_title == "Provision for Credit Losses":
+                wb_EPV.cell(row=row, column=col, value=value)
+                cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=noBorder)
+                cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE            
+            # Interest Expenses
+            if epv_title == "Interest Expenses ":
+                wb_EPV.cell(row=row, column=col, value=value)
+                cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=noBorder)
+                cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE            
             # R&D Expenses
             elif epv_title == "R&D Expenses":
                 wb_EPV.cell(row=row, column=col, value=f"={value}/15")
@@ -193,7 +212,8 @@ def fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow):
                 cell.number_format = format.FORMAT_PERCENTAGE_00
             # Pretax Earnings
             elif epv_title == "Pretax Earnings":
-                wb_EPV.cell(row=row, column=col, value=f"=sum({letters[col]}{epv_row.get['Operating Income']}:{letters[col]}{epv_row.get['Depreciation Adjustment'][0]})+{letters[col]}{epv_row.get['Interest Earned on Cash']}-{letters[col]}{epv_row.get['Option Expense']}")
+                income_row = epv_row.get['Income before income tax expense '] if industry == "finance" else epv_row.get['Operating Income']
+                wb_EPV.cell(row=row, column=col, value=f"=sum({letters[col]}{income_row}:{letters[col]}{epv_row.get['Depreciation Adjustment'][0]})+{letters[col]}{epv_row.get['Interest Earned on Cash']}-{letters[col]}{epv_row.get['Option Expense']}")
                 cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=noBorder)
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
             # Tax Rate
@@ -364,11 +384,12 @@ def fill_epv(wb_EPV, industry, epv_info, iSharesRow):
     titles = []
     if industry == "tech": titles = tech_titles
     elif industry == "retail": titles = retail_titles
+    elif industry == "finance": titles = finance_titles
 
     EPV_titles(wb_EPV, titles, epv_row, col)
     dep_adj_titles(wb_EPV, epv_row, col)
     col = 3
-    fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow)
+    fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow, industry)
     fill_dep_adj_data(wb_EPV, epv_row, col, epv_info)
     col = 3+len(epv_info)
     fill_notes(wb_EPV, epv_row, col)
@@ -386,7 +407,7 @@ if __name__ == "__main__":
     row = 24
     dep_adj_titles(wb_EPV, row, col)
     row, col = 3, 3
-    fill_EPV_data(wb_EPV, row, col)
+    fill_EPV_data(wb_EPV, row, col,)
     row = 24
     fill_dep_adj_data(wb_EPV, row, col)
     wb.save(path)

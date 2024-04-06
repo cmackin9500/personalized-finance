@@ -1,18 +1,59 @@
 {
-        "Pretax Income": ["IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
-                         "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"],
-        "Provision for Credit Losses": ["ProvisionForLoanLossesExpensed", "ProvisionForLoanLeaseAndOtherLosses", "ProvisionForOtherCreditLosses"],
-        "Interest Expense": ["InterestExpense"],
-        "Option Expenses": ["ShareBasedCompensation"],
-        "Cash": ["CashAndCashEquivalentsAtCarryingValue", "CashAndDueFromBanks", "CashCashEquivalentsAndFederalFundsSold"],
-        "Debt": ["LongTermDebtNoncurrent", "OtherLongTermDebt", "UnsecuredLongTermDebt", "LongTermDebt", "FederalHomeLoanBankAdvancesLongTerm",
-                "JuniorSubordinatedNotes", "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust", "UnsecuredLongTermDebt",
-                "LongTermDebt", "LongTermDebtAndCapitalLeaseObligations", "SubordinatedDebt", "OtherBorrowings", "us-gaap:DebtAndCapitalLeaseObligations"],
-        "PPE": ["PropertyPlantAndEquipmentNet", "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
-                "PaymentsToAcquireOilAndGasProperty"],
-        "Interest Income": ["InterestIncomeOperating", "InterestAndDividendIncomeOperating"],
-        "Non-interest Income": ["NoninterestIncome"],
-        "D&A": ["DepreciationAndAmortization","DepreciationDepletionAndAmortization", "Depreciation", "AmortizationOfIntangibleAssets",
-                "OtherDepreciationAndAmortization", "DepreciationAmortizationAndAccretionNet"],
-        "Capex": ["PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets", "PaymentsToAcquireRealEstate"]
+  "Income Before Income Tax Expense": [
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+    "IncomeLossFromContinuingOperationsBeforeEarningsFromAffiliatesIncomeTaxesNoncontrollingInterest"
+  ],
+  "Provision for Credit Losses": [
+    "ProvisionForLoanLossesExpensed",
+    "ProvisionForLoanLeaseAndOtherLosses",
+    "ProvisionForOtherCreditLosses"
+  ],
+  "Interest Expenses": ["InterestExpense"],
+  "Option Expenses": ["ShareBasedCompensation"],
+  "Cash": [
+    "CashAndCashEquivalentsAtCarryingValue",
+    "CashAndDueFromBanks",
+    "CashCashEquivalentsAndFederalFundsSold"
+  ],
+  "Debt": [
+    "LongTermDebtNoncurrent",
+    "OtherLongTermDebt",
+    "UnsecuredLongTermDebt",
+    "LongTermDebt",
+    "FederalHomeLoanBankAdvancesLongTerm",
+    "JuniorSubordinatedNotes",
+    "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust",
+    "UnsecuredLongTermDebt",
+    "LongTermDebt",
+    "LongTermDebtAndCapitalLeaseObligations",
+    "SubordinatedDebt",
+    "OtherBorrowings",
+    "DebtAndCapitalLeaseObligations",
+    "SeniorLongTermNotes"
+  ],
+  "PPE": [
+    "PropertyPlantAndEquipmentNet",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
+    "PaymentsToAcquireOilAndGasProperty"
+  ],
+  "Current Year Revenue": ["Revenues"],
+  "Interest Income": [
+    "InterestIncomeOperating",
+    "InterestAndDividendIncomeOperating"
+  ],
+  "Non-interest Income": ["NoninterestIncome"],
+  "Depreciation and Amortization": [
+    "DepreciationAndAmortization",
+    "DepreciationDepletionAndAmortization",
+    "Depreciation",
+    "AmortizationOfIntangibleAssets",
+    "OtherDepreciationAndAmortization",
+    "DepreciationAmortizationAndAccretionNet"
+  ],
+  "CAPEX": [
+    "PaymentsToAcquirePropertyPlantAndEquipment",
+    "PaymentsToAcquireProductiveAssets",
+    "PaymentsToAcquireRealEstate"
+  ]
 }
