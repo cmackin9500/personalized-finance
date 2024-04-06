@@ -174,40 +174,53 @@ def epv(epv_path, json_path):
 	#df.to_csv("ticker.csv")
 	return df
 					
-def fs_process_from_cfiles(cfiles, fs, get_both_dates = False):
+def fs_process_from_cfiles(cfiles, fs, iGetIndexUpTo = 0, bIsChronological = [False]):
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
 	fs_fields = get_fs_fields(ticker, fs, cfiles)
 	all_tables = html_to_facts(cfiles.html, cfiles.htm_xml, fs_fields)
 	fs_table_from_html = derived_fs_table(all_tables, fs_fields)
+	iNumOfFSColumns = len(fs_table_from_html[0])
+	assert iNumOfFSColumns > 0, "Facts retrieved for the Financial Statement is empty."
 
-	index = 0
-	if get_both_dates:
-		assert len(fs_table_from_html[0]) > 0, "Facts retrieved for the Financial Statement is empty."
-		date1 = fs_table_from_html[0][0].date
-		date2 = fs_table_from_html[0][1].date
-		if date1 > date2: index = 1
+	FS = []
+	# If there is only one column, just get that and return
+	if iNumOfFSColumns == 1:
+		FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, 0)
+		return FS
 	
-	FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, index)
-	
-	if get_both_dates:
-		if index == 1: index = 0
-		else: index = 1
-		FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, index)
+	# If greater, we want to identify if it is chronological or not
+	date0 = fs_table_from_html[0][0].date
+	date1 = fs_table_from_html[0][1].date
+	bIsChronological[0] = False if date0 > date1 else True	
+	if bIsChronological[0]:
+		for i in range(0, iGetIndexUpTo+1):
+			if i >= iNumOfFSColumns: break
+			FS.append(assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i))
+	else:
+		for i in range(iGetIndexUpTo, -1, -1):
+			if i >= iNumOfFSColumns: continue
+			fs_fields = []
+			fs_fields = get_fs_fields(ticker, fs, cfiles)
+			data = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i)
+			FS.append(data)
 	return FS
 
 def df_input_fs(FS, div=1000):
 	financial_statement = []
-	for fact in FS:
-		f = FS[fact]
-		if f.val is None or f.date is None: continue
-		val_date_dict = {f.date[i]: f.val[i]/div for i in range(len(f.date))}
-		push_fact = {"Tag": f.text[0]}
-		for key in val_date_dict:
-			push_fact[key] = val_date_dict[key]
-		financial_statement.append(push_fact)
+	for FS_year in FS:
+		for fact in FS_year:
+			f = FS_year[fact]
+			if f.val is None or f.date is None: continue
+			val_date_dict = {f.date[i]: f.val[i]/div for i in range(len(f.date))}
+			push_fact = {"Tag": f.text[0]}
+			for key in val_date_dict:
+				push_fact[key] = val_date_dict[key]
+			financial_statement.append(push_fact)
 	return financial_statement
 
-def populate_fs_df(fs_list, all_fs_info):
+def populate_fs_df(fs_list, all_fs_info, cur_year):
+	if cur_year is None:
+		cur_year = list(fs_list[0].keys())[-1]
 	if all_fs_info == []: 
 		all_fs_info = fs_list
 
@@ -237,13 +250,13 @@ def get_tags_from_df(fs_df):
 		just_tags.append(tag)
 	return just_tags
 
-def process_fs(cfiles, fs, mag):
+def process_fs(cfiles, fs, mag, cur_year):
 	all_fs_info = []
 	print(f"⏳ Attempting to parse {fs} for {directory_cfiles_10K[i]}.")
 	try:
-		FS = fs_process_from_cfiles(cfiles, fs, False)
+		FS = fs_process_from_cfiles(cfiles, fs, 0)
 		fs_list = get_fs_list(FS, mag, fs)
-		all_fs_info = populate_fs_df(fs_list, all_fs_info)
+		all_fs_info = populate_fs_df(fs_list, all_fs_info, cur_year)
 		print(f"	✅ Parsed successfully.\n")
 	except:
 		print(f"	❌ Could not parse {fs} for {directory_cfiles_10K[i]}.\n")
@@ -307,7 +320,7 @@ if __name__ == "__main__":
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles_10Q[0]}")
 	
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
-	NAV = fs_process_from_cfiles(cfiles, 'bs', True)
+	NAV = fs_process_from_cfiles(cfiles, 'bs', 1)
 	balance_sheet = df_input_fs(NAV, div)
 	df_nav = pd.DataFrame(balance_sheet)
 
@@ -320,10 +333,10 @@ if __name__ == "__main__":
 	epv_tags = json.loads(read_file(f"./tags/epv_{industry}_tags.json"))
 	shares_outsanding = {}
 
+	directory_cfiles.remove(".DS_Store")
 	directory_cfiles.reverse()
 	for i in range(len(directory_cfiles)):
 		cur_year = directory_cfiles[i]
-		if cur_year == ".DS_Store":continue
 		epv_info[cur_year] = {}
 		if cur_year in list_10K_directory:
 			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles[i]}")
@@ -333,9 +346,9 @@ if __name__ == "__main__":
 		print(f"⏳ Attempting to parse balance sheet for {directory_cfiles[i]}.")
 		try:
 			# For getting all balance sheet info
-			BS = fs_process_from_cfiles(cfiles, 'bs', False)
-			bs_list = get_fs_list(BS, mag, 'bs')
-			all_bs_info = populate_fs_df(bs_list, all_bs_info)
+			BS = fs_process_from_cfiles(cfiles, 'bs', 0)
+			bs_list = get_fs_list(BS[0], mag, 'bs')
+			all_bs_info = populate_fs_df(bs_list, all_bs_info, cur_year)
 
 			# For getting the EPV info
 			if cur_year in list_10K_directory:
@@ -351,9 +364,17 @@ if __name__ == "__main__":
 
 		print(f"⏳ Attempting to parse income statement for {directory_cfiles[i]}.")
 		try:
-			IS = fs_process_from_cfiles(cfiles, 'is', False)
-			is_list = get_fs_list(IS, mag, 'is')
-			all_is_info = populate_fs_df(is_list, all_is_info)
+			index = 2 if i == 0 else 0
+			bIsChronological = [True]
+			IS = fs_process_from_cfiles(cfiles, 'is', index, bIsChronological)
+			for j,IS_year in enumerate(IS):
+				is_list = get_fs_list(IS_year, mag, 'is')
+				if bIsChronological[0] and j == len(IS)-1:
+					all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
+				elif not bIsChronological[0] and j == 0:
+					all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
+				else:
+					all_is_info = populate_fs_df(is_list, all_is_info, None)
 
 			# For getting the EPV info
 			get_epv_info_from_fs(epv_info, epv_tags, is_list)
@@ -364,9 +385,9 @@ if __name__ == "__main__":
 
 		print(f"⏳ Attempting to parse cash flow for {directory_cfiles[i]}.")	
 		try:
-			CF = fs_process_from_cfiles(cfiles, 'cf', False)
-			cf_list = get_fs_list(CF, mag, 'cf')
-			all_cf_info = populate_fs_df(cf_list, all_cf_info)
+			CF = fs_process_from_cfiles(cfiles, 'cf', 0)
+			cf_list = get_fs_list(CF[0], mag, 'cf')
+			all_cf_info = populate_fs_df(cf_list, all_cf_info, cur_year)
 
 			# For getting the EPV info
 			get_epv_info_from_fs(epv_info, epv_tags, cf_list)
