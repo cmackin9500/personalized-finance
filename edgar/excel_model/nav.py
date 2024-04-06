@@ -24,7 +24,7 @@ purpleFill = PatternFill(fill_type="solid", start_color='d9d2e9', end_color='d9d
 purplerFill = PatternFill(fill_type="solid", start_color='b4a7d7', end_color='b4a7d7')
 blueFill = PatternFill(fill_type="solid", start_color='c9dbf8', end_color='c9dbf8')
 bluerFill = PatternFill(fill_type="solid", start_color='a4c2f4', end_color='a4c2f4')
-greenFill = PatternFill(fill_type="solid", start_color='b7d7a8', end_color='b7d7a8')
+greenFill = PatternFill(fill_type="solid", start_color="c6e6c1", end_color="c6e6c1")
 greenerFill = PatternFill(fill_type="solid", start_color='93c47d', end_color='93c47d')
 yellowishFill = PatternFill(fill_type="solid", start_color='fff2cc', end_color='fff2cc')
 

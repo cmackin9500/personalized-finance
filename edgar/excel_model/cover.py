@@ -13,7 +13,7 @@ boldFont = Font(name='Arial',size=10, bold=True, italic=False, vertAlign=None, u
 textFont  = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
 
 orangeFill = PatternFill(fill_type="solid", start_color='f9a766', end_color='f9a766')
-greenFill = PatternFill(fill_type="solid", start_color='7ad593', end_color='7ad593')
+greenerFill = PatternFill(fill_type="solid", start_color='7ad593', end_color='7ad593')
 greyFill = PatternFill(fill_type="solid", start_color='ebebeb', end_color='ebebeb')
 yellowishFill = PatternFill(fill_type="solid", start_color='fef2cc', end_color='fef2cc')
 
@@ -51,7 +51,7 @@ def fill_cover(wb_cover, ticker, iYears):
     for _ in range(2, 7):
         wb_cover.cell(row=row, column=col, value=None)
         cell = wb_cover[f"{letters[col]}{row}"]
-        cell.fill = greenFill
+        cell.fill = greenerFill
         cell.font = boldFont
         cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
 

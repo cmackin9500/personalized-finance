@@ -15,7 +15,7 @@ letters = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I
            64: 'BL', 65: 'BM', 66: 'BN', 67: 'BO', 68: 'BP', 69: 'BQ', 70: 'BR', 71: 'BS', 72: 'BT', 73: 'BU', 74: 'BV', 75: 'BW', 
            76: 'BX', 77: 'BY', 78: 'BZ'
            }
-gv_titles = ["Earnings", "Net Asset Value", "Return on Net Asset Value", "Cost of Equity", "Growth Multiple (x)", "EPV", "Growth Value", 
+Wgv_titles = ["Earnings", "Net Asset Value", "Return on Net Asset Value", "Cost of Equity", "Growth Multiple (x)", "EPV", "Growth Value", 
              "Shares outstanding", "Growth Value Per Share", "Current Share Price", "Upside"]
 
 boldFont = Font(name='Arial',size=10, bold=True, italic=False, vertAlign=None, underline='none', strike=False, color='000000')
@@ -24,7 +24,7 @@ textFont  = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=None,
 
 orangeFill = PatternFill(fill_type="solid", start_color='fde599', end_color='fde599')
 orangerFill = PatternFill(fill_type="solid", start_color='f6b26b', end_color='f6b26b')
-greenFill = PatternFill(fill_type="solid", start_color='b6d7a8', end_color='b6d7a8')
+greenerFill = PatternFill(fill_type="solid", start_color='b6d7a8', end_color='b6d7a8')
 greenerFill = PatternFill(fill_type="solid", start_color='93c47d', end_color='93c47d')
 greyFill = PatternFill(fill_type="solid", start_color='ebebeb', end_color='ebebeb')
 greyerFill = PatternFill(fill_type="solid", start_color='999997', end_color='999997')

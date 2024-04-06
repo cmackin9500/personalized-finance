@@ -1,6 +1,6 @@
 {
   "Operating Income": ["OperatingIncomeLoss"],
-  "R&D": ["ResearchAndDevelopmentExpense"],
+  "R&D Expenses": ["ResearchAndDevelopmentExpense"],
   "Option Expense": ["ShareBasedCompensation"],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
