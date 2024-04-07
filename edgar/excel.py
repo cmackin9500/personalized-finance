@@ -446,6 +446,23 @@ if __name__ == "__main__":
 	EPV.to_excel(writer, sheet_name='EPV Data')
 	writer.save()
 	#writer.close()
+ 
+	# Load in the SG&A tags
+	SGA_tags = []
+	with open('./tags/facts_tags.json') as f:
+		file_contents = f.read()
+		SGA_tags = json.loads(file_contents)["SG&A"]
+	# Get the SG&A values
+	SGA_values = {}
+	for tag_info in all_is_info:
+		if tag_info["Tag"].split(':')[1] in SGA_tags:
+			for key in tag_info:
+				if key == "Tag" or key == "Text":
+					continue
+				if key in SGA_values:
+					SGA_values[key] += tag_info[key]
+				else:
+					SGA_values[key] = tag_info[key]
 
 	path = f"./excel/{ticker}.xlsx"
 	wb = xl.load_workbook(path)
@@ -474,7 +491,8 @@ if __name__ == "__main__":
 
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
-	iSharesRow, iNAVPriceCoord = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, dates)
+	SGA_list = list(SGA_values.values())
+	iSharesRow, iNAVPriceCoord = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, dates, SGA_list)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]

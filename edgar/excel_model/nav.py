@@ -327,7 +327,7 @@ def NAV_summary_titles(wb_NAV, row, summary_row):
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
     summary_row.end = row
 
-def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears):
+def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears, SGA_list):
     wb_NAV.column_dimensions[letters[col]].width = 15
     year = date.split('-')[0]
     # Title Assets
@@ -377,13 +377,16 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears):
         row += 1
     
     # SG&A and Total Asset
+    j = 0
     for _ in range(row, asset_row.end):
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = purpleFill
         # Fill in 0 for SG&A values for now
         if row > asset_row.SGA and row < asset_row.total_asset-1:
             if iSGA == 0:
-                wb_NAV.cell(row=row, column=col, value=0)
+                value = SGA_list[j]
+                wb_NAV.cell(row=row, column=col, value=value)
+                j += 1
             else:
                 wb_NAV.cell(row=row, column=col, value=f"={letters[col-3]}{row}")
         # Total Asset
@@ -561,7 +564,10 @@ def NAV_asset_adjustment(wb_NAV, col, assets_info, asset_row, bIsFirstCol):
 
         # Add SG&A percentage adjustment
         elif row == asset_row.end-3:
-            wb_NAV.cell(row=row, column=col, value=1)
+            if bIsFirstCol:
+                wb_NAV.cell(row=row, column=col, value=1)
+            else:
+                wb_NAV.cell(row=row, column=col, value=f"={letters[col-3]}{row}")
             cell.number_format = format.FORMAT_PERCENTAGE
         if row == asset_row.end-2:
             cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder)
@@ -741,7 +747,7 @@ def NAV_summary_filler(wb_NAV, col, start_row, end_row):
             cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
 
-def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
+def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates, SGA_list):
     years = [date.split('-')[0] for date in dates]
     iYears = len(years)
     wb_NAV.column_dimensions['B'].width = 2
@@ -756,7 +762,7 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
     for i, date in enumerate(dates):
         col = i*3+3
         shares = shares_outstanding[date] if date in shares_outstanding else 0
-        NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i, len(dates))
+        NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i, len(dates), SGA_list)
         NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date)
         NAV_summary_data(wb_NAV, col, asset_row.total_asset, summary_row.start, summary_row.end, shares)
 
