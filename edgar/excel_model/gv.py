@@ -55,7 +55,7 @@ def GV_titles(wb_GV, row, col):
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
-def fill_gv_data(wb_GV, row, col, years, iNAVRow):
+def fill_gv_data(wb_GV, row, col, years, iNAVRow, iEPVSharesRow):
     col = 3
     for i, year in enumerate(years):
         row = 2
@@ -102,7 +102,7 @@ def fill_gv_data(wb_GV, row, col, years, iNAVRow):
                 wb_GV.cell(row=row, column=col, value=f"={letters[col]}7*{letters[col]}8")
             # Shares Outstanding
             elif row == 10:
-                wb_GV.cell(row=row, column=col, value=f"=EPV!{letters[col]}20")
+                wb_GV.cell(row=row, column=col, value=f"=EPV!{letters[col]}{iEPVSharesRow}")
                 cell.border = Border(left=thinBorder, top=noBorder, right=thinBorder, bottom=thickBorder)
                 cell.number_format = format.FORMAT_NUMBER_00
             # Growth Value Per Share
@@ -123,7 +123,7 @@ def fill_gv_data(wb_GV, row, col, years, iNAVRow):
                 cell.number_format = format.FORMAT_PERCENTAGE
             row += 1
         col += 1
-    return f"=GV!{letters[col-1]}11"
+    return [letters[col-1], 11]
 
 def GV_notes(wb_GV, row, col):
     wb_GV.column_dimensions[letters[col]].width = 15
@@ -165,11 +165,11 @@ def GV_notes(wb_GV, row, col):
             cell.border = Border(left=thinBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
         row += 1
 
-def fill_gv(wb_GV, years, iNAVRow):
+def fill_gv(wb_GV, years, iNAVRow, iEPVSharesRow):
     wb_GV.column_dimensions['A'].width = 2
     row, col = 2,2
     GV_titles(wb_GV, row, col)
-    iGVPriceCell = fill_gv_data(wb_GV, row, col, years, iNAVRow)
+    iGVPriceCoord = fill_gv_data(wb_GV, row, col, years, iNAVRow, iEPVSharesRow)
     col = 3 + len(years)
     GV_notes(wb_GV, row, col)
-    return iGVPriceCell
+    return iGVPriceCoord

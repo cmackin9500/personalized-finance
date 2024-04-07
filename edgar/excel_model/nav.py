@@ -698,4 +698,4 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
                 else:
                     cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
 
-    return summary_row.shares, f"=NAV!{letters[col-2]}{summary_row.NAV_price}"
+    return summary_row.shares, [letters[col-2],summary_row.NAV_price]
