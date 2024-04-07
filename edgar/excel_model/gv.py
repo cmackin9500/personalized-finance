@@ -21,7 +21,7 @@ textFont  = Font(name='Arial',size=10, bold=False, italic=False, vertAlign=None,
 
 orangeFill = PatternFill(fill_type="solid", start_color='fde599', end_color='fde599')
 orangerFill = PatternFill(fill_type="solid", start_color='f6b26b', end_color='f6b26b')
-greenerFill = PatternFill(fill_type="solid", start_color='b6d7a8', end_color='b6d7a8')
+greenFill = PatternFill(fill_type="solid", start_color="c6e6c1", end_color="c6e6c1")
 greenerFill = PatternFill(fill_type="solid", start_color='93c47d', end_color='93c47d')
 greyFill = PatternFill(fill_type="solid", start_color='ebebeb', end_color='ebebeb')
 greyerFill = PatternFill(fill_type="solid", start_color='999997', end_color='999997')
@@ -64,7 +64,7 @@ def fill_gv_data(wb_GV, row, col, years, iNAVRow):
             wb_GV.cell(row=row, column=col, value=None)
             cell = wb_GV[f"{letters[col]}{row}"]
             cell.font = textFont
-            cell.fill = greenerFill
+            cell.fill = greenFill
             cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
             cell.border = Border(left=thinBorder, top=noBorder, right=thinBorder, bottom=noBorder)           
 

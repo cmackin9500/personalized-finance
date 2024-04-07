@@ -81,10 +81,7 @@ def wacc_box_one(wb_WACC, mag):
     row = 4
     for col in range(2,10):
         cell = wb_WACC[f"{letters[col]}{row}"]
-        if col == 2:
-            wb_WACC.cell(row=row, column=col, value="Bond Rating")
-            cell.font = boldFont
-        elif col == 5:
+        if col == 5:
             wb_WACC.cell(row=row, column=col, value="Debt")
             cell.font = boldFont
         
@@ -93,8 +90,9 @@ def wacc_box_one(wb_WACC, mag):
         cell = wb_WACC[f"{letters[col]}{row}"]
         cell.alignment = Alignment(horizontal="center")
         if col == 2:
-            wb_WACC.cell(row=row, column=col, value=None)
+            wb_WACC.cell(row=row, column=col, value="Bond Rating")
             cell.font = boldFont
+            cell.alignment = Alignment(horizontal="left")
         elif col == 5:
             wb_WACC.cell(row=row, column=col, value="Principal")
         elif col == 6:
@@ -255,7 +253,7 @@ def wacc_box_three(wb_WACC):
         if col == 2:
             wb_WACC.cell(row=row, column=col, value="D/E Ratio")
         if col == 3:
-            wb_WACC.cell(row=row, column=col, value="=C18/C19x`")
+            wb_WACC.cell(row=row, column=col, value="=C18/C19")
             cell.number_format = format.FORMAT_PERCENTAGE_00
 
 def wacc_box_four(wb_WACC):
@@ -286,6 +284,7 @@ def wacc_box_four(wb_WACC):
         cell = wb_WACC[f"{letters[col]}{row}"]
         if col == 2:
             wb_WACC.cell(row=row, column=col, value="B Unlevered")
+            cell.number_format = format.FORMAT_NUMBER_00
         if col == 3:
             wb_WACC.cell(row=row, column=col, value="=C27")
  
@@ -305,7 +304,7 @@ def wacc_box_four(wb_WACC):
             wb_WACC.cell(row=row, column=col, value="D/E")
         if col == 3:
             wb_WACC.cell(row=row, column=col, value="=C23")
-            cell.number_format = CUSTOM_FORMAT_PE
+            cell.number_format = format.FORMAT_PERCENTAGE_00
 
     row = 34
     for col in range(2,4):

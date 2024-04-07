@@ -154,7 +154,7 @@ def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
     cell.font = headingFont
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
     row += 1
-    cur_year = int(years[-1])
+    cur_year = int(years[0])-2
     for i in range(len(years)+2):
         wb_NAV.cell(row=row, column=2, value=f"{str(cur_year)} SG&A")
         cell = wb_NAV[f"{letters[col]}{row}"]
@@ -163,7 +163,7 @@ def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
             cell.border = Border(left=thickBorder, top=thinBorder, right=thickBorder, bottom=noBorder)
         else:
             cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
-        cur_year -= 1
+        cur_year += 1
         row += 1
 
     wb_NAV.cell(row=row, column=2, value="Average SG&A")
@@ -311,7 +311,7 @@ def NAV_summary_titles(wb_NAV, row, summary_row):
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
     summary_row.end = row
 
-def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA):
+def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears):
     wb_NAV.column_dimensions[letters[col]].width = 15
     year = date.split('-')[0]
     # Title Assets
@@ -362,8 +362,8 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA):
         elif row == asset_row.total_asset-1:
             iAvgRow = asset_row.total_asset - 1
             cell = wb_NAV[f"{letters[col]}{iAvgRow}"]
-            iStartAvgRow = iAvgRow - 3 - iSGA
-            iEndAvgRow = iAvgRow - 1 -iSGA
+            iStartAvgRow = iAvgRow - 2 - iNumYears + iSGA
+            iEndAvgRow = iAvgRow - iNumYears + iSGA
             wb_NAV.cell(row=iAvgRow, column=col, value=f"=AVERAGE({letters[col]}{iStartAvgRow}:{letters[col]}{iEndAvgRow})")
         else:
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
@@ -668,7 +668,7 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
     for i, date in enumerate(dates):
         col = i*3+3
         shares = shares_outstanding[date] if date in shares_outstanding else 0
-        NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i)
+        NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i, len(dates))
         NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date)
         NAV_summary_data(wb_NAV, col, asset_row.total_asset, summary_row.start, summary_row.end, shares)
 

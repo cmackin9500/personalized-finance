@@ -30,7 +30,8 @@
     "SubordinatedDebt",
     "OtherBorrowings",
     "DebtAndCapitalLeaseObligations",
-    "SeniorLongTermNotes"
+    "SeniorLongTermNotes",
+    "LineOfCredit"
   ],
   "PPE": [
     "PropertyPlantAndEquipmentNet",
