@@ -93,6 +93,11 @@ class SummaryRow:
                 f"Current Price = {self.current_price}\n"
         )
 
+PPE = ["us-gaap:PropertyPlantAndEquipmentNet"]
+
+def is_PPE(tag):
+    return any(tag == PPE_tag for PPE_tag in PPE)
+
 def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
     wb_NAV.column_dimensions['B'].width = 70
     # Title Assets
@@ -114,22 +119,24 @@ def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
     row += 1
     col = 2
     asset_row.current_asset = row
+    PPE_tag_info = None
     for asset_tag_info in assets_info:
-        wb_NAV.cell(row=row, column=2, value=f"{asset_tag_info['Text']}")
+        # Skip cell if cell is Total Non-Current Assets or Total Assets
+        if asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+            continue
+        elif is_PPE(asset_tag_info["Tag"]):
+            PPE_tag_info = asset_tag_info
+            continue
+
         cell = wb_NAV[f"{letters[col]}{row}"]
+        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+            wb_NAV.cell(row=row, column=2, value="Non-Current Assets")
+            cell.font = headingFont
+        else:
+            wb_NAV.cell(row=row, column=2, value=f"{asset_tag_info['Text']}")
         cell.fill = greyFill
         cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
-    
-    # Titles for Non-Current Assets, PPE, and Goodwill
-    # Non-Current Assets
-    asset_row.non_current_assert = row
-    wb_NAV.cell(row=row, column=2, value="Non-Current Assets")
-    cell = wb_NAV[f"{letters[col]}{row}"]
-    cell.fill = greyFill
-    cell.font = headingFont
-    cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
-    row += 1
 
     # PPE
     asset_row.PPE = row
@@ -139,6 +146,13 @@ def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
     cell.font = headingFont
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
     row += 1
+    # Add PPE data
+    if PPE_tag_info is not None:
+        wb_NAV.cell(row=row, column=2, value=PPE_tag_info["Text"])
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = greyFill
+        cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
+        row += 1
     for _ in range(5):
         wb_NAV.cell(row=row, column=2, value=None)
         cell = wb_NAV[f"{letters[col]}{row}"]
@@ -328,8 +342,20 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears):
     cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=noBorder) 
 
     row = 4
+    PPE_tag_info = None
     for asset_tag_info in assets_info:
+        # Skip cell if cell is Total Non-Current Assets or Total Assets
+        if asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+            continue
+        elif is_PPE(asset_tag_info["Tag"]):
+            PPE_tag_info = asset_tag_info
+            continue
+
         value = asset_tag_info[date] if date in asset_tag_info else 0
+        # Don't add data for Total Current Assets
+        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+            value = None
+
         wb_NAV.cell(row=row, column=col, value=value)
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = purpleFill
@@ -342,6 +368,10 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears):
         cell.fill = purpleFill
         cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+
+        # If the row is PPE data, add that
+        if row == asset_row.PPE+1 and PPE_tag_info is not None:
+            wb_NAV.cell(row=row, column=col, value=PPE_tag_info[date])
         row += 1
     
     # SG&A and Total Asset
@@ -465,7 +495,7 @@ def NAV_summary_data(wb_NAV, col, total_asset_row, start_row, end_row, shares):
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
-def NAV_asset_adjustment(wb_NAV, col, iDataLength, asset_row, bIsFirstCol):
+def NAV_asset_adjustment(wb_NAV, col, assets_info, asset_row, bIsFirstCol):
     wb_NAV.column_dimensions[letters[col]].width = 15
     row = asset_row.start
 
@@ -484,10 +514,23 @@ def NAV_asset_adjustment(wb_NAV, col, iDataLength, asset_row, bIsFirstCol):
     cell.border = Border(left=noBorder, top=thinBorder, right=noBorder, bottom=noBorder) 
     row += 1
 
+    PPE_tag_info = None
     # Adjustments for Asset Data
-    for _ in range(iDataLength):
+    for asset_tag_info in assets_info:
+        # Skip cell if cell is Total Non-Current Assets or Total Assets
+        if asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+            continue
+        # Add adjustment for PPE
+        elif is_PPE(asset_tag_info["Tag"]):
+            PPE_tag_info = asset_tag_info
+            continue
+
         if bIsFirstCol: value = 1
         else: value = f"={letters[col-3]}{row}"
+        # Don't add adjustment for Total Current Asset Cell
+        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+            value = None
+        
 
         wb_NAV.cell(row=row, column=col, value=value)
         cell = wb_NAV[f"{letters[col]}{row}"]
@@ -499,8 +542,15 @@ def NAV_asset_adjustment(wb_NAV, col, iDataLength, asset_row, bIsFirstCol):
     for _ in range(row, asset_row.end):
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = blueFill
+
+        # Add PPE adjustment percentage.
+        # TODO: Change to formula
+        if row == asset_row.PPE+1 and PPE_tag_info is not None:
+            wb_NAV.cell(row=row, column=col, value=1)
+            cell.number_format = format.FORMAT_PERCENTAGE
+
         # Add SG&A percentage adjustment
-        if row == asset_row.end-3:
+        elif row == asset_row.end-3:
             wb_NAV.cell(row=row, column=col, value=1)
             cell.number_format = format.FORMAT_PERCENTAGE
         if row == asset_row.end-2:
@@ -555,7 +605,7 @@ def NAV_liability_adjustment(wb_NAV, col, iDataLength, liability_row, bIsFirstCo
             cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
    
-def NAV_asset_adjusted_data(wb_NAV, col, iDataLength, asset_row):
+def NAV_asset_adjusted_data(wb_NAV, col, assets_info, asset_row):
     wb_NAV.column_dimensions[letters[col]].width = 15
     row = asset_row.start
 
@@ -574,8 +624,19 @@ def NAV_asset_adjusted_data(wb_NAV, col, iDataLength, asset_row):
     cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=noBorder) 
     row += 1
 
-    for _ in range(iDataLength):
-        wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
+    PPE_tag_info = None
+    for asset_tag_info in assets_info:
+        # Don't add formula for Non-Current Assets cell
+        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+                wb_NAV.cell(row=row, column=2, value=None)
+        # Skip cell if cell is Total Non-Current Assets or Total Assets
+        elif asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+            continue
+        # Get the PPE data if PPE
+        elif is_PPE(asset_tag_info["Tag"]):
+            PPE_tag_info = asset_tag_info
+        else:
+            wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = greenFill
         cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
@@ -585,8 +646,8 @@ def NAV_asset_adjusted_data(wb_NAV, col, iDataLength, asset_row):
     for _ in range(row, asset_row.end):
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = greenFill
-        # SG&A Average * Adjustment
-        if row == asset_row.end-3:
+        # SG&A Average * Adjustment or PPE * Adjustment
+        if row == asset_row.end-3 or (row == asset_row.PPE+1 and PPE_tag_info is not None):
             wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
             cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         if row == asset_row.end-2:
@@ -677,12 +738,12 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
         wb_NAV.cell(row=1, column=col, value=f"{date}")
         cell = wb_NAV[f"{letters[col]}1"]
         cell.alignment = Alignment(horizontal="center")
-        NAV_asset_adjustment(wb_NAV, col, iAsset, asset_row, i == 0)
+        NAV_asset_adjustment(wb_NAV, col, assets_info, asset_row, i == 0)
         NAV_liability_adjustment(wb_NAV, col, iLiability, liability_row, i == 0)
         cell = wb_NAV[f"{letters[col]}{summary_row.end}"]
         cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=thickBorder)
         col += 1
-        NAV_asset_adjusted_data(wb_NAV, col, iAsset, asset_row)
+        NAV_asset_adjusted_data(wb_NAV, col, assets_info, asset_row)
         NAV_liability_adjusted_data(wb_NAV, col, iLiability, liability_row)
 
         NAV_summary_filler(wb_NAV, col, summary_row.start-1, summary_row.end)
