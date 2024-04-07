@@ -129,6 +129,7 @@ def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
             continue
 
         cell = wb_NAV[f"{letters[col]}{row}"]
+        # Cell value to Non-Current Asset as it is start of it
         if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
             wb_NAV.cell(row=row, column=2, value="Non-Current Assets")
             cell.font = headingFont
@@ -222,22 +223,23 @@ def NAV_liabilities_titiles(wb_NAV, liabilities_info, row, liability_row):
     row += 1
 
     col = 2
-    for asset_tag_info in liabilities_info:
-        wb_NAV.cell(row=row, column=2, value=f"{asset_tag_info['Text']}")
+    for liability_tag_info in liabilities_info:
+        # Skip if Total Non-Current Liabilities or Total Liabilities
+        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+            continue
+
         cell = wb_NAV[f"{letters[col]}{row}"]
+        # Cell value to Non-Current Asset as it is start of it
+        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+            wb_NAV.cell(row=row, column=2, value="Non-Current Liabilities")
+            cell.font = headingFont
+        else:
+            wb_NAV.cell(row=row, column=2, value=f"{liability_tag_info['Text']}")
         cell.fill = greyFill
         cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
     
-    # Titles for Non-Current Assets, PPE, and Goodwill
-    # Non-Current Liabilities
-    liability_row.non_current_liability = row
-    wb_NAV.cell(row=row, column=2, value="Non-Current Liabilities")
-    cell = wb_NAV[f"{letters[col]}{row}"]
-    cell.fill = greyFill
-    cell.font = headingFont
-    cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
-    row += 1
+    # Titles for PPE and Goodwill
 
     # Contractual Obligations & Off-Balance Sheet Arrangements
     liability_row.contract = row
@@ -420,8 +422,16 @@ def NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date):
     cell.border = Border(left=thickBorder, top=thinBorder, right=noBorder, bottom=noBorder) 
     row += 1
 
-    for liabilities_tag_info in liabilities_info:
-        value = liabilities_tag_info[date] if date in liabilities_tag_info else 0
+    for liability_tag_info in liabilities_info:
+        # Skip if Total Non-Current Liabilities or Total Liabilities
+        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+            continue
+        
+        value = liability_tag_info[date] if date in liability_tag_info else 0
+        # Don't add data for Total Current Liabilities
+        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+            value = None
+
         wb_NAV.cell(row=row, column=col, value=value)
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = purpleFill
@@ -559,7 +569,7 @@ def NAV_asset_adjustment(wb_NAV, col, assets_info, asset_row, bIsFirstCol):
             cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=noBorder)
         row += 1
 
-def NAV_liability_adjustment(wb_NAV, col, iDataLength, liability_row, bIsFirstCol):
+def NAV_liability_adjustment(wb_NAV, col, liabilities_info, liability_row, bIsFirstCol):
     row = liability_row.start
     # Adjusted
     wb_NAV.cell(row=row, column=col, value="Adjusted")
@@ -577,9 +587,17 @@ def NAV_liability_adjustment(wb_NAV, col, iDataLength, liability_row, bIsFirstCo
     row += 1
 
     # Adjustments for Liability Data
-    for _ in range(iDataLength):
+    for liability_tag_info in liabilities_info:
+        # Skip if Total Non-Current Liabilities or Total Liabilities
+        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+            continue
+
         if bIsFirstCol: value = -1
         else: value = f"={letters[col-3]}{row}"
+
+        # Don't add data for Total Current Assets
+        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+            value = None
 
         wb_NAV.cell(row=row, column=col, value=value)
         cell = wb_NAV[f"{letters[col]}{row}"]
@@ -628,13 +646,14 @@ def NAV_asset_adjusted_data(wb_NAV, col, assets_info, asset_row):
     for asset_tag_info in assets_info:
         # Don't add formula for Non-Current Assets cell
         if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
-                wb_NAV.cell(row=row, column=2, value=None)
+            continue
         # Skip cell if cell is Total Non-Current Assets or Total Assets
         elif asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
             continue
         # Get the PPE data if PPE
         elif is_PPE(asset_tag_info["Tag"]):
             PPE_tag_info = asset_tag_info
+            continue
         else:
             wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
         cell = wb_NAV[f"{letters[col]}{row}"]
@@ -658,7 +677,7 @@ def NAV_asset_adjusted_data(wb_NAV, col, assets_info, asset_row):
             cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
 
-def NAV_liability_adjusted_data(wb_NAV, col, iDataLength, liability_row):
+def NAV_liability_adjusted_data(wb_NAV, col, liabilities_info, liability_row):
     wb_NAV.column_dimensions[letters[col]].width = 15
     row = liability_row.start
 
@@ -677,8 +696,16 @@ def NAV_liability_adjusted_data(wb_NAV, col, iDataLength, liability_row):
     cell.border = Border(left=noBorder, top=thinBorder, right=thickBorder, bottom=noBorder) 
     row += 1
 
-    for _ in range(iDataLength):
-        wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
+    for liability_tag_info in liabilities_info:
+        # Skip if Total Non-Current Liabilities or Total Liabilities
+        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+            continue
+
+        # Don't add data for Total Current Laibilities
+        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+            wb_NAV.cell(row=row, column=col, value=None)
+        else:
+            wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = greenFill
         cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
@@ -739,12 +766,12 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates):
         cell = wb_NAV[f"{letters[col]}1"]
         cell.alignment = Alignment(horizontal="center")
         NAV_asset_adjustment(wb_NAV, col, assets_info, asset_row, i == 0)
-        NAV_liability_adjustment(wb_NAV, col, iLiability, liability_row, i == 0)
+        NAV_liability_adjustment(wb_NAV, col, liabilities_info, liability_row, i == 0)
         cell = wb_NAV[f"{letters[col]}{summary_row.end}"]
         cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=thickBorder)
         col += 1
         NAV_asset_adjusted_data(wb_NAV, col, assets_info, asset_row)
-        NAV_liability_adjusted_data(wb_NAV, col, iLiability, liability_row)
+        NAV_liability_adjusted_data(wb_NAV, col, liabilities_info, liability_row)
 
         NAV_summary_filler(wb_NAV, col, summary_row.start-1, summary_row.end)
 
