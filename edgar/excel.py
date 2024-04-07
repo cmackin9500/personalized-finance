@@ -474,16 +474,20 @@ if __name__ == "__main__":
 
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
-	iSharesRow = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, dates)
+	iSharesRow, iNAVPriceCell = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, dates)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
-	fill_epv(wb_EPV, industry, epv_info, iSharesRow)
+	iEPVPriceCell = fill_epv(wb_EPV, industry, epv_info, iSharesRow)
 
 	iNAVRow = iSharesRow-1
 	wb.create_sheet("GV")
 	wb_GV = wb["GV"]
-	fill_gv(wb_GV, years, iNAVRow)
+	iGVPriceCell = fill_gv(wb_GV, years, iNAVRow)
+
+	wb_cover.cell(row=9, column=3, value=iNAVPriceCell)
+	wb_cover.cell(row=10, column=3, value=iEPVPriceCell)
+	wb_cover.cell(row=11, column=3, value=iGVPriceCell)
 
 	wb.save(path)
 

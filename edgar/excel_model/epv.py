@@ -271,6 +271,7 @@ def fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow, industry):
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
             row += 1 
         col += 1
+    return f"=EPV!{letters[col-1]}{epv_row.get['EPV/Share']}"
 
 def fill_dep_adj_data(wb_EPV, epv_row, col, epv_info):
     col = 3
@@ -389,10 +390,11 @@ def fill_epv(wb_EPV, industry, epv_info, iSharesRow):
     EPV_titles(wb_EPV, titles, epv_row, col)
     dep_adj_titles(wb_EPV, epv_row, col)
     col = 3
-    fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow, industry)
+    iEPVPriceCell = fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow, industry)
     fill_dep_adj_data(wb_EPV, epv_row, col, epv_info)
     col = 3+len(epv_info)
     fill_notes(wb_EPV, epv_row, col)
+    return iEPVPriceCell
 
 if __name__ == "__main__":
     ticker = "DOMI"

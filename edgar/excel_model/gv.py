@@ -123,6 +123,7 @@ def fill_gv_data(wb_GV, row, col, years, iNAVRow):
                 cell.number_format = format.FORMAT_PERCENTAGE
             row += 1
         col += 1
+    return f"=GV!{letters[col-1]}11"
 
 def GV_notes(wb_GV, row, col):
     wb_GV.column_dimensions[letters[col]].width = 15
@@ -168,6 +169,7 @@ def fill_gv(wb_GV, years, iNAVRow):
     wb_GV.column_dimensions['A'].width = 2
     row, col = 2,2
     GV_titles(wb_GV, row, col)
-    fill_gv_data(wb_GV, row, col, years, iNAVRow)
+    iGVPriceCell = fill_gv_data(wb_GV, row, col, years, iNAVRow)
     col = 3 + len(years)
     GV_notes(wb_GV, row, col)
+    return iGVPriceCell
