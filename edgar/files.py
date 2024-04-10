@@ -34,8 +34,7 @@ def read_forms_from_dir(data_dir):
     return CompanyFiles(html, pre, xsd, cal, htm_xml)
 
 def find_all_form_dir(ticker, form_type) -> list():
-    #print(os.getcwd())
-    return os.listdir(f"./forms/{ticker}/{form_type}")
+    return os.listdir(f"forms/{ticker}/{form_type}")
 
 
 # Retrieves the latest data dir for a company and form type

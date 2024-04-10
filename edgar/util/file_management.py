@@ -22,7 +22,7 @@ def read_file(filename):
 	with open(filename) as f:
 		return f.read()
 
-def write_file(filename, data):
+def write_file(filname, data):
 	with open(filename, "w") as f:
 		f.write(data)
 
