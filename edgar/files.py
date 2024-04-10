@@ -18,6 +18,7 @@ def read_forms_from_dir(data_dir):
     html = ""
     pre = ""
     htm_xml = ""
+    cal = ""
 
     for file in files:
         if file.endswith(".xsd"):

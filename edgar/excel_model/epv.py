@@ -281,7 +281,7 @@ def fill_dep_adj_data(wb_EPV, epv_row, col, epv_info):
             value = epv_info[date][epv_title] if epv_title in epv_info[date] else None
             # CAPEX needs to always positive
             if epv_title == "CAPEX":
-                value = abs(value)
+                value = abs(value) if value else 0
             wb_EPV.cell(row=row, column=col, value=value)
             cell = wb_EPV[f"{letters[col]}{row}"]
             cell.font = textFont

@@ -47,7 +47,12 @@ def get_fs_list(fs_fields, mag, fs):
 			fs_tag = "us-gaap:ProfitLoss"
 		elif "us-gaap:OperatingIncomeLoss" in fs_fields:
 			fs_tag = "us-gaap:OperatingIncomeLoss"
+		elif "us-gaap:NetCashProvidedByUsedInOperatingActivitiesContinuingOperations" in fs_fields:
+			fs_tag = "us-gaap:NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"
+		elif "us-gaap:NetCashProvidedByUsedInOperatingActivities" in fs_fields:
+			fs_tag = "us-gaap:NetCashProvidedByUsedInOperatingActivities"
 	
+	if fs_tag == "": print(f"{fs} beginning tag is not found.")
 	assert fs_tag != "", "The base tag is not found in the financial statement. Look for another tag that'll be in it."
 	date = fs_fields[fs_tag].date[0]
 
@@ -83,9 +88,22 @@ def get_all_dates(data, period, currency):
 			for year in d:
 				if year['form'] == period:
 					if year['end'] not in dates1: dates1.append(year['end'])
+
+	dates3 = []
+	cash = 'Cash'
+	if cash in data: 
+		if currency in data[cash]['units']:
+			d = list(data[cash]['units'][currency])
+			for year in d:
+				if year['form'] == period:
+					if year['end'] not in dates3: dates3.append(year['end'])
+
 	dates1.sort()
 	dates2.sort()
-	return dates1 if len(dates1) > len(dates2) else dates2
+	dates3.sort()
+	dates = dates1 if len(dates1) > len(dates2) else dates2
+	dates = dates if len(dates) > len(dates3) else dates3
+	return dates
 	
 def get_tags(destination, period):
 	div = 1000
@@ -320,9 +338,13 @@ if __name__ == "__main__":
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles_10Q[0]}")
 	
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
-	NAV = fs_process_from_cfiles(cfiles, 'bs', 1)
-	balance_sheet = df_input_fs(NAV, div)
-	df_nav = pd.DataFrame(balance_sheet)
+	try:
+		NAV = fs_process_from_cfiles(cfiles, 'bs', 1)
+		balance_sheet = df_input_fs(NAV, div)
+		df_nav = pd.DataFrame(balance_sheet)
+	except:
+		df_nav = {'None': {"Failed"}}
+		print("Failed to process NAV.")
 
 	#TODO: I need to add retrieve both current and previous year bs info. Rn, im only getting the current year.
 	# Attempt to parse as much fs info and append them all into all_fs_info
@@ -333,17 +355,21 @@ if __name__ == "__main__":
 	epv_tags = json.loads(read_file(f"./tags/epv_{industry}_tags.json"))
 	shares_outsanding = {}
 	
-	if ".DS_Store" in directory_cfiles:
-		directory_cfiles.remove(".DS_Store")
+	directory_cfiles = list(filter((".DS_Store").__ne__, directory_cfiles))
 	directory_cfiles.reverse()
 	for i in range(len(directory_cfiles)):
 		cur_year = directory_cfiles[i]
-		epv_info[cur_year] = {}
+		if cur_year == ".DS_Store.": continue
 		if cur_year in list_10K_directory:
-			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles[i]}")
-		else:
-			cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles[i]}")
-		
+			epv_info[cur_year] = {}
+		try:
+			if cur_year in list_10K_directory:
+				cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles[i]}")
+			else:
+				cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles[i]}")
+		except:
+			print(f"Missing file for {cur_year}.")
+
 		print(f"⏳ Attempting to parse balance sheet for {directory_cfiles[i]}.")
 		try:
 			# For getting all balance sheet info
@@ -378,7 +404,8 @@ if __name__ == "__main__":
 					all_is_info = populate_fs_df(is_list, all_is_info, None)
 
 			# For getting the EPV info
-			get_epv_info_from_fs(epv_info, epv_tags, is_list)
+			if cur_year in list_10K_directory:
+				get_epv_info_from_fs(epv_info, epv_tags, is_list)
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -391,7 +418,8 @@ if __name__ == "__main__":
 			all_cf_info = populate_fs_df(cf_list, all_cf_info, cur_year)
 
 			# For getting the EPV info
-			get_epv_info_from_fs(epv_info, epv_tags, cf_list)
+			if cur_year in list_10K_directory:
+				get_epv_info_from_fs(epv_info, epv_tags, cf_list)
 			
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -404,14 +432,15 @@ if __name__ == "__main__":
 			continue
 		if info["Tag"] == "us-gaap:Liabilities":
 			iLiabilities = i
-			break
-		if info["Tag"] == "us-gaap:PreferredStockValue" or info["Tag"] == "us-gaap:CommitmentsAndContingencies" or info["Tag"] == "us-gaap:CommonStockValue":
+			continue
+		if iLiabilities is not None and info["Tag"] == "us-gaap:PreferredStockValue" or info["Tag"] == "us-gaap:CommitmentsAndContingencies" or info["Tag"] == "us-gaap:CommonStockValue":
 			iLiabilities = i-1
-			break
+			continue
 	if iAsset is None:
 		print("iAsset is not found")
 	if iLiabilities is None:
 		print("iLiabilities is not found")
+	
 	assets_info = all_bs_info[:iAsset+1]
 	liabilities_info = all_bs_info[iAsset+1:iLiabilities+1]
 
@@ -438,7 +467,10 @@ if __name__ == "__main__":
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
 	writer = pd.ExcelWriter(f"./excel/{ticker}.xlsx", engine='xlsxwriter')
-	df_nav.to_excel(writer, sheet_name='Recent NAV')
+	try:
+		df_nav.to_excel(writer, sheet_name='Recent NAV')
+	except:
+		print('nah')
 	df_bs.to_excel(writer, sheet_name='Balance Sheet')
 	df_is.to_excel(writer, sheet_name='Income Statement')
 	df_cf.to_excel(writer, sheet_name='Cash Flow')
@@ -446,23 +478,6 @@ if __name__ == "__main__":
 	EPV.to_excel(writer, sheet_name='EPV Data')
 	writer.save()
 	#writer.close()
- 
-	# Load in the SG&A tags
-	SGA_tags = []
-	with open('./tags/facts_tags.json') as f:
-		file_contents = f.read()
-		SGA_tags = json.loads(file_contents)["SG&A"]
-	# Get the SG&A values
-	SGA_values = {}
-	for tag_info in all_is_info:
-		if tag_info["Tag"].split(':')[1] in SGA_tags:
-			for key in tag_info:
-				if key == "Tag" or key == "Text":
-					continue
-				if key in SGA_values:
-					SGA_values[key] += tag_info[key]
-				else:
-					SGA_values[key] = tag_info[key]
 
 	path = f"./excel/{ticker}.xlsx"
 	wb = xl.load_workbook(path)
@@ -481,6 +496,32 @@ if __name__ == "__main__":
 	years = [date.split('-')[0] for date in epv_info]
 	dates = [date for date in epv_info]
 
+	# Load in the SG&A tags
+	SGA_tags = []
+	with open('./tags/facts_tags.json') as f:
+		file_contents = f.read()
+		SGA_tags = json.loads(file_contents)["SG&A"]
+	# Get the SG&A values
+	SGA_values = {}
+	for tag_info in all_is_info:
+		if tag_info["Tag"].split(':')[1] in SGA_tags:
+			for key in tag_info:
+				if key == "Tag" or key == "Text":
+					continue
+				if key in SGA_values:
+					SGA_values[key] += tag_info[key]
+				else:
+					SGA_values[key] = tag_info[key]
+	for date in dates:
+		if date not in SGA_values:
+			SGA_values[date] = 0
+
+	myKeys = list(SGA_values.keys())
+	myKeys.sort()
+	SGA_values = {i: SGA_values[i] for i in myKeys}
+	SGA_list = list(SGA_values.values())
+
+	wb = xl.Workbook()
 	wb.create_sheet("COVER")
 	wb_cover = wb["COVER"]
 	fill_cover(wb_cover, ticker, 5)
@@ -488,11 +529,10 @@ if __name__ == "__main__":
 	wb.create_sheet("WACC")
 	wb_WACC = wb["WACC"]
 	fill_wacc(wb_WACC, mag)
-
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
-	SGA_list = list(SGA_values.values())
-	iSharesRow, iNAVPriceCoord = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, dates, SGA_list)
+	#SGA_list = list(SGA_values.values())
+	iSharesRow, iNAVPriceCoord = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, directory_cfiles, SGA_list)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
@@ -507,7 +547,7 @@ if __name__ == "__main__":
 	wb_cover.cell(row=10, column=3, value=iEPVPriceCoord[0]+str(iEPVPriceCoord[1]))
 	wb_cover.cell(row=11, column=3, value=iGVPriceCoord[0]+str(iGVPriceCoord[1]))
 
-	wb.save(path)
+	wb.save(f"./excel/{ticker} - FY 2023 - {dates[-1]}.xlsx")
 
 
 

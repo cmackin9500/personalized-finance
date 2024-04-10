@@ -17,7 +17,7 @@
     "LongTermDebtAndCapitalLeaseObligations",
     "SubordinatedDebt",
     "OtherBorrowings",
-    "us-gaap:DebtAndCapitalLeaseObligations"
+    "DebtAndCapitalLeaseObligations"
   ],
   "PPE": [
     "PropertyPlantAndEquipmentNet",
@@ -49,7 +49,7 @@
     "TravelAndEntertainmentExpense",
     "OtherSellingGeneralAndAdministrativeExpense"
   ],
-  "Interest Expense": ["InterestExpense"],
+  "Interest Expense": ["InterestExpense", "InterestIncomeExpenseNet"],
   "Interest Income": [
     "InterestIncomeOperating",
     "InterestAndDividendIncomeOperating"
@@ -82,7 +82,8 @@
     "PaymentsToAcquirePropertyPlantAndEquipment",
     "PaymentsToAcquireProductiveAssets",
     "PaymentsToAcquireRealEstate",
-    "PaymentsToAcquireOilAndGasProperty"
+    "PaymentsToAcquireOilAndGasProperty",
+    "ci:PaymentsForProceedsFromPropertyPlantAndEquipment"
   ],
   "Dividend": ["CommonStockDividendsPerShareDeclared"]
 }

@@ -373,7 +373,8 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears, 
 
         # If the row is PPE data, add that
         if row == asset_row.PPE+1 and PPE_tag_info is not None:
-            wb_NAV.cell(row=row, column=col, value=PPE_tag_info[date])
+            value = PPE_tag_info[date] if date in PPE_tag_info else 0
+            wb_NAV.cell(row=row, column=col, value=value)
         row += 1
     
     # SG&A and Total Asset
@@ -384,7 +385,7 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears, 
         # Fill in 0 for SG&A values for now
         if row > asset_row.SGA and row < asset_row.total_asset-1:
             if iSGA == 0:
-                value = SGA_list[j]
+                value = SGA_list[j] if j < len(SGA_list) else 0
                 wb_NAV.cell(row=row, column=col, value=value)
                 j += 1
             else:
@@ -758,7 +759,6 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates, S
     NAV_liabilities_titiles(wb_NAV, liabilities_info, asset_row.end, liability_row)
     NAV_summary_titles(wb_NAV, liability_row.end, summary_row)
 
-    iAsset, iLiability = len(assets_info), len(liabilities_info)
     for i, date in enumerate(dates):
         col = i*3+3
         shares = shares_outstanding[date] if date in shares_outstanding else 0

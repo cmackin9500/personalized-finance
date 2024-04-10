@@ -368,7 +368,7 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 	return fs_fields
 
 def get_fs_fields(ticker:str, fs, cfiles):
-	statement_roleURI = get_statement_URI(cfiles.xsd)	
+	statement_roleURI = get_statement_URI(cfiles.xsd)
 	fs_URI = statement_URI(statement_roleURI, fs)
 	fs_fields = {}
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields)

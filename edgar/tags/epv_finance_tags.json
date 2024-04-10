@@ -14,7 +14,8 @@
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
     "CashAndDueFromBanks",
-    "CashCashEquivalentsAndFederalFundsSold"
+    "CashCashEquivalentsAndFederalFundsSold",
+    "Cash"
   ],
   "Debt": [
     "LongTermDebtNoncurrent",

@@ -1,0 +1,70 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Trie data structure with autocomplete information",
+        "contact": {}
+    },
+    "paths": {
+        "/api/financials/allForms/{ticker}": {
+            "get": {
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Company Ticker",
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/core.FinancialForm"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tickerAutocomplete": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.TickerTrieNode"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "core.FinancialForm": {
+            "description": "JSON-like structure of data from a financial document",
+            "type": "object",
+            "additionalProperties": true
+        },
+        "core.TickerTrieNode": {
+            "description": "Trie data structure with autocomplete information",
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/core.TickerTrieNode"
+                    }
+                },
+                "isTerminal": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
