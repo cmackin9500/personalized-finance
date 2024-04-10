@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import bs4
 import sys
 from dataclasses import dataclass
-from typing import List
 
 from util import file_management as fm
 
@@ -11,10 +10,10 @@ from util import file_management as fm
 class HTMLFact:
 	tag: str
 	parent: str
-	children: list
-	val: List[float]
+	children: list()
+	val: float
 	date: str
-	text: List[str]
+	text: str
 
 	def __iter__(self):
 		yield "tag", self.tag
@@ -132,8 +131,6 @@ def html_to_facts(html,htm_xml,fs_fields):
 			continue
 		
 		all_facts.append(new_facts)
-	
-	assert all_facts != [], "all_facts is empty."
 	return all_facts
 
 	

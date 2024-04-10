@@ -37,14 +37,6 @@ def remove_extra_files(dirname):
 				and not file.endswith(".xsd"):
 			os.remove(dirname + "/" + file)
 
-def retrieve_from_url(url):
-	try:
-		res = requests.get(url, headers=BASE_HEADERS)
-	except:
-		print("Failed to retrieve from the given URL.")
-		return None
-	return res
-
 
 def status_code(url):
 	res = requests.get(url, headers=BASE_HEADERS)
