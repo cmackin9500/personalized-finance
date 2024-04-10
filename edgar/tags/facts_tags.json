@@ -1,0 +1,88 @@
+{
+  "Cash": [
+    "CashAndCashEquivalentsAtCarryingValue",
+    "CashAndDueFromBanks",
+    "CashCashEquivalentsAndFederalFundsSold"
+  ],
+  "Debt": [
+    "LongTermDebtNoncurrent",
+    "OtherLongTermDebt",
+    "UnsecuredLongTermDebt",
+    "LongTermDebt",
+    "FederalHomeLoanBankAdvancesLongTerm",
+    "JuniorSubordinatedNotes",
+    "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust",
+    "UnsecuredLongTermDebt",
+    "LongTermDebt",
+    "LongTermDebtAndCapitalLeaseObligations",
+    "SubordinatedDebt",
+    "OtherBorrowings",
+    "us-gaap:DebtAndCapitalLeaseObligations"
+  ],
+  "PPE": [
+    "PropertyPlantAndEquipmentNet",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization"
+  ],
+  "Equity": [
+    "StockholdersEquity",
+    "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"
+  ],
+  "Revenue": [
+    "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "Revenues"
+  ],
+  "Research and Development": ["ResearchAndDevelopmentExpense"],
+  "SG&A": [
+    "SellingGeneralAndAdministrativeExpense",
+    "GeneralAndAdministrativeExpense",
+    "SellingAndMarketingExpense",
+    "MarketingAndAdvertisingExpense",
+    "LaborAndRelatedExpense",
+    "OccupancyNet",
+    "LegalFees",
+    "MarketingAndAdvertisingExpense",
+    "Communication",
+    "EquipmentExpense",
+    "SellingExpense",
+    "ProfessionalFees",
+    "InformationTechnologyAndDataProcessing",
+    "TravelAndEntertainmentExpense",
+    "OtherSellingGeneralAndAdministrativeExpense"
+  ],
+  "Interest Expense": ["InterestExpense"],
+  "Interest Income": [
+    "InterestIncomeOperating",
+    "InterestAndDividendIncomeOperating"
+  ],
+  "Non-interest Income": ["NoninterestIncome"],
+  "Provision for Credit Losses": [
+    "ProvisionForLoanLossesExpensed",
+    "ProvisionForLoanLeaseAndOtherLosses",
+    "ProvisionForOtherCreditLosses",
+    "ProvisionForLoanAndLeaseLosses"
+  ],
+  "Operating Income": ["OperatingIncomeLoss"],
+  "Pretax Income": [
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments"
+  ],
+  "Net Income": ["NetIncomeLoss", "ProfitLoss"],
+  "EPS": ["EarningsPerShareDiluted", "EarningsPerShareBasic"],
+  "D&A": [
+    "DepreciationAndAmortization",
+    "DepreciationDepletionAndAmortization",
+    "Depreciation",
+    "AmortizationOfIntangibleAssets",
+    "OtherDepreciationAndAmortization",
+    "DepreciationAmortizationAndAccretionNet",
+    "EquipmentExpense"
+  ],
+  "Option Expenses": ["ShareBasedCompensation"],
+  "Capex": [
+    "PaymentsToAcquirePropertyPlantAndEquipment",
+    "PaymentsToAcquireProductiveAssets",
+    "PaymentsToAcquireRealEstate",
+    "PaymentsToAcquireOilAndGasProperty"
+  ],
+  "Dividend": ["CommonStockDividendsPerShareDeclared"]
+}

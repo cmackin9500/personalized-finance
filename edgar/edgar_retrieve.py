@@ -27,7 +27,7 @@ FORM_MAP = {
 
 
 BASE_HEADERS = {
-	"user-agent": "OVERMAC cale.overstreet@gmail.com",
+	"user-agent": "caseymackinnon950@gmail.com",
 	"origin": "https://efts.sec.gov"
 	}
 
@@ -35,7 +35,10 @@ BASE_HEADERS = {
 # Kind of jank since it uses the method for a text field on the site
 def get_company_CIK(ticker:str):
 	url = "https://efts.sec.gov/LATEST/search-index"
-	res = requests.post(url, headers=BASE_HEADERS, json={"keysTyped": ticker})
+	try:
+		res = requests.post(url, headers=BASE_HEADERS, json={"keysTyped": ticker})
+	except:
+		raise Exception("Failed to retreieve information from EDGAR.")
 	hits = res.json()["hits"]["hits"]
 	
 	if len(hits) < 1:
@@ -68,16 +71,28 @@ def str_startswith_mlt(buf, words):
 def get_recent_filings(CIK:str):
 	CIK = pad_CIK(CIK) 
 	url = f"https://data.sec.gov/submissions/CIK{CIK}.json"
-	res_json = re.status_code(url)
-	if res_json == {}:
-		return {}
-	recent = res_json["filings"]["recent"]
+	res = re.retrieve_from_url(url)
+	if res is None:
+		print(f"Failed to retrieve recent filings from {url}.")
+		return None
+	res_json = json.loads(res.text)
+	try:
+		recent = res_json["filings"]["recent"]
+	except:
+		print("Retrieved recent filings json seems to be wrong...")
+		return None
 	return recent
 
 def get_older_filings(CIK:str):
 	CIK = pad_CIK(CIK)
-	url = f"https://data.sec.gov/submissions/CIK{CIK}-submissions-001.json"
-	return re.status_code(url)
+	#url = f"https://data.sec.gov/submissions/CIK{CIK}-submissions-001.json"
+	url = f"https://data.sec.gov/submissions/CIK{CIK}.json"
+	res = re.retrieve_from_url(url)
+	if res is None:
+		print(f"Failed to retrieve older filings from {url}.")
+		return None
+	res_json = json.loads(res.text)
+	return res_json
 
 # Key info for company filings
 @dataclass
@@ -94,7 +109,9 @@ class FormInfo:
 # Goes through retrieved filings to find forms of a type
 def get_forms_of_type(master, form_type:str):
 	form_names = FORM_MAP[form_type]
-
+	
+	if 'filings' in master:
+		master = master['filings']['recent']
 	accessionNumber = master['accessionNumber']
 	filingDate = master['filingDate']
 	reportDate = master['reportDate']
@@ -150,7 +167,12 @@ def dest_dir_name(ticker, form_type, form):
 
 def save_form_data(ticker, form_type, date):
 	CIK = get_company_CIK(ticker)
-	forms = get_forms_of_type(get_recent_filings(CIK), form_type)
+	recent_filings = get_recent_filings(CIK)
+	# if we did not retrieve anything bail out
+	if recent_filings is None:
+		return
+
+	forms = get_forms_of_type(recent_filings, form_type)
 
 	form = None
 	for f in forms:
@@ -162,7 +184,7 @@ def save_form_data(ticker, form_type, date):
 
 	dest_dir = dest_dir_name(ticker, form_type, form)
 	if os.path.isdir(dest_dir):
-		print("The specified form data is already downloaded. Ignoring download")
+		print(f"Data for {ticker} {form_type} from {form.reportDate} is already downloaded. Ignoring download")
 		return dest_dir
 
 	re.mkdir_if_NE(dest_dir)
@@ -173,7 +195,6 @@ def save_form_data(ticker, form_type, date):
 	xbrlurl = create_xbrl_inst_url(CIK, form)
 	factsurl = create_facts_url(CIK)
 	tagsurl = create_tags_url(CIK)
-
 
 	# Retrieve XBRL instance
 	print("Retrieving XBRL instance (zipfile) from:\n\t{}".format(xbrlurl))
@@ -195,6 +216,9 @@ def save_data_from_index(ticker, CIK, form, form_type):
 	htm_xmlurl = create_htm_xml_url(CIK, form)
 
 	dest_dir = dest_dir_name(ticker, form_type, form)
+	if os.path.isdir(dest_dir):
+		print(f"Data for {ticker} {form_type} from {form.reportDate} is already downloaded. Ignoring download")
+		return dest_dir
 	re.mkdir_if_NE(dest_dir)
 
 	print(f"{ticker} {form_type}: {form.reportDate}")
@@ -233,11 +257,11 @@ def save_data_from_index(ticker, CIK, form, form_type):
 def get_forms_of_type_xbrl(CIK, form_type, inline=False):
 	recent_forms, older_forms = [], []
 	recent_filings = get_recent_filings(CIK)
-	if recent_filings != {}:
+	if recent_filings is not None:
 		recent_forms = get_forms_of_type(recent_filings,form_type)
 
 	older_filings = get_older_filings(CIK)
-	if older_filings != {}:
+	if older_filings is not None:
 		older_forms = get_forms_of_type(older_filings,form_type)
 
 	forms = recent_forms + older_forms
@@ -257,14 +281,22 @@ def save_all_forms(ticker, form_type, forms):
 	for form in forms:
 		save_data_from_index(ticker, CIK, form, form_type)
 
-
-def save_all_facts(ticker):
+def save_all_facts(ticker, path='./'):
 	CIK = get_company_CIK(ticker)
 	factsurl = create_facts_url(CIK)
 	print(f"Retrieving json instance from:\n\t{factsurl}")
-	res = requests.get(factsurl, headers=BASE_HEADERS, stream=True)
-	re.download_file(res,ticker)
+	full_path = path + 'forms/' + f"{ticker}/"
+	re.mkdir_if_NE(full_path)
+	try:
+		res = requests.get(factsurl, headers=BASE_HEADERS, stream=True)
+	except:
+		print(f"Failed to retrieve facts for {ticker}")
+		return False
 
+	# Add check to see if facts json is already downloaded.
+	facts_dest_path = path + 'forms/' + f"{ticker}/" +ticker + '.json'
+	re.write_file(facts_dest_path, res.text)
+	return True
 
 if __name__ == "__main__":
 	if len(sys.argv) != 3:
@@ -276,5 +308,5 @@ if __name__ == "__main__":
 	form_type = sys.argv[2]
 	CIK = get_company_CIK(ticker)
 	forms = get_forms_of_type_xbrl(CIK, form_type, True)
-
-	save_all_forms(ticker, form_type, forms)
+	print(forms)
+	#save_all_forms(ticker, form_type, forms)

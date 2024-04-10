@@ -2,20 +2,22 @@ import os
 from bs4 import BeautifulSoup
 import sys
 from dataclasses import dataclass
+from typing import List
 
 from files import read_forms_from_dir, find_latest_form_dir
+from util.operations import contains_no_numbers
 
 @dataclass
 class XBRLNode:
 	tag: str
 	parent: str
-	children: list
-	val: float
+	children: List[str]
+	val: List[float]
 	weight: float
 	order: float
 	date: str
-	text: str
-	lineup: int
+	text: List[str]
+	lineup: List[int]
 
 	def	__init__(self,tag=None,parent=None,children=[],weight=1):
 		self.tag = tag
@@ -48,7 +50,7 @@ class XBRLNode:
 		return str(self)
 
 # Parses xsd file. It will return a list of all the statement URI.
-def get_URI(file_xsd:str) -> list:
+def get_statement_URI(file_xsd:str) -> list:
 	statement_roleURI = list()
 	soup = BeautifulSoup(file_xsd, "html.parser")
 	roleType = soup.find_all("link:roletype")
@@ -57,22 +59,33 @@ def get_URI(file_xsd:str) -> list:
 	for e in roleType:
 		if 'Statement' in e.get_text():
 			statement_roleURI.append(e.get('roleuri'))
+
+	assert statement_roleURI != [], "statement roleURI not found"
 	return statement_roleURI
 
-def URI_from_statement(roleURI:str, statement:str) -> str:
-	for uri in roleURI:
-		if any(s in uri.lower() for s in skip):
-			continue
-		if any(b in uri.lower() for b in BS):
-			return uri
-	for uri in roleURI:
-		if any(b in uri.lower() for b in BS):
-			return uri
+# Parses xsd file. It will return a list of all the disclosure URI.
+def get_disclosure_URI(file_xsd:str) -> list:
+	statement_roleURI = list()
+	soup = BeautifulSoup(file_xsd, "html.parser")
+	roleType = soup.find_all("link:roletype")
+
+	# We specifically look for 'Statement' because balance sheet, income statement, and cash flow statement always have 'Statement' in it
+	for e in roleType:
+		if 'Disclosure' in e.get_text():
+			statement_roleURI.append(e.get('roleuri'))
+
+	assert statement_roleURI != [], "statement roleURI not found"
+	return statement_roleURI
+
+def get_role_path(uri:str) -> str:
+	uri_parts = uri.split('/')
+	return uri_parts[-1]
 
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
 def statement_URI(statement_roleURI:list, statement:str) -> str:
-	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet']
-	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome','statementsofoperations','consolidatedoperations']
+	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition']
+	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome',
+	   	  'statementsofoperations','consolidatedoperations', 'statementsofearnings']
 	CF = ['statementsofcashflows','statementofcashflows','cashflow']
 	PPE = ['propertyplantandequipment','propertyandequipment','investmentproperties']
 	skip = ['comprehensive','details']
@@ -86,27 +99,48 @@ def statement_URI(statement_roleURI:list, statement:str) -> str:
 		'avoid': avoid
 	}
 	# I can keep track of the tables that has alredy been looked at to prevent it from runnin through the same forms multiple times
+	# Adding check for numbers because NXST has numbers in URI:
+	#	Role_StatementCONSOLIDATEDSTATEMENTSOFOPERATIONSANDCOMPREHENSIVEINCOME -> real one
+	#	StatementConsolidatedStatementsOfOperationsAndComprehensiveIncome2 -> fake one
 
-	# first check will skip the skip and avoid terms
+	# first check will skip the skip and avoid terms, and numbers
 	for uri in statement_roleURI:
-		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['skip']): 
+		stipped_uri = get_role_path(uri)
+		if any(s in stipped_uri.replace("_", "").replace("-", "").lower() for s in terms['skip']): 
 			continue
-		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
+		if any(s in stipped_uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
 			continue
-		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+		if not contains_no_numbers(stipped_uri): 
+			continue
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
 
-	# second check won't skip the skip terms
+	# second check won't skip the skip terms and skip uri that has numbers
 	for uri in statement_roleURI:
-		if any(s in uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
+		stipped_uri = get_role_path(uri)
+		if any(s in stipped_uri.replace("_", "").replace("-", "").lower() for s in terms['avoid']): 
 			continue
-		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+		if not contains_no_numbers(stipped_uri): 
+			continue
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+			return uri
+	
+	# final check will look through all but skip numbers
+	for uri in statement_roleURI:
+		stipped_uri = get_role_path(uri)
+		if not contains_no_numbers(uri): 
+			continue
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
 	
 	# final check will look through all
 	for uri in statement_roleURI:
-		if any(b in uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
+		stipped_uri = get_role_path(uri)
+		if any(b in stipped_uri.replace("_", "").replace("-", "").lower() for b in terms[statement]): 
 			return uri
+
+	print("Statement roleURI not found.")
+	assert False, f"{terms[statement]} not found."
 
 # loops throught the string that is split into multiple sections. It will only pick up the tag
 def get_tag(ticker:str, full_tag:str) -> str:
@@ -114,15 +148,38 @@ def get_tag(ticker:str, full_tag:str) -> str:
 	split = full_tag.split('_')
 	tag = None
 	for i in range(len(split)):
+		# for "us-gaap_tag" format. e.g. us-gaap_CashAndCashEquivalents
 		if split[i] == 'us-gaap' or split[i] == ticker:
 			tag = split[i]+':'+split[i+1]
 			break
+
+		# for "us-gaptag" format. e.g. us-gaapCashAndCashEquivalents
 		elif split[i][:7] == 'us-gaap':
-			tag = 'us-gaap:'+[i][7:]
+			tag = 'us-gaap:'+split[i][7:]
 			break
 		elif split[i][:len(ticker)] == ticker:
 			tag = ticker+':'+split[i][len(ticker):]
 			break
+
+	#The xlink:to might be the tag only without the company name.
+	# xlink:to="CashAndCashEquivalentsAtCarryingValue"
+	if len(split) == 1:
+		tag = "us-gaap:"+ split[i]
+
+	# Worst case scenario when we can't parse to get the tag, we will go from back and get the first split[i] that does not contain a number
+	# and assume that it is the tag
+	if tag is None:
+		for i in range(len(split)-1,-1,-1):
+			if any(char.isdigit() for char in split[i]):
+				continue
+			tag = f"{split[i-1]}:{split[i]}"
+			break
+	
+	# Another way we can get the tag is find the index of us-gaap. As long as they are consistent, they will be good.
+
+	if __debug__:
+		assert tag is not None, "Could not parse tag. Look into it as it has a wierd way of presenting."
+	
 	return tag
 
 # Given the file and the the tags to find, it will find all of the tags we want
@@ -191,7 +248,8 @@ def pre_data(ticker:str, file_pre:str, fs_URI:str, fs_fields:dict, get_parent=Fa
 		
 		fs_fields[tag].lineup = lineup
 		lineup += 1
-
+	
+	#assert fs_fields != {}, "pre_data parsed no information."
 	return fs_fields
 
 # Gets the information from the cal file (order and the weight) and stores it with the tags
@@ -201,9 +259,13 @@ def cal_data(ticker:str, file_cal:str, fs_URI:str, fs_fields):
 	calculationLink = soup_get_all_of(file_cal, ['link:calculationlink','calculationlink'])
 	arcs = ['link:calculationarc','calculationarc']
 	all_calculation_arc = find_all_arc(fs_URI, calculationLink, arcs)
+	
+	# Fail case for DELL dell-20220128_cal IS
+	if all_calculation_arc is None:
+		print("cal data not right. URI might not be loaded right.")
+		return fs_fields
 
 	assert all_calculation_arc != None, "cal_data not found"
-
 	for calculation_arc in all_calculation_arc:
 		tag, parent = None, None
 		# getting the tag
@@ -305,20 +367,32 @@ def cal_data_again(ticker:str, file_cal:str, fs_URI:str, fs, fs_fields, no_paren
 
 	return fs_fields
 
-def get_fs_fields(ticker:str, form_type, fs, cfiles):
-	statement_roleURI = get_URI(cfiles.xsd)
+def get_fs_fields(ticker:str, fs, cfiles):
+	statement_roleURI = get_statement_URI(cfiles.xsd)	
 	fs_URI = statement_URI(statement_roleURI, fs)
 	fs_fields = {}
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields)
 	fs_fields = cal_data(ticker, cfiles.cal, fs_URI, fs_fields)
-	
+
 	no_parent_tags = tags_without_parent(fs_fields)
 	if no_parent_tags != []:
 		cal_data_again(ticker, cfiles.cal, fs_URI, fs, fs_fields, no_parent_tags)
 	fs_fields = pre_data(ticker, cfiles.pre, fs_URI, fs_fields, True)
 
+	assert fs_fields != {}, "fs_fields is empty"
 	return fs_fields
 
+def get_disclosure_fields(ticker:str, disclosure, cfiles):
+	statement_roleURI = get_disclosure_URI(cfiles.xsd)	
+	fs_URI = statement_URI(statement_roleURI, disclosure)
+	
+	assert fs_fields != {}, "fs_fields is empty"
+	return fs_fields
+
+def get_common_shares_outstanding(htm_xml):
+	soup = BeautifulSoup(htm_xml, "xml")
+	sharesOutstanding = soup.find("dei:EntityCommonStockSharesOutstanding")
+	return sharesOutstanding.get_text()
 
 if __name__ == "__main__":
 	ticker = sys.argv[1]
@@ -328,7 +402,7 @@ if __name__ == "__main__":
 	cfiles = read_forms_from_dir(directory)
 
 	fs = 'bs'
-	fs_fields = get_fs_fields(ticker, form_type, fs, cfiles)
+	fs_fields = get_fs_fields(ticker, fs, cfiles)
 
 	for key in fs_fields:
 		print(fs_fields[key])

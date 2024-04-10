@@ -1,9 +1,0 @@
-{
-	"verbose": true,
-	"ignore": [
-		".git",
-		"forms",
-		"store",
-		"docs"
-	]
-}
