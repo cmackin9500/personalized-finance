@@ -214,7 +214,6 @@ def fs_process_from_cfiles(cfiles, fs, iGetIndexUpTo = 0, bIsChronological = [Fa
 		for i in range(0, iGetIndexUpTo+1):
 			if i >= iNumOfFSColumns: break
 			FS.append(assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i))
-			print(FS)
 	else:
 		for i in range(iGetIndexUpTo, -1, -1):
 			if i >= iNumOfFSColumns: continue
@@ -541,21 +540,23 @@ if __name__ == "__main__":
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
 	#SGA_list = list(SGA_values.values())
-	iSharesRow, iNAVPriceCoord = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, directory_cfiles, SGA_list)
+	NAV_summary_row, iNAVPriceCoord = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, directory_cfiles, SGA_list)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
-	iEPVPriceCoord = fill_epv(wb_EPV, industry, epv_info, iSharesRow)
+	EPV_rows, iEPVPriceCoord = fill_epv(wb_EPV, industry, epv_info, NAV_summary_row.shares)
 
-	iNAVRow = iSharesRow-1
+	iNAVRow = NAV_summary_row.shares-1
 	wb.create_sheet("GV")
 	wb_GV = wb["GV"]
-	iGVPriceCoord = fill_gv(wb_GV, years, iNAVRow, iEPVPriceCoord[1]-1)
+	iGVPriceCoord = fill_gv(wb_GV, years, iNAVRow, EPV_rows)
 
+	# Some hard coded stuff
 	wb_cover.cell(row=2, column=2, value=ticker)
 	wb_cover.cell(row=9, column=3, value=f"=NAV!{iNAVPriceCoord[0]+str(iNAVPriceCoord[1])}")
 	wb_cover.cell(row=10, column=3, value=f"=EPV!{iEPVPriceCoord[0]+str(iEPVPriceCoord[1])}")
 	wb_cover.cell(row=11, column=3, value=f"=GV!{iGVPriceCoord[0]+str(iGVPriceCoord[1])}")
+	wb_WACC.cell(row=6, column=7, value=int(years[-1]))
 
 	sBasis = "FY"
 	if sIncludeQuarter:

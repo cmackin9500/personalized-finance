@@ -389,5 +389,7 @@ def fill_wacc(wb_WACC, mag):
     wb_WACC.cell(row=22, column=5, value="Principal")
     wb_WACC.cell(row=22, column=6, value="Term")
     wb_WACC.cell(row=22, column=7, value="Term Left")
+    wb_WACC.cell(row=23, column=7, value="=F23-$G$6")
     wb_WACC.cell(row=22, column=8, value="Term Weight")
     wb_WACC.cell(row=22, column=9, value="Term Left Weighted")
+    wb_WACC.cell(row=23, column=9, value="=G23*H23")

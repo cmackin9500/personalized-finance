@@ -394,7 +394,7 @@ def fill_epv(wb_EPV, industry, epv_info, iSharesRow):
     fill_dep_adj_data(wb_EPV, epv_row, col, epv_info)
     col = 3+len(epv_info)
     fill_notes(wb_EPV, epv_row, col)
-    return iEPVPriceCoord
+    return epv_row, iEPVPriceCoord
 
 if __name__ == "__main__":
     ticker = "DOMI"
