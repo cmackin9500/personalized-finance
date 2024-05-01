@@ -17,18 +17,22 @@
     "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust",
     "UnsecuredLongTermDebt",
     "LongTermDebt",
-    "LongTermDebtAndCapitalLeaseObligations"
+    "LongTermDebtAndCapitalLeaseObligations",
+    "UnsecuredDebt",
+    "LongTermNotesPayable"
   ],
   "Premises and Equipment": [
     "PropertyPlantAndEquipmentNet",
     "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
     "PaymentsToAcquireOilAndGasProperty",
+    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
     "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization"
   ],
   "Current Year Revenue": [
     "RevenueFromContractWithCustomerExcludingAssessedTax",
     "Revenues",
-    "SalesRevenueNet"
+    "SalesRevenueNet",
+    "RevenueFromContractWithCustomerIncludingAssessedTax"
   ],
   "Depreciation and Amortization": [
     "DepreciationAndAmortization",

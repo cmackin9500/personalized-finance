@@ -1,6 +1,10 @@
 {
   "Operating Income": ["OperatingIncomeLoss"],
-  "R&D Expenses": ["ResearchAndDevelopmentExpense"],
+  "R&D Expenses": [
+    "ResearchAndDevelopmentExpense",
+    "ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+    "ResearchAndDevelopmentExpenseSoftwareExcludingAcquiredInProcessCost"
+  ],
   "Option Expense": ["ShareBasedCompensation"],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
@@ -37,7 +41,8 @@
     "Depreciation",
     "AmortizationOfIntangibleAssets",
     "OtherDepreciationAndAmortization",
-    "DepreciationAmortizationAndAccretionNet"
+    "DepreciationAmortizationAndAccretionNet",
+    "csco:DepreciationAmortizationAndOther"
   ],
   "CAPEX": [
     "PaymentsToAcquirePropertyPlantAndEquipment",

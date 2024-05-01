@@ -214,6 +214,7 @@ def fs_process_from_cfiles(cfiles, fs, iGetIndexUpTo = 0, bIsChronological = [Fa
 		for i in range(0, iGetIndexUpTo+1):
 			if i >= iNumOfFSColumns: break
 			FS.append(assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i))
+			print(FS)
 	else:
 		for i in range(iGetIndexUpTo, -1, -1):
 			if i >= iNumOfFSColumns: continue
@@ -281,7 +282,7 @@ def process_fs(cfiles, fs, mag, cur_year):
 	
 	return all_fs_info
 
-def get_epv_info_from_fs(epv_info, epv_tags, fs_list):
+def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 	for tag_info in fs_list:
 		tag = tag_info['Tag'].split(":")[1]
 		for key in epv_tags:
@@ -379,7 +380,7 @@ if __name__ == "__main__":
 
 			# For getting the EPV info
 			if cur_year in list_10K_directory:
-				get_epv_info_from_fs(epv_info, epv_tags, bs_list)
+				get_epv_info_from_fs(epv_info, epv_tags, bs_list, cur_year)
 
 			# Get Shares Outstanding
 			shares_outsanding[cur_year] = int(get_common_shares_outstanding(cfiles.htm_xml))/div
@@ -405,7 +406,7 @@ if __name__ == "__main__":
 
 			# For getting the EPV info
 			if cur_year in list_10K_directory:
-				get_epv_info_from_fs(epv_info, epv_tags, is_list)
+				get_epv_info_from_fs(epv_info, epv_tags, is_list, cur_year)
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -419,7 +420,7 @@ if __name__ == "__main__":
 
 			# For getting the EPV info
 			if cur_year in list_10K_directory:
-				get_epv_info_from_fs(epv_info, epv_tags, cf_list)
+				get_epv_info_from_fs(epv_info, epv_tags, cf_list, cur_year)
 			
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -461,8 +462,12 @@ if __name__ == "__main__":
 	else:
 		retreieved_facts = True
 	if retreieved_facts:
-		TAGS = get_tags(f"./forms/{ticker}/{ticker}.json", "10-K")
-		EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json")
+		try:
+			TAGS = get_tags(f"./forms/{ticker}/{ticker}.json", "10-K")
+			EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json")
+		except:
+			TAGS = None
+			EPV = None
 	else:
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
@@ -470,12 +475,16 @@ if __name__ == "__main__":
 	try:
 		df_nav.to_excel(writer, sheet_name='Recent NAV')
 	except:
-		print('nah')
+		print('NAV tab not complete.')
 	df_bs.to_excel(writer, sheet_name='Balance Sheet')
 	df_is.to_excel(writer, sheet_name='Income Statement')
 	df_cf.to_excel(writer, sheet_name='Cash Flow')
-	TAGS.to_excel(writer, sheet_name='Tags')
-	EPV.to_excel(writer, sheet_name='EPV Data')
+	try:
+		TAGS.to_excel(writer, sheet_name='Tags')
+		EPV.to_excel(writer, sheet_name='EPV Data')
+	except:
+		print("Tags and EPV tab not complete.")
+	
 	writer.save()
 	#writer.close()
 
@@ -543,11 +552,15 @@ if __name__ == "__main__":
 	wb_GV = wb["GV"]
 	iGVPriceCoord = fill_gv(wb_GV, years, iNAVRow, iEPVPriceCoord[1]-1)
 
-	wb_cover.cell(row=9, column=3, value=iNAVPriceCoord[0]+str(iNAVPriceCoord[1]))
-	wb_cover.cell(row=10, column=3, value=iEPVPriceCoord[0]+str(iEPVPriceCoord[1]))
-	wb_cover.cell(row=11, column=3, value=iGVPriceCoord[0]+str(iGVPriceCoord[1]))
+	wb_cover.cell(row=2, column=2, value=ticker)
+	wb_cover.cell(row=9, column=3, value=f"=NAV!{iNAVPriceCoord[0]+str(iNAVPriceCoord[1])}")
+	wb_cover.cell(row=10, column=3, value=f"=EPV!{iEPVPriceCoord[0]+str(iEPVPriceCoord[1])}")
+	wb_cover.cell(row=11, column=3, value=f"=GV!{iGVPriceCoord[0]+str(iGVPriceCoord[1])}")
 
-	wb.save(f"./excel/{ticker} - FY 2023 - {dates[-1]}.xlsx")
+	sBasis = "FY"
+	if sIncludeQuarter:
+		sBasis = "Q"
+	wb.save(f"./excel/{ticker} - {sBasis} 2023 - {dates[-1]}.xlsx")
 
 
 

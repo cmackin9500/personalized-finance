@@ -29,9 +29,13 @@
   ],
   "Revenue": [
     "RevenueFromContractWithCustomerExcludingAssessedTax",
-    "Revenues"
+    "Revenues",
+    "RevenueFromContractWithCustomerIncludingAssessedTax"
   ],
-  "Research and Development": ["ResearchAndDevelopmentExpense"],
+  "Research and Development": [
+    "ResearchAndDevelopmentExpense",
+    "ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost"
+  ],
   "SG&A": [
     "SellingGeneralAndAdministrativeExpense",
     "GeneralAndAdministrativeExpense",
@@ -47,7 +51,8 @@
     "ProfessionalFees",
     "InformationTechnologyAndDataProcessing",
     "TravelAndEntertainmentExpense",
-    "OtherSellingGeneralAndAdministrativeExpense"
+    "OtherSellingGeneralAndAdministrativeExpense",
+    "FuelCosts"
   ],
   "Interest Expense": ["InterestExpense", "InterestIncomeExpenseNet"],
   "Interest Income": [
@@ -77,13 +82,18 @@
     "DepreciationAmortizationAndAccretionNet",
     "EquipmentExpense"
   ],
-  "Option Expenses": ["ShareBasedCompensation"],
+  "Option Expenses": [
+    "ShareBasedCompensation",
+    "dal:NoncashEffectOfPensionPostretirementAndPostemploymentPaymentsGreaterLessThanExpense"
+  ],
   "Capex": [
     "PaymentsToAcquirePropertyPlantAndEquipment",
     "PaymentsToAcquireProductiveAssets",
     "PaymentsToAcquireRealEstate",
     "PaymentsToAcquireOilAndGasProperty",
-    "ci:PaymentsForProceedsFromPropertyPlantAndEquipment"
+    "ci:PaymentsForProceedsFromPropertyPlantAndEquipment",
+    "PaymentsForFlightEquipment",
+    "PaymentsToAcquireOtherProductiveAssets"
   ],
   "Dividend": ["CommonStockDividendsPerShareDeclared"]
 }
