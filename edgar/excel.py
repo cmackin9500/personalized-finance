@@ -8,7 +8,7 @@ import json
 import openpyxl as xl
 
 from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
-from xbrl_parse import get_fs_fields, get_disclosure_fields, get_common_shares_outstanding
+from xbrl_parse import get_fs_fields, get_disclosure_fields, get_diluted_common_shares_outstanding
 from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
@@ -292,6 +292,22 @@ def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 				else:
 					epv_info[cur_year][key] = tag_info[cur_year]
 
+def get_oldest_prior_year_revenue_from_is(all_is_info, first_10k_year, revenue_tags):
+	print(all_is_info)
+	oldest_prior_year_revene = 0
+	for tag_info in all_is_info:
+		if tag_info["Tag"].split(':')[1] in revenue_tags:
+			for key in tag_info:
+				if key == "Tag" or key == "Text":
+					continue
+				if key == first_10k_year:
+					print(tag_info)
+					print(oldest_prior_year_revene)
+					return oldest_prior_year_revene
+
+				oldest_prior_year_revene = tag_info[key]
+	return 0
+
 if __name__ == "__main__":
 	ticker = sys.argv[1]
 	mag = sys.argv[2]
@@ -324,18 +340,22 @@ if __name__ == "__main__":
 
 	directory_cfiles = []
 	directory_cfiles_10Q = sorted(find_all_form_dir(ticker,"10-Q"), reverse=True)
+	directory_cfiles_10Q = list(filter((".DS_Store").__ne__, directory_cfiles_10Q))
 	directory_cfiles_10K = sorted(find_all_form_dir(ticker,"10-K"), reverse=True)
+	directory_cfiles_10K = list(filter((".DS_Store").__ne__, directory_cfiles_10K))
+
 	if sIncludeQuarter:
 		directory_cfiles = sorted(directory_cfiles_10Q + directory_cfiles_10K, reverse=True)
 	else:
 		directory_cfiles = directory_cfiles_10K
-	# Get the directory where the forms are/were stored and sort them in chronological order.1
+	# Get the directory where the forms are/were stored and sort them in chronological order.
 	list_10K_directory = [date for date in directory_cfiles_10K]
 	
 	if directory_cfiles_10K[0] > directory_cfiles_10Q[0]:
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[0]}")
 	else:
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles_10Q[0]}")
+	directory_cfiles_10K = sorted(directory_cfiles_10K)
 	
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
 	try:
@@ -355,22 +375,21 @@ if __name__ == "__main__":
 	epv_tags = json.loads(read_file(f"./tags/epv_{industry}_tags.json"))
 	shares_outsanding = {}
 	
-	directory_cfiles = list(filter((".DS_Store").__ne__, directory_cfiles))
+	#directory_cfiles = list(filter((".DS_Store").__ne__, directory_cfiles))
 	directory_cfiles.reverse()
-	for i in range(len(directory_cfiles)):
-		cur_year = directory_cfiles[i]
-		if cur_year == ".DS_Store.": continue
+	for i, cur_year in enumerate(directory_cfiles):
 		if cur_year in list_10K_directory:
 			epv_info[cur_year] = {}
 		try:
 			if cur_year in list_10K_directory:
-				cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles[i]}")
+				cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{cur_year}")
 			else:
-				cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{directory_cfiles[i]}")
+				cfiles = read_forms_from_dir(f"forms/{ticker}/10-Q/{cur_year}")
 		except:
 			print(f"Missing file for {cur_year}.")
 
-		print(f"⏳ Attempting to parse balance sheet for {directory_cfiles[i]}.")
+		# Parsing Balance Sheet
+		print(f"⏳ Attempting to parse balance sheet for {cur_year}.")
 		try:
 			# For getting all balance sheet info
 			BS = fs_process_from_cfiles(cfiles, 'bs', 0)
@@ -382,16 +401,23 @@ if __name__ == "__main__":
 				get_epv_info_from_fs(epv_info, epv_tags, bs_list, cur_year)
 
 			# Get Shares Outstanding
-			shares_outsanding[cur_year] = int(get_common_shares_outstanding(cfiles.htm_xml))/div
-			#shares_outsanding[cur_year] = int(get_common_shares_outstanding(cfiles.htm_xml))
+			shares_outsanding[cur_year] = int(get_diluted_common_shares_outstanding(cfiles.htm_xml))/div
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"	❌ Could not parse balance sheet for {directory_cfiles[i]}.\n")
+			print(f"	❌ Could not parse balance sheet for {cur_year}.\n")
 
-		print(f"⏳ Attempting to parse income statement for {directory_cfiles[i]}.")
+		# Parsing Income Statement
+		print(f"⏳ Attempting to parse income statement for {cur_year}.")
+		# For now, we will only retrieve info from 10-K for IS
+		if cur_year in directory_cfiles_10Q:
+			print(f"	🔒 Skipping parsing for 10-Q for now.\n")
+			continue
 		try:
-			index = 2 if i == 0 else 0
+			if i == 0 or cur_year == directory_cfiles_10K[0]:
+				index = 2
+			else: 
+				index = 0
 			bIsChronological = [True]
 			IS = fs_process_from_cfiles(cfiles, 'is', index, bIsChronological)
 			for j,IS_year in enumerate(IS):
@@ -409,9 +435,14 @@ if __name__ == "__main__":
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"	❌ Could not parse income statement for {directory_cfiles[i]}.\n")
+			print(f"	❌ Could not parse income statement for {cur_year}.\n")
 
-		print(f"⏳ Attempting to parse cash flow for {directory_cfiles[i]}.")	
+		# Parsing Cash Flow
+		print(f"⏳ Attempting to parse cash flow for {cur_year}.")
+		# For now, we will only retrieve info from 10-K for IS
+		if cur_year in directory_cfiles_10Q:
+			print(f"	 🔒 Skipping parsing for 10-Q for now.\n")
+			continue
 		try:
 			CF = fs_process_from_cfiles(cfiles, 'cf', 0)
 			cf_list = get_fs_list(CF[0], mag, 'cf')
@@ -423,7 +454,7 @@ if __name__ == "__main__":
 			
 			print(f"	✅ Parsed successfully.\n")
 		except:
-			print(f"	❌ Could not parse cash flow for {directory_cfiles[i]}.\n")
+			print(f"	❌ Could not parse cash flow for {cur_year}.\n")
 
 	iAsset, iLiabilities = None, None
 	for i, info in enumerate(all_bs_info):
@@ -514,7 +545,7 @@ if __name__ == "__main__":
 	for tag_info in all_is_info:
 		if tag_info["Tag"].split(':')[1] in SGA_tags:
 			for key in tag_info:
-				if key == "Tag" or key == "Text":
+				if key == "Tag" or key == "Text" or key in directory_cfiles_10Q:
 					continue
 				if key in SGA_values:
 					SGA_values[key] += tag_info[key]
@@ -526,12 +557,19 @@ if __name__ == "__main__":
 
 	myKeys = list(SGA_values.keys())
 	myKeys.sort()
-	SGA_values = {i: SGA_values[i] for i in myKeys}
+	SGA_values = {i: abs(SGA_values[i]) for i in myKeys}
 	SGA_list = list(SGA_values.values())
 
+	# Load the Revenue tags
+	#revenue_tags = []
+	#with open(f"./tags/epv_{industry}_tags.json") as f:
+	#	file_contents = f.read()
+	#	revenue_tags = json.loads(file_contents)["Current Year Revenue"]
+	#oldest_prior_year_revenue = get_oldest_prior_year_revenue_from_is(all_is_info, directory_cfiles_10K[0], revenue_tags)
+
 	wb = xl.Workbook()
-	wb.create_sheet("COVER")
-	wb_cover = wb["COVER"]
+	wb_cover = wb["Sheet"]
+	wb_cover.title = "COVER"
 	fill_cover(wb_cover, ticker, 5)
 
 	wb.create_sheet("WACC")
@@ -539,8 +577,8 @@ if __name__ == "__main__":
 	fill_wacc(wb_WACC, mag)
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
-	#SGA_list = list(SGA_values.values())
-	NAV_summary_row, iNAVPriceCoord = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, directory_cfiles, SGA_list)
+
+	NAV_summary_row, iNAVPriceCoord, i_quarter = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, directory_cfiles, directory_cfiles_10K, SGA_list)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
@@ -557,14 +595,17 @@ if __name__ == "__main__":
 	wb_cover.cell(row=10, column=3, value=f"=EPV!{iEPVPriceCoord[0]+str(iEPVPriceCoord[1])}")
 	wb_cover.cell(row=11, column=3, value=f"=GV!{iGVPriceCoord[0]+str(iGVPriceCoord[1])}")
 	wb_WACC.cell(row=6, column=7, value=int(years[-1]))
+	#wb_NAV.cell(row=EPV_rows.get["Prior Year Revenue"], column=3, value=oldest_prior_year_revenue)
 
 	sBasis = "FY"
 	if sIncludeQuarter:
 		sBasis = "Q"
-	wb.save(f"./excel/{ticker} - {sBasis} 2023 - {dates[-1]}.xlsx")
 
-
-
+	year = int(directory_cfiles_10K[-1].split('-')[0])
+	i_quarter -= 1
+	if i_quarter > 0 and i_quarter < 4:
+		year += 1
+	wb.save(f"./excel/{ticker} - {sBasis}{i_quarter} {year} - {directory_cfiles[-1]}.xlsx")
 
 	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
 	# we don't override.

@@ -98,7 +98,7 @@ PPE = ["us-gaap:PropertyPlantAndEquipmentNet"]
 def is_PPE(tag):
     return any(tag == PPE_tag for PPE_tag in PPE)
 
-def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
+def NAV_assets_titiles(wb_NAV, assets_info, all_dates, k_dates, asset_row):
     wb_NAV.column_dimensions['B'].width = 70
     # Title Assets
     wb_NAV.cell(row=asset_row.start, column=2, value="Assets")
@@ -169,9 +169,15 @@ def NAV_assets_titiles(wb_NAV, assets_info, years, asset_row):
     cell.font = headingFont
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
     row += 1
-    cur_year = int(years[0])-2
-    for i in range(len(years)+2):
-        wb_NAV.cell(row=row, column=2, value=f"{str(cur_year)} SG&A")
+
+    year = all_dates[0].split('-')[0]
+    cur_year = int(year)-2
+
+    # If 1, it means the most recent filing is a 10-Q so we need to add an extra row of SG&A for new fiscal year.
+    i_q_recent = 1 if all_dates[-1] != k_dates[-1] else 0
+    for i in range(len(k_dates)+2+i_q_recent):
+        # If the date is a 10-Q date, we don't want to add row
+        wb_NAV.cell(row=row, column=2, value=f"{cur_year} SG&A")
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = greyFill
         if i == 0:
@@ -327,11 +333,15 @@ def NAV_summary_titles(wb_NAV, row, summary_row):
     cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
     summary_row.end = row
 
-def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears, SGA_list):
+def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, all_dates, k_dates, iSGA, iNumYears, i_quarter, SGA_list):
     wb_NAV.column_dimensions[letters[col]].width = 15
     year = date.split('-')[0]
     # Title Assets
-    wb_NAV.cell(row=2, column=col, value=f"FY {year}")
+    if date in k_dates:
+        wb_NAV.cell(row=2, column=col, value=f"FY {year}")
+    else:
+        wb_NAV.cell(row=2, column=col, value=f"Q{i_quarter} {year}")
+
     cell = wb_NAV[f"{letters[col]}2"]
     cell.fill = purplerFill
     cell.font = boldFont
@@ -382,9 +392,9 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears, 
     for _ in range(row, asset_row.end):
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = purpleFill
-        # Fill in 0 for SG&A values for now
         if row > asset_row.SGA and row < asset_row.total_asset-1:
             if iSGA == 0:
+                # We don't have data for teh old SG&A in the case were the oldest filing is 10-Q so just put in 0
                 value = SGA_list[j] if j < len(SGA_list) else 0
                 wb_NAV.cell(row=row, column=col, value=value)
                 j += 1
@@ -400,6 +410,10 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, iSGA, iNumYears, 
             cell = wb_NAV[f"{letters[col]}{iAvgRow}"]
             iStartAvgRow = iAvgRow - 2 - iNumYears + iSGA
             iEndAvgRow = iAvgRow - iNumYears + iSGA
+            # Go back an extra year if most recent filing is 10-Q since we are adding a new SG&A row for the new fiscal year.
+            if all_dates[-1] != k_dates[-1]:
+                iStartAvgRow -= 1
+                iEndAvgRow -= 1
             wb_NAV.cell(row=iAvgRow, column=col, value=f"=AVERAGE({letters[col]}{iStartAvgRow}:{letters[col]}{iEndAvgRow})")
         else:
             cell.border = Border(left=thickBorder, top=noBorder, right=noBorder, bottom=noBorder)
@@ -412,7 +426,7 @@ def NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date):
     row = liability_row.start
     # Title Liabilities
     year = str(date.split('-')[0])
-    wb_NAV.cell(row=row, column=col, value=f"FY {year}")
+    wb_NAV.cell(row=row, column=col, value=f"={letters[col]}{2}")
     cell = wb_NAV[f"{letters[col]}{row}"]
     cell.fill = purplerFill
     cell.font = boldFont
@@ -748,21 +762,49 @@ def NAV_summary_filler(wb_NAV, col, start_row, end_row):
             cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
 
-def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates, SGA_list):
-    years = [date.split('-')[0] for date in dates]
-    iYears = len(years)
+def find_which_quarter(all_dates, k_dates):
+    i_quarter_away = 0  # variable that lets us know how many quarters to 10-K
+    if all_dates[0] == k_dates[0]:
+        return i_quarter_away
+    
+    i_quarter_away += 1
+    # Loop through until we reach the 10-K date
+    for date in all_dates:
+        if date in all_dates:
+            # If the current date is a 10-K date, we calculate which quarter we are currently at
+            if date in k_dates:
+                return 5 - i_quarter_away
+        i_quarter_away += 1
+
+    print("Interesting... either we only have 10-Q downloaded or the 10-K and all dates (10-K and 10-Q) dates aren't matching.")
+    return 100      # Returning some absurd number for now
+
+def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, all_dates, k_dates, SGA_list):
+    years = [date.split('-')[0] for date in all_dates]
     wb_NAV.column_dimensions['B'].width = 2
     asset_row = AssetRow()
     liability_row = LiabilityRow()
     summary_row = SummaryRow()
-    NAV_assets_titiles(wb_NAV, assets_info, years, asset_row)
+    NAV_assets_titiles(wb_NAV, assets_info, all_dates, k_dates, asset_row)
     NAV_liabilities_titiles(wb_NAV, liabilities_info, asset_row.end, liability_row)
     NAV_summary_titles(wb_NAV, liability_row.end, summary_row)
 
-    for i, date in enumerate(dates):
+    # If quarterly, find out if starting point is Q1, Q2, Q3, or FY
+    i_quarter = find_which_quarter(all_dates, k_dates)
+
+    iSGA = 0
+    for i, date in enumerate(all_dates):
         col = i*3+3
         shares = shares_outstanding[date] if date in shares_outstanding else 0
-        NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, i, len(dates), SGA_list)
+
+        if i_quarter == 4:
+            i_quarter = 0
+
+        NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, all_dates, k_dates, iSGA, len(k_dates), i_quarter, SGA_list)
+        i_quarter += 1
+        if date in k_dates:
+            iSGA += 1
+
         NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date)
         NAV_summary_data(wb_NAV, col, asset_row.total_asset, summary_row.start, summary_row.end, shares)
 
@@ -784,7 +826,8 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates, S
         #cell = wb_NAV[f"{letters[col]}{summary_row.end}"]
         #cell.border = Border(left=noBorder, top=noBorder, right=noBorder, bottom=thickBorder)
 
-        if i == len(dates)-1:
+        # Add some extra formatting if it is the final quarter/year
+        if i == len(all_dates)-1:
             for j in range(5):
                 cell = wb_NAV[f"{letters[col]}{summary_row.end-j}"]
                 if j == 0:
@@ -792,4 +835,4 @@ def fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outstanding, dates, S
                 else:
                     cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
 
-    return summary_row, [letters[col-2],summary_row.NAV_price]
+    return summary_row, [letters[col-2],summary_row.NAV_price], i_quarter

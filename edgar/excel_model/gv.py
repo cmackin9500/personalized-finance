@@ -113,7 +113,7 @@ def fill_gv_data(wb_GV, row, col, years, iNAVRow, EPV_rows):
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
             # Current Share Price
             elif row == 12:
-                wb_GV.cell(row=row, column=col, value="=COVER!C2")
+                wb_GV.cell(row=row, column=col, value="=COVER!$C$2")
                 cell.font = boldFont
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
             # Upside

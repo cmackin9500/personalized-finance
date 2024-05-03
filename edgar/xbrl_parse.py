@@ -389,9 +389,13 @@ def get_disclosure_fields(ticker:str, disclosure, cfiles):
 	assert fs_fields != {}, "fs_fields is empty"
 	return fs_fields
 
-def get_common_shares_outstanding(htm_xml):
+def get_diluted_common_shares_outstanding(htm_xml):
 	soup = BeautifulSoup(htm_xml, "xml")
-	sharesOutstanding = soup.find("dei:EntityCommonStockSharesOutstanding")
+	sharesOutstanding = soup.find("us-gaap:WeightedAverageNumberOfDilutedSharesOutstanding")
+	if sharesOutstanding is None:
+		sharesOutstanding = soup.find("dei:EntityCommonStockSharesOutstanding")
+
+	assert sharesOutstanding is not None, "Shares Outstanding not found. Check tag for shares outstanding."
 	return sharesOutstanding.get_text()
 
 if __name__ == "__main__":

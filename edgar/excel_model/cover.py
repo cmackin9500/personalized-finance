@@ -56,7 +56,7 @@ def fill_cover(wb_cover, ticker, iYears):
         cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
 
         if row == 2:
-            wb_cover.cell(row=row, column=col, value=f"=B2.Price")
+            wb_cover.cell(row=row, column=col, value=f"B2.Price")
             cell.border = Border(left=thickBorder, top=thickBorder, right=thickBorder, bottom=noBorder)
             cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
         if row == 3:
@@ -64,15 +64,15 @@ def fill_cover(wb_cover, ticker, iYears):
             cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
             cell.number_format = format.BUILTIN_FORMATS[10]
         if row == 4:
-            wb_cover.cell(row=row, column=col, value=f"=B2.[P/E]")
+            wb_cover.cell(row=row, column=col, value=f"B2.[P/E]")
             cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
             cell.number_format = CUSTOM_FORMAT_PE
         if row == 5:
-            wb_cover.cell(row=row, column=col, value=f"=B2.[Shares outstanding]/1000000")
+            wb_cover.cell(row=row, column=col, value=f"B2.[Shares outstanding]/1000000")
             cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
             cell.number_format = format.BUILTIN_FORMATS[2]
         if row == 6:
-            wb_cover.cell(row=row, column=col, value=f"=B2.[Market cap]/1000000")
+            wb_cover.cell(row=row, column=col, value=f"B2.[Market cap]/1000000")
             cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=thickBorder)
             cell.number_format = CUSTOM_FORMAT_CURRENCY_ZERO
         row += 1
