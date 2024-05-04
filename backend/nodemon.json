@@ -1,0 +1,11 @@
+{
+	"verbose": true,
+	"ignore": [
+		".git",
+		"forms",
+		"store",
+		"docs",
+		"./users.db"
+	],
+	"ext": "go"
+}
