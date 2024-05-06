@@ -1,4 +1,7 @@
 {
-  "Aerospace/Defense": ["3730 - Ship & Boat Building & Repairing"],
+  "Aerospace/Defense": [
+    "3730 - Ship & Boat Building & Repairing",
+    "3760 - Guided Missiles & Space Vehicles & Parts"
+  ],
   "Semiconductor": ["3674 - Semiconductors & Related Devices"]
 }

@@ -566,11 +566,36 @@ if __name__ == "__main__":
 	SGA_values = {i: abs(SGA_values[i]) for i in myKeys}
 	SGA_list = list(SGA_values.values())
 
+	# Get all dates in Income Statement (for now)
+	all_dates = []
+	for tag_info in all_is_info:
+		for key in tag_info:
+			if key == 'Tag' or key == 'Text': continue
+			if key not in all_dates:
+				all_dates.append(key)
+	all_dates.sort()
+
+	first_epv_date = list(epv_info.keys())[0]
+	i_first_epv_date = all_dates.index(first_epv_date)
+	first_prior_year_revenue_date = all_dates[i_first_epv_date - 1]
+
 	# Load the Revenue tags
-	#revenue_tags = []
-	#with open(f"./tags/epv_{industry}_tags.json") as f:
-	#	file_contents = f.read()
-	#	revenue_tags = json.loads(file_contents)["Current Year Revenue"]
+	revenue_tags = []
+	with open(f"./tags/epv_{industry}_tags.json") as f:
+		file_contents = f.read()
+		revenue_tags = json.loads(file_contents)["Current Year Revenue"]
+
+	oldest_prior_year_revenue = 0
+	for tag_info in all_is_info:
+		for tag in revenue_tags:
+			if tag in tag_info['Tag']:
+				if first_prior_year_revenue_date in tag_info:
+					oldest_prior_year_revenue = tag_info[first_prior_year_revenue_date]
+					break
+	#for tag_info in all_is_info:
+	#	for tag in revenue_tags:
+	#		if tag in tag_info['Tag']:
+		
 	#oldest_prior_year_revenue = get_oldest_prior_year_revenue_from_is(all_is_info, directory_cfiles_10K[0], revenue_tags)
 
 	wb = xl.Workbook()
@@ -601,7 +626,7 @@ if __name__ == "__main__":
 	wb_cover.cell(row=10, column=3, value=f"=EPV!{iEPVPriceCoord[0]+str(iEPVPriceCoord[1])}")
 	wb_cover.cell(row=11, column=3, value=f"=GV!{iGVPriceCoord[0]+str(iGVPriceCoord[1])}")
 	wb_WACC.cell(row=6, column=7, value=int(years[-1]))
-	#wb_NAV.cell(row=EPV_rows.get["Prior Year Revenue"], column=3, value=oldest_prior_year_revenue)
+	wb_EPV.cell(row=EPV_rows.get["Prior Year Revenue"], column=3).value = oldest_prior_year_revenue
 
 	sBasis = "FY"
 	if parsing_method == 'q':
@@ -611,8 +636,10 @@ if __name__ == "__main__":
 	i_quarter -= 1
 	if i_quarter > 0 and i_quarter < 4:
 		year += 1
+		sBasis = "Q"
 	else:
 		sBasis = "FY"
+		i_quarter = ''
 	wb.save(f"./excel/{ticker} - {sBasis}{i_quarter} {year} - {directory_cfiles[-1]}.xlsx")
 
 	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
