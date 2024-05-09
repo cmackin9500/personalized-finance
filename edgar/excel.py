@@ -20,7 +20,7 @@ from excel_model.gv import *
 from excel_model.wacc import *
 from excel_model.nav import *
 
-def get_fs_list(fs_fields, mag, fs):
+def get_fs_list(fs_fields, mag, fs, date):
 	div = 1000
 	if mag == 't':
 		div = 1000
@@ -54,7 +54,7 @@ def get_fs_list(fs_fields, mag, fs):
 	
 	if fs_tag == "": print(f"{fs} beginning tag is not found.")
 	assert fs_tag != "", "The base tag is not found in the financial statement. Look for another tag that'll be in it."
-	date = fs_fields[fs_tag].date[0]
+	#date = fs_fields[fs_tag].date[0]
 
 	fs_list = []
 	for key in fs_fields:
@@ -200,11 +200,10 @@ def fs_process_from_cfiles(cfiles, fs, iGetIndexUpTo = 0, bIsChronological = [Fa
 	iNumOfFSColumns = len(fs_table_from_html[0])
 	assert iNumOfFSColumns > 0, "Facts retrieved for the Financial Statement is empty."
 
-	FS = []
 	# If there is only one column, just get that and return
 	if iNumOfFSColumns == 1:
-		FS = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, 0)
-		return FS
+		assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, 0)
+		return fs_fields
 	
 	# If greater, we want to identify if it is chronological or not
 	date0 = fs_table_from_html[0][0].date
@@ -213,26 +212,27 @@ def fs_process_from_cfiles(cfiles, fs, iGetIndexUpTo = 0, bIsChronological = [Fa
 	if bIsChronological[0]:
 		for i in range(0, iGetIndexUpTo+1):
 			if i >= iNumOfFSColumns: break
-			FS.append(assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i))
+			assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i)
 	else:
+		fs_fields = get_fs_fields(ticker, fs, cfiles)
 		for i in range(iGetIndexUpTo, -1, -1):
 			if i >= iNumOfFSColumns: continue
-			fs_fields = []
-			fs_fields = get_fs_fields(ticker, fs, cfiles)
-			data = assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i)
-			FS.append(data)
-	return FS
+			assign_HTMLFact_to_XBRLNode(fs_fields, fs_table_from_html, i)
+	return fs_fields
 
-def df_input_fs(FS, div=1000):
+def df_input_fs(FS, dates, div=1000):
 	financial_statement = []
-	for FS_year in FS:
-		for fact in FS_year:
-			f = FS_year[fact]
-			if f.val is None or f.date is None: continue
-			val_date_dict = {f.date[i]: f.val[i]/div for i in range(len(f.date))}
-			push_fact = {"Tag": f.text[0]}
+	for date in dates:
+		for tag in FS:
+			tag_info = FS[tag]
+			if tag_info.val is None or tag_info.date is None: continue
+			indexes = [i for i, d in enumerate(tag_info.date) if d == date]
+			val_date_dict = {tag_info.date[i]: tag_info.val[i]/div for i in indexes}
+			#val_date_dict = {tag_info.date[i]: tag_info.val[i]/div for i in range(len(tag_info.date))}
+			push_fact = {"Tag": tag_info.text[0]}
 			for key in val_date_dict:
 				push_fact[key] = val_date_dict[key]
+
 			financial_statement.append(push_fact)
 	return financial_statement
 
@@ -308,12 +308,18 @@ def get_oldest_prior_year_revenue_from_is(all_is_info, first_10k_year, revenue_t
 				oldest_prior_year_revene = tag_info[key]
 	return 0
 
-if __name__ == "__main__":
-	ticker = sys.argv[1]
-	mag = sys.argv[2]
-	industry = sys.argv[3]
-	parsing_method = sys.argv[4]
+def get_all_dates_from_fs_fields(FS):
+	dates = []
+	for tag in FS:
+		tag_info = FS[tag]
+		cur_dates = tag_info.date
+		if cur_dates is None: continue
+		for date in cur_dates:
+			if date not in dates: dates.append(date)
+	dates.sort()
+	return dates
 
+def run_main(ticker, mag, industry, parsing_method):
 	if parsing_method == 'q':
 		print("Parsing all 10-K and 10-Q...")
 	
@@ -367,7 +373,8 @@ if __name__ == "__main__":
 	# Get the Balance Sheet information from the most recent 10-K/10-Q.
 	try:
 		NAV = fs_process_from_cfiles(cfiles, 'bs', 1)
-		balance_sheet = df_input_fs(NAV, div)
+		dates = get_all_dates_from_fs_fields(NAV)
+		balance_sheet = df_input_fs(NAV, dates, div)
 		df_nav = pd.DataFrame(balance_sheet)
 	except:
 		df_nav = {'None': {"Failed"}}
@@ -399,7 +406,7 @@ if __name__ == "__main__":
 		try:
 			# For getting all balance sheet info
 			BS = fs_process_from_cfiles(cfiles, 'bs', 0)
-			bs_list = get_fs_list(BS[0], mag, 'bs')
+			bs_list = get_fs_list(BS, mag, 'bs', cur_year)
 			all_bs_info = populate_fs_df(bs_list, all_bs_info, cur_year)
 
 			# For getting the EPV info
@@ -426,8 +433,9 @@ if __name__ == "__main__":
 				index = 0
 			bIsChronological = [True]
 			IS = fs_process_from_cfiles(cfiles, 'is', index, bIsChronological)
-			for j,IS_year in enumerate(IS):
-				is_list = get_fs_list(IS_year, mag, 'is')
+			dates = get_all_dates_from_fs_fields(IS)
+			for j,date in enumerate(dates):
+				is_list = get_fs_list(IS, mag, 'is', date)
 				if bIsChronological[0] and j == len(IS)-1:
 					all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
 				elif not bIsChronological[0] and j == 0:
@@ -451,7 +459,7 @@ if __name__ == "__main__":
 			continue
 		try:
 			CF = fs_process_from_cfiles(cfiles, 'cf', 0)
-			cf_list = get_fs_list(CF[0], mag, 'cf')
+			cf_list = get_fs_list(CF, mag, 'cf', cur_year)
 			all_cf_info = populate_fs_df(cf_list, all_cf_info, cur_year)
 
 			# For getting the EPV info
@@ -644,3 +652,10 @@ if __name__ == "__main__":
 
 	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
 	# we don't override.
+
+if __name__ == "__main__":
+	ticker = sys.argv[1]
+	mag = sys.argv[2]
+	industry = sys.argv[3]
+	parsing_method = sys.argv[4]
+	run_main(ticker, mag, industry, parsing_method)

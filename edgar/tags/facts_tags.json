@@ -17,7 +17,8 @@
     "LongTermDebtAndCapitalLeaseObligations",
     "SubordinatedDebt",
     "OtherBorrowings",
-    "DebtAndCapitalLeaseObligations"
+    "DebtAndCapitalLeaseObligations",
+    "LongTermLineOfCredit"
   ],
   "PPE": [
     "PropertyPlantAndEquipmentNet",
@@ -52,7 +53,8 @@
     "InformationTechnologyAndDataProcessing",
     "TravelAndEntertainmentExpense",
     "OtherSellingGeneralAndAdministrativeExpense",
-    "FuelCosts"
+    "FuelCosts",
+    "mtn:MountainandLodginggeneralandadministrativeexpense"
   ],
   "Interest Expense": ["InterestExpense", "InterestIncomeExpenseNet"],
   "Interest Income": [

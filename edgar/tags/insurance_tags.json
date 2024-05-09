@@ -17,7 +17,8 @@
     "LongTermDebtAndCapitalLeaseObligations",
     "SubordinatedDebt",
     "OtherBorrowings",
-    "DebtAndCapitalLeaseObligations"
+    "DebtAndCapitalLeaseObligations",
+    "LongTermLineOfCredit"
   ],
   "PPE": [
     "PropertyPlantAndEquipmentNet",

@@ -17,6 +17,10 @@ retail_titles = ["Operating Income", "Depreciation Adjustment", "Depreciation", 
           "Cash", "Interest Rate", "Pretax Earnings", "Tax Rate", "Taxes", "Earnings", "Earnings Power Value", "Cash", "Debt",
           "Total EV in Equity", "Shares Outstanding", "EPV/Share", "Current Share Price"]
 
+insurance_titles = ["Operating Income", "Depreciation Adjustment", "Depreciation", "CAPEX", "Growth CAPEX", "Option Expense", "Interest Earned on Cash",
+          "Cash", "Interest Rate", "Pretax Earnings", "Tax Rate", "Taxes", "Earnings", "Earnings Power Value", "Cash", "Debt",
+          "Total EV in Equity", "Shares Outstanding", "EPV/Share", "Current Share Price"]
+
 tech_titles = ["Operating Income", "R&D Expenses", "Depreciation Adjustment", "Depreciation", "CAPEX", "Growth CAPEX", "Option Expense", "Interest Earned on Cash",
           "Cash", "Interest Rate", "Pretax Earnings", "Tax Rate", "Taxes", "Earnings", "Earnings Power Value", "Cash", "Debt",
           "Total EV in Equity", "Shares Outstanding", "EPV/Share", "Current Share Price"]
@@ -386,6 +390,7 @@ def fill_epv(wb_EPV, industry, epv_info, iSharesRow):
     if industry == "tech": titles = tech_titles
     elif industry == "retail": titles = retail_titles
     elif industry == "finance": titles = finance_titles
+    elif industry == "insurance": titles = insurance_titles
 
     EPV_titles(wb_EPV, titles, epv_row, col)
     dep_adj_titles(wb_EPV, epv_row, col)

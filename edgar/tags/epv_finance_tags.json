@@ -32,7 +32,8 @@
     "OtherBorrowings",
     "DebtAndCapitalLeaseObligations",
     "SeniorLongTermNotes",
-    "LineOfCredit"
+    "LineOfCredit",
+    "LongTermLineOfCredit"
   ],
   "PPE": [
     "PropertyPlantAndEquipmentNet",

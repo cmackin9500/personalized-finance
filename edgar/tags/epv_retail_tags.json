@@ -19,7 +19,8 @@
     "LongTermDebt",
     "LongTermDebtAndCapitalLeaseObligations",
     "UnsecuredDebt",
-    "LongTermNotesPayable"
+    "LongTermNotesPayable",
+    "LongTermLineOfCredit"
   ],
   "Premises and Equipment": [
     "PropertyPlantAndEquipmentNet",
