@@ -114,13 +114,13 @@ def wacc_box_one(wb_WACC, mag):
             cell.fill = yellowFill
             cell.number_format = CUSTOM_FORMAT_CURRENCY_TWO
         elif col == 6:
-            wb_WACC.cell(row=row, column=col, value=None)
+            wb_WACC.cell(row=row, column=col, value="=G6+H6")
             cell.fill = yellowFill
         elif col == 7:
             wb_WACC.cell(row=row, column=col, value=None)
             cell.fill = yellowFill
         elif col == 8:
-            wb_WACC.cell(row=row, column=col, value="=F6-G6")
+            wb_WACC.cell(row=row, column=col, value="F6-G6")
             cell.fill = yellowFill
         elif col == 9:
             wb_WACC.cell(row=row, column=col, value=None)

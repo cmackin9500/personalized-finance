@@ -53,20 +53,29 @@ def get_fs_list(fs_fields, mag, fs, date):
 			fs_tag = "us-gaap:NetCashProvidedByUsedInOperatingActivities"
 	
 	if fs_tag == "": print(f"{fs} beginning tag is not found.")
-	assert fs_tag != "", "The base tag is not found in the financial statement. Look for another tag that'll be in it."
+	#assert fs_tag != "", "The base tag is not found in the financial statement. Look for another tag that'll be in it."
 	#date = fs_fields[fs_tag].date[0]
 
 	fs_list = []
 	for key in fs_fields:
 		if fs_fields[key].val is None:
 			continue
+		if date not in fs_fields[key].date:
+			continue
+		i_index = fs_fields[key].date.index(date)
 		text = fs_fields[key].text[0] if fs_fields[key].text else ''
+		if len(fs_fields[key].val) > i_index:
+			d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i_index]/div}
+			fs_list.append(d)
+
+		'''
 		for i,tag in enumerate(fs_fields[key].text):
 			if fs_fields[key].tag == "us-gaap:EarningsPerShareBasic" or fs_fields[key].tag == "us-gaap:EarningsPerShareDiluted":
 				d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]}	
 			else:
 				d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]/div}
 			fs_list.append(d)
+		'''
 	return fs_list
 
 def get_all_dates(data, period, currency):
@@ -241,7 +250,6 @@ def populate_fs_df(fs_list, all_fs_info, cur_year):
 		cur_year = list(fs_list[0].keys())[-1]
 	if all_fs_info == []: 
 		all_fs_info = fs_list
-
 	# Loop through the new list and add it to the right place.
 	# First, we check of the tag is already added. If so, we just add the data there.
 	# If not, we add the data 1 index after the previous place the data was added to.
@@ -257,7 +265,6 @@ def populate_fs_df(fs_list, all_fs_info, cur_year):
 					break
 			if next: continue
 			all_fs_info.insert(index, fs_list[j])
-	
 	return all_fs_info
 
 def get_tags_from_df(fs_df):
@@ -268,19 +275,6 @@ def get_tags_from_df(fs_df):
 		just_tags.append(tag)
 	return just_tags
 
-def process_fs(cfiles, fs, mag, cur_year):
-	all_fs_info = []
-	print(f"⏳ Attempting to parse {fs} for {directory_cfiles_10K[i]}.")
-	try:
-		FS = fs_process_from_cfiles(cfiles, fs, 0)
-		fs_list = get_fs_list(FS, mag, fs)
-		all_fs_info = populate_fs_df(fs_list, all_fs_info, cur_year)
-		print(f"	✅ Parsed successfully.\n")
-	except:
-		print(f"	❌ Could not parse {fs} for {directory_cfiles_10K[i]}.\n")
-	
-	return all_fs_info
-
 def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 	for tag_info in fs_list:
 		tag = tag_info['Tag'].split(":")[1]
@@ -290,10 +284,11 @@ def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 				if tag in epv_info[cur_year]:
 					epv_info[cur_year][key] += tag_info[cur_year]
 				else:
+					if cur_year not in tag_info:
+						continue
 					epv_info[cur_year][key] = tag_info[cur_year]
 
 def get_oldest_prior_year_revenue_from_is(all_is_info, first_10k_year, revenue_tags):
-	print(all_is_info)
 	oldest_prior_year_revene = 0
 	for tag_info in all_is_info:
 		if tag_info["Tag"].split(':')[1] in revenue_tags:
@@ -301,14 +296,18 @@ def get_oldest_prior_year_revenue_from_is(all_is_info, first_10k_year, revenue_t
 				if key == "Tag" or key == "Text":
 					continue
 				if key == first_10k_year:
-					print(tag_info)
-					print(oldest_prior_year_revene)
 					return oldest_prior_year_revene
 
 				oldest_prior_year_revene = tag_info[key]
 	return 0
 
-def get_all_dates_from_fs_fields(FS):
+def get_tag_info(all_fs_info, tag):
+	for tag_info in all_fs_info:
+		if tag == tag_info['Tag']:
+			return tag_info
+	return None
+
+def get_all_dates_from_fs_fields(FS, bIsChronological = True):
 	dates = []
 	for tag in FS:
 		tag_info = FS[tag]
@@ -317,6 +316,8 @@ def get_all_dates_from_fs_fields(FS):
 		for date in cur_dates:
 			if date not in dates: dates.append(date)
 	dates.sort()
+	if not bIsChronological:
+		dates.reverse()
 	return dates
 
 def run_main(ticker, mag, industry, parsing_method):
@@ -361,6 +362,13 @@ def run_main(ticker, mag, industry, parsing_method):
 			if cfile_10Q > directory_cfiles_10K[-1]:
 				directory_cfiles += directory_cfiles_10Q[i:]
 				break
+	# Parse the latest only
+	# TODO: this will work once epv_info shit is sorted
+	elif parsing_method == 'l':
+		if directory_cfiles_10K[-1] > directory_cfiles_10Q[-1]:
+			directory_cfiles = directory_cfiles_10K[-1:]
+		else:
+			directory_cfiles = directory_cfiles_10Q[-1:]
 	# Only parse 10-K
 	else:
 		directory_cfiles = directory_cfiles_10K
@@ -411,10 +419,14 @@ def run_main(ticker, mag, industry, parsing_method):
 
 			# For getting the EPV info
 			if cur_year in directory_cfiles_10K:
-				get_epv_info_from_fs(epv_info, epv_tags, bs_list, cur_year)
+				get_epv_info_from_fs(epv_info, epv_tags, all_bs_info, cur_year)
 
 			# Get Shares Outstanding
-			shares_outsanding[cur_year] = int(get_diluted_common_shares_outstanding(cfiles.htm_xml))/div
+			str_shares_outstanding = get_diluted_common_shares_outstanding(cfiles.htm_xml)
+			#TODO: gotta split because apprently you can't do int(str) if str has decimal. Look into see if there are more efficient ways.
+			cur_shares_outstanding = str_shares_outstanding.split('.')[0]
+			cur_shares_outstanding = int(cur_shares_outstanding)/div
+			shares_outsanding[cur_year] = cur_shares_outstanding
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -433,19 +445,20 @@ def run_main(ticker, mag, industry, parsing_method):
 				index = 0
 			bIsChronological = [True]
 			IS = fs_process_from_cfiles(cfiles, 'is', index, bIsChronological)
-			dates = get_all_dates_from_fs_fields(IS)
+			dates = get_all_dates_from_fs_fields(IS, bIsChronological[0])
 			for j,date in enumerate(dates):
 				is_list = get_fs_list(IS, mag, 'is', date)
-				if bIsChronological[0] and j == len(IS)-1:
-					all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
-				elif not bIsChronological[0] and j == 0:
-					all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
-				else:
-					all_is_info = populate_fs_df(is_list, all_is_info, None)
+				all_is_info = populate_fs_df(is_list, all_is_info, date)
+				#if bIsChronological[0] and j == len(IS)-1:
+				#	all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
+				#elif not bIsChronological[0] and j == 0:
+				#	all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
+				#else:
+				#	all_is_info = populate_fs_df(is_list, all_is_info, None)
 
 			# For getting the EPV info
 			if cur_year in directory_cfiles_10K:
-				get_epv_info_from_fs(epv_info, epv_tags, is_list, cur_year)
+				get_epv_info_from_fs(epv_info, epv_tags, all_is_info, cur_year)
 
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -464,7 +477,7 @@ def run_main(ticker, mag, industry, parsing_method):
 
 			# For getting the EPV info
 			if cur_year in directory_cfiles_10K:
-				get_epv_info_from_fs(epv_info, epv_tags, cf_list, cur_year)
+				get_epv_info_from_fs(epv_info, epv_tags, all_cf_info, cur_year)
 			
 			print(f"	✅ Parsed successfully.\n")
 		except:
@@ -530,7 +543,6 @@ def run_main(ticker, mag, industry, parsing_method):
 		print("Tags and EPV tab not complete.")
 	
 	writer.save()
-	#writer.close()
 
 	path = f"./excel/{ticker}.xlsx"
 	wb = xl.load_workbook(path)
@@ -583,28 +595,24 @@ def run_main(ticker, mag, industry, parsing_method):
 				all_dates.append(key)
 	all_dates.sort()
 
-	first_epv_date = list(epv_info.keys())[0]
-	i_first_epv_date = all_dates.index(first_epv_date)
-	first_prior_year_revenue_date = all_dates[i_first_epv_date - 1]
+	if parsing_method != 'l':
+		first_epv_date = list(epv_info.keys())[0]
+		i_first_epv_date = all_dates.index(first_epv_date)
+		first_prior_year_revenue_date = all_dates[i_first_epv_date - 1]
 
-	# Load the Revenue tags
-	revenue_tags = []
-	with open(f"./tags/epv_{industry}_tags.json") as f:
-		file_contents = f.read()
-		revenue_tags = json.loads(file_contents)["Current Year Revenue"]
+		# Load the Revenue tags
+		revenue_tags = []
+		with open(f"./tags/epv_{industry}_tags.json") as f:
+			file_contents = f.read()
+			revenue_tags = json.loads(file_contents)["Current Year Revenue"]
 
-	oldest_prior_year_revenue = 0
-	for tag_info in all_is_info:
-		for tag in revenue_tags:
-			if tag in tag_info['Tag']:
-				if first_prior_year_revenue_date in tag_info:
-					oldest_prior_year_revenue = tag_info[first_prior_year_revenue_date]
-					break
-	#for tag_info in all_is_info:
-	#	for tag in revenue_tags:
-	#		if tag in tag_info['Tag']:
-		
-	#oldest_prior_year_revenue = get_oldest_prior_year_revenue_from_is(all_is_info, directory_cfiles_10K[0], revenue_tags)
+		oldest_prior_year_revenue = 0
+		for tag_info in all_is_info:
+			for tag in revenue_tags:
+				if tag in tag_info['Tag']:
+					if first_prior_year_revenue_date in tag_info:
+						oldest_prior_year_revenue = tag_info[first_prior_year_revenue_date]
+						break
 
 	wb = xl.Workbook()
 	wb_cover = wb["Sheet"]
@@ -633,8 +641,21 @@ def run_main(ticker, mag, industry, parsing_method):
 	wb_cover.cell(row=9, column=3, value=f"=NAV!{iNAVPriceCoord[0]+str(iNAVPriceCoord[1])}")
 	wb_cover.cell(row=10, column=3, value=f"=EPV!{iEPVPriceCoord[0]+str(iEPVPriceCoord[1])}")
 	wb_cover.cell(row=11, column=3, value=f"=GV!{iGVPriceCoord[0]+str(iGVPriceCoord[1])}")
-	wb_WACC.cell(row=6, column=7, value=int(years[-1]))
-	wb_EPV.cell(row=EPV_rows.get["Prior Year Revenue"], column=3).value = oldest_prior_year_revenue
+	
+	if parsing_method != 'l':
+		wb_WACC.cell(row=6, column=7, value=int(years[-1]))
+		wb_EPV.cell(row=EPV_rows.get["Prior Year Revenue"], column=3).value = oldest_prior_year_revenue
+		
+		try:
+			interest_tag_info = get_tag_info(all_is_info, 'us-gaap:InterestExpense')
+			if interest_tag_info is None:
+				interest_tag_info = get_tag_info(all_is_info, 'us-gaap:InterestAndDebtExpense')
+			elif interest_tag_info is None:
+				interest_tag_info = get_tag_info(all_is_info,'us-gaap:InterestIncomeExpenseNonoperatingNet')
+			interest_expense = abs(interest_tag_info[directory_cfiles_10K[-1]])
+			wb_WACC.cell(row=6, column=9, value=interest_expense)
+		except:
+			print("Tag for interst expense is wrong")
 
 	sBasis = "FY"
 	if parsing_method == 'q':
@@ -648,7 +669,8 @@ def run_main(ticker, mag, industry, parsing_method):
 	else:
 		sBasis = "FY"
 		i_quarter = ''
-	wb.save(f"./excel/{ticker} - {sBasis}{i_quarter} {year} - {directory_cfiles[-1]}.xlsx")
+	wb.save(f"/Users/caseymackinnon/Desktop/Personalized Finance/edgar/excel/{ticker} - {sBasis}{i_quarter} {year} - {directory_cfiles[-1]}.xlsx")
+	#wb.save(f"./excel/{ticker} - {sBasis}{i_quarter} {year} - {directory_cfiles[-1]}.xlsx")
 
 	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
 	# we don't override.

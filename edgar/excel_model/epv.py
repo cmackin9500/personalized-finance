@@ -237,7 +237,7 @@ def fill_EPV_data(wb_EPV, epv_row, col, titles, epv_info, iSharesRow, industry):
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
             # Earnings Power Value
             elif epv_title == "Earnings Power Value":
-                wb_EPV.cell(row=row, column=col, value=f"={letters[col]}{epv_row.get['Earnings']}/WACC!F20")
+                wb_EPV.cell(row=row, column=col, value=f"={letters[col]}{epv_row.get['Earnings']}/WACC!$F$20")
                 cell.border = Border(left=thinBorder, top=noBorder, right=noBorder, bottom=noBorder)                
                 cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
             # Debt

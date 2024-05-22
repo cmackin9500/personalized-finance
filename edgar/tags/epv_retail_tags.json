@@ -1,6 +1,9 @@
 {
   "Operating Income": ["OperatingIncomeLoss"],
-  "Option Expense": ["ShareBasedCompensation"],
+  "Option Expense": [
+    "ShareBasedCompensation",
+    "IncreaseDecreaseInEmployeeRelatedLiabilities"
+  ],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
     "CashAndDueFromBanks",
@@ -20,14 +23,15 @@
     "LongTermDebtAndCapitalLeaseObligations",
     "UnsecuredDebt",
     "LongTermNotesPayable",
-    "LongTermLineOfCredit"
+    "LongTermLineOfCredit",
+    "ppc:LongtermDebtExcludingCurrentMaturitiesNet"
   ],
   "Premises and Equipment": [
     "PropertyPlantAndEquipmentNet",
     "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
+    "PropertyPlantandEquipmentandFinanceLeaseRightofUseAssetafterAccumulatedDepreciationandAmortization",
     "PaymentsToAcquireOilAndGasProperty",
-    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
-    "PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization",
+    "ppc:PropertyPlantandEquipmentandFinanceLeaseRightofUseAssetafterAccumulatedDepreciationandAmortization",
     "moh:PropertyPlantAndEquipmentAndFinanceLeaseRightOfUseAssetAfterAccumulatedDepreciationAndAmortization"
   ],
   "Current Year Revenue": [
@@ -47,6 +51,7 @@
   "CAPEX": [
     "PaymentsToAcquirePropertyPlantAndEquipment",
     "PaymentsToAcquireProductiveAssets",
-    "PaymentsToAcquireRealEstate"
+    "PaymentsToAcquireRealEstate",
+    "ppc:PaymentsToAcquirePropertyPlantAndEquipmentNet"
   ]
 }

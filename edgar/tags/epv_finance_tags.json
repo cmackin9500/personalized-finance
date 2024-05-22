@@ -10,7 +10,10 @@
     "ProvisionForOtherCreditLosses"
   ],
   "Interest Expenses": ["InterestExpense"],
-  "Option Expenses": ["ShareBasedCompensation"],
+  "Option Expenses": [
+    "ShareBasedCompensation",
+    "AllocatedShareBasedCompensationExpense"
+  ],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
     "CashAndDueFromBanks",
@@ -33,7 +36,8 @@
     "DebtAndCapitalLeaseObligations",
     "SeniorLongTermNotes",
     "LineOfCredit",
-    "LongTermLineOfCredit"
+    "LongTermLineOfCredit",
+    "SeniorNotes"
   ],
   "PPE": [
     "PropertyPlantAndEquipmentNet",
