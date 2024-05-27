@@ -54,7 +54,8 @@
     "TravelAndEntertainmentExpense",
     "OtherSellingGeneralAndAdministrativeExpense",
     "FuelCosts",
-    "mtn:MountainandLodginggeneralandadministrativeexpense"
+    "mtn:MountainandLodginggeneralandadministrativeexpense",
+    "OtherGeneralAndAdministrativeExpense"
   ],
   "Interest Expense": ["InterestExpense", "InterestIncomeExpenseNet"],
   "Interest Income": [

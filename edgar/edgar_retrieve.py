@@ -304,8 +304,6 @@ if __name__ == "__main__":
 	#	print("\tex. python3 edgar_retrieve.py AAPL 10-K")
 	#	sys.exit(0)
 
-	ticker = sys.argv[1]
-
 	tickers = ["AAPL","ABBV","ACGL","ADBE","ADI","ADUS","ADYEN","AFX","ALL","AMAT","AMZN","AON","APG","ARW","ASML","ASO","ATKR","AVGO","AXL","AXP","AZO","AZPN","BAC","BHLB","BLD","BLDR","BMO","BMY","BOOT","BWA","BXC","BZH","CARR","CCNE","CDNS","CHE","CI","CIEN","CLAR","CNC","CNXC","CROX","CRSR","CRVL","CSCO","CW","DAL","DELL","DFS","DG","DHI","DKS","DOUG","DXC","EA","ELV","EPD","ESQ","ET","FAST","FCFS","FG","FHN","FI","CPAY","FOXF","FTNT","G","GD","GDOT","GIII","GOOG","GRBK","GSY","HD","HLI","HLNE","HOLX","HOPE","HUM","IBKR","IBP","ICE","INTC","IPI","ISRG","JPM","KKR","KLAC","KNX","LFUS","LH","LIN","LMT","LULU","MC","MBC","MCHP","MED","MEDP","META","MHO","MLI","MOH","MS","MSFT","MTCH","MTN","NKE","NTR","NVDA","NVR","NWPX","NXPI","NXST","OC","OLPX","ONEW","ORCL","ORI","OTIS","PAG","PGR","PH","PLAB","POOL","PPC","QCOM","QRTEA","RACE","RH","RICK","RS","RY","SAIC","SBUX","SCHW","SF","SFM","SHEL","SLAB","SMCI","SONY","SOI","SPGI","SPH","SSD","SSNC","SUN","SWKS","TDG","THULE","TOELF","TPL","TXN","UFPI","UHAL","ULTA","UNH","V","VRRM","WBA","WD","WDC","WGO","WHR","WIRE","WLK","WMT","WSM","WTFC","XPEL","YETI"]
 	for ticker in tickers:	
 		try:
@@ -329,7 +327,11 @@ if __name__ == "__main__":
 					date = form.filingDate if form.filingDate > date else date
 			date_10q = date
 
-			print(ticker, date_10k, date_10q)
+			date_yo = max(date_10k, date_10q)
+
+			if date_yo > "2024-05-10":
+				print(ticker, date_yo)
 	
 		except:
-			print(ticker + " not EDGAR")
+			a = None
+			#print(ticker + " not EDGAR")

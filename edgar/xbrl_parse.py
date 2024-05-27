@@ -85,7 +85,8 @@ def get_role_path(uri:str) -> str:
 def statement_URI(statement_roleURI:list, statement:str) -> str:
 	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition']
 	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome',
-	   	  'statementsofoperations','consolidatedoperations', 'statementsofearnings', 'statementofearnings']
+	   	  'statementsofoperations','consolidatedoperations', 'statementsofearnings', 'statementofearnings', 
+		  'consolidatedstatementsofcomprehensiveincome']
 	CF = ['statementsofcashflows','statementofcashflows','cashflow']
 	PPE = ['propertyplantandequipment','propertyandequipment','investmentproperties']
 	skip = ['comprehensive','details']

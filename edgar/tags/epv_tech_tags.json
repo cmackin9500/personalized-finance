@@ -22,7 +22,8 @@
     "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust",
     "UnsecuredLongTermDebt",
     "LongTermDebt",
-    "LongTermDebtAndCapitalLeaseObligations"
+    "LongTermDebtAndCapitalLeaseObligations",
+    "SeniorLongTermNotes"
   ],
   "Premises and Equipment": [
     "PropertyPlantAndEquipmentNet",
@@ -48,6 +49,7 @@
   "CAPEX": [
     "PaymentsToAcquirePropertyPlantAndEquipment",
     "PaymentsToAcquireProductiveAssets",
-    "PaymentsToAcquireRealEstate"
+    "PaymentsToAcquireRealEstate",
+    "PaymentsToAcquireOtherPropertyPlantAndEquipment"
   ]
 }

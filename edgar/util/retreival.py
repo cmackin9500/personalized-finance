@@ -52,3 +52,19 @@ def status_code(url):
 		return json.loads(res.text)
 	else:
 		return {}
+	
+if __name__ == "__main__":
+	links = {
+		"xml": "https://www.sec.gov/Archives/edgar/data/21344/000002134413000007/ko-20121231.xml",
+		"xsd": "https://www.sec.gov/Archives/edgar/data/21344/000002134413000007/ko-20121231.xsd",
+		"pre": "https://www.sec.gov/Archives/edgar/data/21344/000002134413000007/ko-20121231_pre.xml",
+		"cal": "https://www.sec.gov/Archives/edgar/data/21344/000002134413000007/ko-20121231_cal.xml",
+		"lab": "https://www.sec.gov/Archives/edgar/data/21344/000002134413000007/ko-20121231_lab.xml",
+		"defi": "https://www.sec.gov/Archives/edgar/data/21344/000002134413000007/ko-20121231_def.xml"
+	}
+
+	res = retrieve_from_url("https://www.sec.gov/Archives/edgar/data/21344/000002134413000007/ko-20121231.xml")
+	for type in links:
+		res = retrieve_from_url(links[type])
+		file_name = links[type].split('/')[-1]
+		write_file(file_name, res.text)
