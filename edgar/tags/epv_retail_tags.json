@@ -2,7 +2,8 @@
   "Operating Income": ["OperatingIncomeLoss"],
   "Option Expense": [
     "ShareBasedCompensation",
-    "IncreaseDecreaseInEmployeeRelatedLiabilities"
+    "IncreaseDecreaseInEmployeeRelatedLiabilities",
+    "StockOptionPlanExpense"
   ],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",

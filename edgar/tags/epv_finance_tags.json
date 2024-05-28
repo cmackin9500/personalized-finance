@@ -12,7 +12,8 @@
   "Interest Expenses": ["InterestExpense"],
   "Option Expenses": [
     "ShareBasedCompensation",
-    "AllocatedShareBasedCompensationExpense"
+    "AllocatedShareBasedCompensationExpense",
+    "StockOptionPlanExpense"
   ],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",

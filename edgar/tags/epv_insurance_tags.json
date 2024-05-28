@@ -1,6 +1,10 @@
 {
   "Operating Income": ["OperatingIncomeLoss"],
-  "Option Expense": ["ShareBasedCompensation"],
+  "Option Expense": [
+    "ShareBasedCompensation",
+    "StockOptionPlanExpense",
+    "StockOptionPlanExpense"
+  ],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
     "CashAndDueFromBanks",

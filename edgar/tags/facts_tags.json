@@ -87,7 +87,8 @@
   ],
   "Option Expenses": [
     "ShareBasedCompensation",
-    "dal:NoncashEffectOfPensionPostretirementAndPostemploymentPaymentsGreaterLessThanExpense"
+    "dal:NoncashEffectOfPensionPostretirementAndPostemploymentPaymentsGreaterLessThanExpense",
+    "StockOptionPlanExpense"
   ],
   "Capex": [
     "PaymentsToAcquirePropertyPlantAndEquipment",

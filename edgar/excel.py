@@ -320,6 +320,22 @@ def get_all_dates_from_fs_fields(FS, bIsChronological = True):
 		dates.reverse()
 	return dates
 
+def download_forms(ticker, offline=False):
+	# Don't need to download if online
+	if offline: 
+		return
+	
+	CIK = get_company_CIK(ticker)
+	# Retrieve the forms
+	all_inline_10k_forms = get_forms_of_type_xbrl(CIK,'10-K', True)
+	all_inline_10q_forms = get_forms_of_type_xbrl(CIK,'10-Q', True)
+	
+	if all_inline_10k_forms != []: save_all_forms(ticker,'10-K',all_inline_10k_forms)
+	if all_inline_10q_forms != []: save_all_forms(ticker,'10-Q',all_inline_10q_forms)
+
+#def get_parsing_directories(ticker, parsing_method, offline=True):
+
+
 def run_main(ticker, mag, industry, parsing_method):
 	if parsing_method == 'q':
 		print("Parsing all 10-K and 10-Q...")
@@ -336,14 +352,7 @@ def run_main(ticker, mag, industry, parsing_method):
 	if len(sys.argv) > 5:
 		offline = True
 	
-	if not offline:
-		CIK = get_company_CIK(ticker)
-		# Retrieve the forms
-		all_inline_10k_forms = get_forms_of_type_xbrl(CIK,'10-K', True)
-		all_inline_10q_forms = get_forms_of_type_xbrl(CIK,'10-Q', True)
-		
-		if all_inline_10k_forms != []: retrieved_forms = save_all_forms(ticker,'10-K',all_inline_10k_forms)
-		if all_inline_10q_forms != []: retrieved_forms = save_all_forms(ticker,'10-Q',all_inline_10q_forms)
+	download_forms(ticker, offline)
 
 	directory_cfiles = []
 	directory_cfiles_10Q = sorted(find_all_form_dir(ticker,"10-Q"))

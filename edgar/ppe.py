@@ -10,10 +10,9 @@ if __name__ == "__main__":
     cfiles = read_forms_from_dir(directory)
     file_htm_xml = cfiles.htm_xml
     
-    ppe_URI = get_disclosure_fields("INTC", 'ppe', cfiles)
-
+    
     soup = BeautifulSoup(file_htm_xml, "xml")
-    ppe = soup.find("us-gaap:PropertyPlantAndEquipmentTextBlock").text
+    ppe = soup.find("us-gaap:PropertyPlantandCapitalizedSoftwarePropertyPlantandEquipmentTableDetails").text
     
     for line in soup:
         
