@@ -333,27 +333,7 @@ def download_forms(ticker, offline=False):
 	if all_inline_10k_forms != []: save_all_forms(ticker,'10-K',all_inline_10k_forms)
 	if all_inline_10q_forms != []: save_all_forms(ticker,'10-Q',all_inline_10q_forms)
 
-#def get_parsing_directories(ticker, parsing_method, offline=True):
-
-
-def run_main(ticker, mag, industry, parsing_method):
-	if parsing_method == 'q':
-		print("Parsing all 10-K and 10-Q...")
-	
-	div = 1000
-	if mag == 't':
-		div = 1000
-	elif mag == 'm':
-		div = 1000000
-	elif div == 'n':
-		div = 1
-
-	offline = False
-	if len(sys.argv) > 5:
-		offline = True
-	
-	download_forms(ticker, offline)
-
+def get_parsing_directories(ticker, parsing_method):
 	directory_cfiles = []
 	directory_cfiles_10Q = sorted(find_all_form_dir(ticker,"10-Q"))
 	directory_cfiles_10Q = list(filter((".DS_Store").__ne__, directory_cfiles_10Q))
@@ -381,6 +361,27 @@ def run_main(ticker, mag, industry, parsing_method):
 	# Only parse 10-K
 	else:
 		directory_cfiles = directory_cfiles_10K
+
+	return directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q
+
+def run_main(ticker, mag, industry, parsing_method):
+	if parsing_method == 'q':
+		print("Parsing all 10-K and 10-Q...")
+	
+	div = 1000
+	if mag == 't':
+		div = 1000
+	elif mag == 'm':
+		div = 1000000
+	elif div == 'n':
+		div = 1
+
+	offline = False
+	if len(sys.argv) > 5:
+		offline = True
+	
+	download_forms(ticker, offline)
+	directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q = get_parsing_directories(ticker, parsing_method)
 	
 	if directory_cfiles_10K[-1] > directory_cfiles_10Q[-1]:
 		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{directory_cfiles_10K[-1]}")
@@ -515,11 +516,11 @@ def run_main(ticker, mag, industry, parsing_method):
 	df_is = pd.DataFrame(all_is_info)
 	df_cf = pd.DataFrame(all_cf_info)
 			
-	appeared_tags = list()
-	try:
-		appeared_tags = get_tags_from_df(df_bs) + get_tags_from_df(df_is) + get_tags_from_df(df_cf)
-	except:
-		appeared_tags  = []
+	#appeared_tags = list()
+	#try:
+	#	appeared_tags = get_tags_from_df(df_bs) + get_tags_from_df(df_is) + get_tags_from_df(df_cf)
+	#except:
+	#	appeared_tags  = []
 	#TODO: Work on duplicate tags.
 	
 	# Retrieve facts json
@@ -678,8 +679,9 @@ def run_main(ticker, mag, industry, parsing_method):
 	else:
 		sBasis = "FY"
 		i_quarter = ''
+	#return wb
 	wb.save(f"/Users/caseymackinnon/Desktop/Personalized Finance/edgar/excel/{ticker} - {sBasis}{i_quarter} {year} - {directory_cfiles[-1]}.xlsx")
-	#wb.save(f"./excel/{ticker} - {sBasis}{i_quarter} {year} - {directory_cfiles[-1]}.xlsx")
+
 
 	#TODO: EPS is not working because it thinks it is the same as the shares outstanding since the text is the same. Make if it is EPS,
 	# we don't override.
