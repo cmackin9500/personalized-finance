@@ -665,8 +665,15 @@ def NAV_asset_adjusted_data(wb_NAV, col, assets_info, asset_row):
 
     PPE_tag_info = None
     for asset_tag_info in assets_info:
+        # Add formatting
+        cell = wb_NAV[f"{letters[col]}{row}"]
+        cell.fill = greenFill
+        cell.border = Border(left=noBorder, top=noBorder, right=thickBorder, bottom=noBorder)
+        cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
+        
         # Don't add formula for Non-Current Assets cell
         if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+            row += 1
             continue
         # Skip cell if cell is Total Non-Current Assets or Total Assets
         elif asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":

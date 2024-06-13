@@ -13,10 +13,20 @@ BASE_HEADERS = {
 	"origin": "https://efts.sec.gov"
 	}
 
-def get_and_extract_zip(url, dest):
+def get_and_extract_zip(url, dest, save_zip=True):
 	res = requests.get(url, headers=BASE_HEADERS, stream=True)
 	zipfile = ZipFile(BytesIO(res.raw.read()))
 	zipfile.extractall(path=dest)
+
+	res = requests.get(url, headers=BASE_HEADERS, stream=True)
+	if save_zip:
+		zip_file_name = dest + '/' + url.split('/')[-1]
+		with open(zip_file_name, 'wb') as fd:
+			for chunk in res.iter_content(chunk_size=1024):
+				fd.write(chunk)
+
+		#with open(zip_file_name, 'wb') as zip_output:
+		#	zip_output.write(res.content)
 
 # Makes a directory if it doesn't exist
 def mkdir_if_NE(pathname):
@@ -34,7 +44,8 @@ def remove_extra_files(dirname):
 	for file in files:
 		if not file.endswith(".html")\
 				and not file.endswith(".xml")\
-				and not file.endswith(".xsd"):
+				and not file.endswith(".xsd")\
+				and not file.endswith(".zip"):
 			os.remove(dirname + "/" + file)
 
 def retrieve_from_url(url):

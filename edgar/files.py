@@ -10,6 +10,7 @@ class CompanyFiles:
     xsd: str
     cal: str
     htm_xml: str
+    zip: str
 
 # Reads all company forms from a data directory
 def read_forms_from_dir(data_dir):
@@ -19,8 +20,11 @@ def read_forms_from_dir(data_dir):
     pre = ""
     htm_xml = ""
     cal = ""
+    zip = ""
 
     for file in files:
+        if file.endswith(".zip"):
+            zip = data_dir + "/" + file
         if file.endswith(".xsd"):
             xsd = fm.read_file(data_dir + "/" + file)
         if file.endswith("pre.xml"):
@@ -32,7 +36,7 @@ def read_forms_from_dir(data_dir):
         if file.endswith(".xml") and not any(t in file for t in ["cal", "pre", "def", "lab"]):
             htm_xml = fm.read_file(data_dir + "/" + file)
 
-    return CompanyFiles(html, pre, xsd, cal, htm_xml)
+    return CompanyFiles(html, pre, xsd, cal, htm_xml, zip)
 
 def find_all_form_dir(ticker, form_type) -> list():
     #print(os.getcwd())

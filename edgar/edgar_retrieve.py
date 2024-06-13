@@ -298,6 +298,19 @@ def save_all_facts(ticker, path='./'):
 	re.write_file(facts_dest_path, res.text)
 	return True
 
+def download_forms(ticker, offline=False):
+	# Don't need to download if online
+	if offline: 
+		return
+	
+	CIK = get_company_CIK(ticker)
+	# Retrieve the forms
+	all_inline_10k_forms = get_forms_of_type_xbrl(CIK,'10-K', True)
+	all_inline_10q_forms = get_forms_of_type_xbrl(CIK,'10-Q', True)
+	
+	if all_inline_10k_forms != []: save_all_forms(ticker,'10-K',all_inline_10k_forms)
+	if all_inline_10q_forms != []: save_all_forms(ticker,'10-Q',all_inline_10q_forms)
+
 if __name__ == "__main__":
 	#if len(sys.argv) != 3:
 	#	print("USAGE: python3 edgar_retrieve.py <ticker> <form type>")

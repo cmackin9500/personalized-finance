@@ -9,7 +9,7 @@ import openpyxl as xl
 
 from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
 from xbrl_parse import get_fs_fields, get_disclosure_fields, get_diluted_common_shares_outstanding
-from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms, download_forms
+from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms
 from html_parse import html_to_facts
 from html_process import derived_fs_table, assign_HTMLFact_to_XBRLNode
 from util.write_to_csv import *
@@ -281,7 +281,7 @@ def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 		for key in epv_tags:
 			epv_tag = epv_tags[key]
 			if tag in epv_tag:
-				if key in epv_info[cur_year] and cur_year in tag_info:
+				if tag in epv_info[cur_year]:
 					epv_info[cur_year][key] += tag_info[cur_year]
 				else:
 					if cur_year not in tag_info:
@@ -320,6 +320,19 @@ def get_all_dates_from_fs_fields(FS, bIsChronological = True):
 		dates.reverse()
 	return dates
 
+def download_forms(ticker, offline=False):
+	# Don't need to download if online
+	if offline: 
+		return
+	
+	CIK = get_company_CIK(ticker)
+	# Retrieve the forms
+	all_inline_10k_forms = get_forms_of_type_xbrl(CIK,'10-K', True)
+	all_inline_10q_forms = get_forms_of_type_xbrl(CIK,'10-Q', True)
+	
+	if all_inline_10k_forms != []: save_all_forms(ticker,'10-K',all_inline_10k_forms)
+	if all_inline_10q_forms != []: save_all_forms(ticker,'10-Q',all_inline_10q_forms)
+
 def get_parsing_directories(ticker, parsing_method):
 	directory_cfiles = []
 	directory_cfiles_10Q = sorted(find_all_form_dir(ticker,"10-Q"))
@@ -351,7 +364,7 @@ def get_parsing_directories(ticker, parsing_method):
 
 	return directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q
 
-def run_main(ticker, mag, industry, parsing_method):
+def run_main(ticker, mag, industry, parsing_method, risk_spread, beta, debt, ppe):
 	if parsing_method == 'q':
 		print("Parsing all 10-K and 10-Q...")
 	
@@ -502,59 +515,13 @@ def run_main(ticker, mag, industry, parsing_method):
 	df_bs = pd.DataFrame(all_bs_info)
 	df_is = pd.DataFrame(all_is_info)
 	df_cf = pd.DataFrame(all_cf_info)
-			
-	#appeared_tags = list()
-	#try:
-	#	appeared_tags = get_tags_from_df(df_bs) + get_tags_from_df(df_is) + get_tags_from_df(df_cf)
-	#except:
-	#	appeared_tags  = []
-	#TODO: Work on duplicate tags.
-	
-	# Retrieve facts json
-	if not offline:
-		retreieved_facts = save_all_facts(sys.argv[1])
-	else:
-		retreieved_facts = True
-	if retreieved_facts:
-		try:
-			TAGS = get_tags(f"./forms/{ticker}/{ticker}.json", "10-K")
-			EPV = epv(f"./tags/epv_{industry}_tags.json", f"./forms/{ticker}/{ticker}.json")
-		except:
-			TAGS = None
-			EPV = None
-	else:
-		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
 	writer = pd.ExcelWriter(f"./excel/{ticker}.xlsx", engine='xlsxwriter')
-	try:
-		df_nav.to_excel(writer, sheet_name='Recent NAV')
-	except:
-		print('NAV tab not complete.')
 	df_bs.to_excel(writer, sheet_name='Balance Sheet')
 	df_is.to_excel(writer, sheet_name='Income Statement')
 	df_cf.to_excel(writer, sheet_name='Cash Flow')
-	try:
-		TAGS.to_excel(writer, sheet_name='Tags')
-		EPV.to_excel(writer, sheet_name='EPV Data')
-	except:
-		print("Tags and EPV tab not complete.")
-	
 	writer.save()
 
-	path = f"./excel/{ticker}.xlsx"
-	wb = xl.load_workbook(path)
-	source = wb['Balance Sheet']
-	target = wb.copy_worksheet(source)
-	target.title = "NAV BS"
-
-	col = 5
-	max_col = target.max_column
-	while col <= max_col:
-		target.insert_cols(col)
-		target.insert_cols(col)
-		col += 3
-		max_col += 2
-	
 	years = [date.split('-')[0] for date in epv_info]
 	dates = [date for date in epv_info]
 
@@ -622,7 +589,7 @@ def run_main(ticker, mag, industry, parsing_method):
 	wb.create_sheet("NAV")
 	wb_NAV = wb["NAV"]
 
-	NAV_summary_row, iNAVPriceCoord, i_quarter = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, directory_cfiles, directory_cfiles_10K, SGA_list)
+	NAV_summary_row, iNAVPriceCoord, i_quarter = fill_NAV(wb_NAV, assets_info, liabilities_info, shares_outsanding, directory_cfiles, directory_cfiles_10K, SGA_list, ppe)
 
 	wb.create_sheet("EPV")
 	wb_EPV = wb["EPV"]
@@ -638,7 +605,10 @@ def run_main(ticker, mag, industry, parsing_method):
 	wb_cover.cell(row=9, column=3, value=f"=NAV!{iNAVPriceCoord[0]+str(iNAVPriceCoord[1])}")
 	wb_cover.cell(row=10, column=3, value=f"=EPV!{iEPVPriceCoord[0]+str(iEPVPriceCoord[1])}")
 	wb_cover.cell(row=11, column=3, value=f"=GV!{iGVPriceCoord[0]+str(iGVPriceCoord[1])}")
-	
+
+	wb_WACC.cell(row=7, column=3, value=risk_spread)
+	wb_WACC.cell(row=27, column=3, value=beta)
+
 	if parsing_method != 'l':
 		wb_WACC.cell(row=6, column=7, value=int(years[-1]))
 		wb_EPV.cell(row=EPV_rows.get["Prior Year Revenue"], column=3).value = oldest_prior_year_revenue
@@ -674,14 +644,14 @@ def run_main(ticker, mag, industry, parsing_method):
 	# we don't override.
 
 if __name__ == "__main__":
-	ticker = sys.argv[1]
-	mag = sys.argv[2]
-	industry = sys.argv[3]
-	parsing_method = sys.argv[4]
+	ticker = input("Enter Ticker: ")
+	mag = input("Enter Reported Scale: ")
+	industry = input("Enter Industry: ")
+	print()
+	risk_spread = input("Enter Risk Spread: ")
+	beta = input("Enter Beta: ")
+	debt = input("Enter Debt: ")
+	ppe = input("Enter PPE Adjustment: ")
 
-	#ticker = "L"
-	#mag = "t"
-	#industry = "retail"
-	#parsing_method = "k"
-	
-	run_main(ticker, mag, industry, parsing_method)
+	parsing_method = 'r'
+	run_main(ticker, mag, industry, parsing_method, risk_spread, beta, debt, ppe)

@@ -3,7 +3,8 @@
   "Option Expense": [
     "ShareBasedCompensation",
     "IncreaseDecreaseInEmployeeRelatedLiabilities",
-    "StockOptionPlanExpense"
+    "StockOptionPlanExpense",
+    "ShareBasedCompensationExpenseAndNonOperatingPensionCosts"
   ],
   "Cash": [
     "CashAndCashEquivalentsAtCarryingValue",
@@ -47,7 +48,8 @@
     "Depreciation",
     "AmortizationOfIntangibleAssets",
     "OtherDepreciationAndAmortization",
-    "DepreciationAmortizationAndAccretionNet"
+    "DepreciationAmortizationAndAccretionNet",
+    "DepreciationAndAccretion"
   ],
   "CAPEX": [
     "PaymentsToAcquirePropertyPlantAndEquipment",
