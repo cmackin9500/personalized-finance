@@ -305,8 +305,9 @@ def download_forms(ticker, offline=False):
 	
 	CIK = get_company_CIK(ticker)
 	# Retrieve the forms
-	all_inline_10k_forms = get_forms_of_type_xbrl(CIK,'10-K', True)
-	all_inline_10q_forms = get_forms_of_type_xbrl(CIK,'10-Q', True)
+	bDownloadNewOnly = True
+	all_inline_10k_forms = get_forms_of_type_xbrl(CIK,'10-K', bDownloadNewOnly)
+	all_inline_10q_forms = get_forms_of_type_xbrl(CIK,'10-Q', bDownloadNewOnly)
 	
 	if all_inline_10k_forms != []: save_all_forms(ticker,'10-K',all_inline_10k_forms)
 	if all_inline_10q_forms != []: save_all_forms(ticker,'10-Q',all_inline_10q_forms)

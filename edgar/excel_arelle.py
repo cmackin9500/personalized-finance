@@ -6,6 +6,7 @@ from typing import List
 import pandas as pd
 import json
 import openpyxl as xl
+from datetime import date
 
 from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
 from xbrl_parse import get_defenition_URI, statement_URI
@@ -58,35 +59,8 @@ def get_parsing_directories(ticker, parsing_method):
 
 	return directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q
 
-def main():
-	ticker =input("Enter ticker: ")
-	download_forms(ticker, True)
-	directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q = get_parsing_directories(ticker, 'k')
-	
-	fs_data = {}
-	for i, cur_year in enumerate(directory_cfiles):
-		cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{cur_year}")
-		statement_roleURI = get_defenition_URI(cfiles.xsd, 'Statement')
-		roleURIs = [roleURI for roleURI in statement_roleURI]
-		bs_roleURI = statement_URI(roleURIs, 'bs')
-		is_roleURI = statement_URI(roleURIs, 'is')
-		cf_roleURI = statement_URI(roleURIs, 'cf')
-		fs_roleURIs = [bs_roleURI, is_roleURI, cf_roleURI]
-
-		zip_file = "/Users/caseymackinnon/Desktop/Personalized Finance/edgar/" + cfiles.zip
-		#zip_file = "./" + cfiles.zip
-		arg = ['-f', zip_file, "--factTable=test.txt"]
-		data = parseAndRun(arg)
-
-		fs_data[cur_year] = {}
-		fs_data[cur_year]['bs'] = data[bs_roleURI]
-		fs_data[cur_year]['is'] = data[is_roleURI]
-		fs_data[cur_year]['cf'] = data[cf_roleURI]
-
-	cur_year = directory_cfiles_10K[-1]
-	bs_data = fs_data[cur_year]['bs']
-	
-	relationshipSet = bs_data["relationship"]
+def convert_data_to_fs_dict(fs_data, fs_dict):
+	relationshipSet = fs_data["relationship"]
 	rootConcepts = relationshipSet.rootConcepts
 	modelRelationshipsFrom = relationshipSet.modelRelationshipsFrom
 
@@ -96,7 +70,16 @@ def main():
 	# Created visited set to avoid adding the same concept again
 	visited = {curConcept}
 	while curConcept is not None or stack:
-		print(curConcept.qname)
+		tag = curConcept.vQname().prefix + ':' + curConcept.name
+		if tag not in fs_dict:
+			fs_dict[tag] = {}
+			fs_dict[tag]["facts"] = {}
+			fs_dict[tag]["label"] = curConcept.label()
+		
+		if curConcept.qname in fs_data["facts"]:
+			for date in fs_data["facts"][curConcept.qname]:
+				val = fs_data["facts"][curConcept.qname][date][0]
+				fs_dict[tag]["facts"][date] = val
 
 		# Add the children of the current concept and add it to the front of the stack
 		conceptsToAdd = []
@@ -116,6 +99,64 @@ def main():
 		else:
 			curConcept = None
 
+	return fs_dict
+
+def fs_list_insert_or_add_concept(fs_list, cur_year_bs_dict):
+	if fs_list == []:
+		for conceptName in cur_year_bs_dict:
+			fs_list.append({"conceptName": conceptName, "label": cur_year_bs_dict[conceptName]["label"], "facts": cur_year_bs_dict[conceptName]["facts"]})
+	else:
+		index = 0
+		for conceptName in cur_year_bs_dict:
+			for i in range(len(fs_list)):
+				next = False
+				if conceptName == fs_list[i]["conceptName"]:
+					fs_list[i]["facts"] = fs_list[i]["facts"] | cur_year_bs_dict[conceptName]["facts"]
+					index = i+1
+					next = True
+					break
+			if next: continue
+			fs_list.insert(index, {"conceptName": conceptName, "facts": cur_year_bs_dict[conceptName]["facts"]})
+	return fs_list
+
+def run_arelle():
+	ticker = input("Enter ticker: ")
+	download_forms(ticker, True)
+	directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q = get_parsing_directories(ticker, 'k')
+	
+	bs_dict = {}
+	bs_list = []
+	fs_data = {}
+	fs_list = {'bs': [], 'is': [], 'cf': []}
+	for cur_year in directory_cfiles:
+		try:
+			cfiles = read_forms_from_dir(f"forms/{ticker}/10-K/{cur_year}")
+			zip_file = "/Users/caseymackinnon/Desktop/Personalized Finance/edgar/" + cfiles.zip
+			#zip_file = "./" + cfiles.zip
+			arg = ['-f', zip_file, "--factTable=test.txt"]
+			data = parseAndRun(arg)
+
+
+			statement_roleURI = get_defenition_URI(cfiles.xsd, 'Statement')
+			roleURIs = [roleURI for roleURI in statement_roleURI]
+			bs_roleURI = statement_URI(roleURIs, 'bs')
+			is_roleURI = statement_URI(roleURIs, 'is')
+			cf_roleURI = statement_URI(roleURIs, 'cf')
+
+			fs_data[cur_year] = {}
+			for fs in ('bs', 'is', 'cf'):
+				fs_roleURI = statement_URI(roleURIs, fs)
+				fs_data[cur_year][fs] = data[fs_roleURI]
+				
+				cur_year_fs_data = fs_data[cur_year][fs]
+				cur_year_fs_dict = {}
+				cur_year_fs_dict = convert_data_to_fs_dict(cur_year_fs_data, cur_year_fs_dict)
+				fs_list[fs] = fs_list_insert_or_add_concept(fs_list[fs], cur_year_fs_dict)
+
+		except:
+			print(f"Failed to prase for {cur_year}.")
+	
+	return fs_list
 
 if __name__ == "__main__":
-    main()
+    run_arelle()

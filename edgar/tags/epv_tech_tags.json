@@ -44,7 +44,8 @@
     "OtherDepreciationAndAmortization",
     "DepreciationAmortizationAndAccretionNet",
     "csco:DepreciationAmortizationAndOther",
-    "isrg:DepreciationandGainLossonDispositionofPropertyPlantEquipment"
+    "isrg:DepreciationandGainLossonDispositionofPropertyPlantEquipment",
+    "CostDepreciationAmortizationAndDepletion"
   ],
   "CAPEX": [
     "PaymentsToAcquirePropertyPlantAndEquipment",

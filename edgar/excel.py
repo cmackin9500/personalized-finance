@@ -19,6 +19,7 @@ from excel_model.cover import *
 from excel_model.gv import *
 from excel_model.wacc import *
 from excel_model.nav import *
+from excel_arelle import run_arelle
 
 def get_fs_list(fs_fields, mag, fs, date):
 	div = 1000
@@ -68,14 +69,6 @@ def get_fs_list(fs_fields, mag, fs, date):
 			d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i_index]/div}
 			fs_list.append(d)
 
-		'''
-		for i,tag in enumerate(fs_fields[key].text):
-			if fs_fields[key].tag == "us-gaap:EarningsPerShareBasic" or fs_fields[key].tag == "us-gaap:EarningsPerShareDiluted":
-				d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]}	
-			else:
-				d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]/div}
-			fs_list.append(d)
-		'''
 	return fs_list
 
 def get_all_dates(data, period, currency):
@@ -277,7 +270,11 @@ def get_tags_from_df(fs_df):
 
 def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 	for tag_info in fs_list:
-		tag = tag_info['Tag'].split(":")[1]
+		if ':' in tag_info['Tag']:
+			tag = tag_info['Tag'].split(":")[1]
+		else:
+			tag = tag_info['Tag']
+
 		for key in epv_tags:
 			epv_tag = epv_tags[key]
 			if tag in epv_tag:
@@ -416,6 +413,7 @@ def run_main(ticker, mag, industry, parsing_method):
 
 			# For getting the EPV info
 			if cur_year in directory_cfiles_10K:
+				print(all_bs_info)
 				get_epv_info_from_fs(epv_info, epv_tags, all_bs_info, cur_year)
 
 			# Get Shares Outstanding
@@ -446,12 +444,6 @@ def run_main(ticker, mag, industry, parsing_method):
 			for j,date in enumerate(dates):
 				is_list = get_fs_list(IS, mag, 'is', date)
 				all_is_info = populate_fs_df(is_list, all_is_info, date)
-				#if bIsChronological[0] and j == len(IS)-1:
-				#	all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
-				#elif not bIsChronological[0] and j == 0:
-				#	all_is_info = populate_fs_df(is_list, all_is_info, cur_year)
-				#else:
-				#	all_is_info = populate_fs_df(is_list, all_is_info, None)
 
 			# For getting the EPV info
 			if cur_year in directory_cfiles_10K:
