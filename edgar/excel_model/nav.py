@@ -122,19 +122,19 @@ def NAV_assets_titiles(wb_NAV, assets_info, all_dates, k_dates, asset_row):
     PPE_tag_info = None
     for asset_tag_info in assets_info:
         # Skip cell if cell is Total Non-Current Assets or Total Assets
-        if asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+        if asset_tag_info["tag"] == "us-gaap:Assets" or asset_tag_info["tag"] == "us-gaap:AssetsNoncurrent":
             continue
-        elif is_PPE(asset_tag_info["Tag"]):
+        elif is_PPE(asset_tag_info["tag"]):
             PPE_tag_info = asset_tag_info
             continue
 
         cell = wb_NAV[f"{letters[col]}{row}"]
         # Cell value to Non-Current Asset as it is start of it
-        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+        if asset_tag_info["tag"] == "us-gaap:AssetsCurrent":
             wb_NAV.cell(row=row, column=2, value="Non-Current Assets")
             cell.font = headingFont
         else:
-            wb_NAV.cell(row=row, column=2, value=f"{asset_tag_info['Text']}")
+            wb_NAV.cell(row=row, column=2, value=f"{asset_tag_info['label']}")
         cell.fill = greyFill
         cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
@@ -149,7 +149,7 @@ def NAV_assets_titiles(wb_NAV, assets_info, all_dates, k_dates, asset_row):
     row += 1
     # Add PPE data
     if PPE_tag_info is not None:
-        wb_NAV.cell(row=row, column=2, value=PPE_tag_info["Text"])
+        wb_NAV.cell(row=row, column=2, value=PPE_tag_info["label"])
         cell = wb_NAV[f"{letters[col]}{row}"]
         cell.fill = greyFill
         cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
@@ -231,16 +231,16 @@ def NAV_liabilities_titiles(wb_NAV, liabilities_info, row, liability_row):
     col = 2
     for liability_tag_info in liabilities_info:
         # Skip if Total Non-Current Liabilities or Total Liabilities
-        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+        if liability_tag_info["tag"] == "us-gaap:Liabilities" or liability_tag_info["tag"] == "us-gaap:LiabilitiesNoncurrent":
             continue
 
         cell = wb_NAV[f"{letters[col]}{row}"]
         # Cell value to Non-Current Asset as it is start of it
-        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+        if liability_tag_info["tag"] == "us-gaap:LiabilitiesCurrent":
             wb_NAV.cell(row=row, column=2, value="Non-Current Liabilities")
             cell.font = headingFont
         else:
-            wb_NAV.cell(row=row, column=2, value=f"{liability_tag_info['Text']}")
+            wb_NAV.cell(row=row, column=2, value=f"{liability_tag_info['label']}")
         cell.fill = greyFill
         cell.border = Border(left=thickBorder, top=noBorder, right=thickBorder, bottom=noBorder)
         row += 1
@@ -357,15 +357,15 @@ def NAV_assets_data(wb_NAV, assets_info, col, asset_row, date, all_dates, k_date
     PPE_tag_info = None
     for asset_tag_info in assets_info:
         # Skip cell if cell is Total Non-Current Assets or Total Assets
-        if asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+        if asset_tag_info["tag"] == "us-gaap:Assets" or asset_tag_info["tag"] == "us-gaap:AssetsNoncurrent":
             continue
-        elif is_PPE(asset_tag_info["Tag"]):
+        elif is_PPE(asset_tag_info["tag"]):
             PPE_tag_info = asset_tag_info
             continue
 
         value = asset_tag_info[date] if date in asset_tag_info else 0
         # Don't add data for Total Current Assets
-        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+        if asset_tag_info["tag"] == "us-gaap:AssetsCurrent":
             value = None
 
         wb_NAV.cell(row=row, column=col, value=value)
@@ -442,12 +442,12 @@ def NAV_liabilities_data(wb_NAV, liabilities_info, col, liability_row, date):
 
     for liability_tag_info in liabilities_info:
         # Skip if Total Non-Current Liabilities or Total Liabilities
-        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+        if liability_tag_info["tag"] == "us-gaap:Liabilities" or liability_tag_info["tag"] == "us-gaap:LiabilitiesNoncurrent":
             continue
         
         value = liability_tag_info[date] if date in liability_tag_info else 0
         # Don't add data for Total Current Liabilities
-        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+        if liability_tag_info["tag"] == "us-gaap:LiabilitiesCurrent":
             value = None
 
         wb_NAV.cell(row=row, column=col, value=value)
@@ -546,17 +546,17 @@ def NAV_asset_adjustment(wb_NAV, col, assets_info, asset_row, bIsFirstCol):
     # Adjustments for Asset Data
     for asset_tag_info in assets_info:
         # Skip cell if cell is Total Non-Current Assets or Total Assets
-        if asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+        if asset_tag_info["tag"] == "us-gaap:Assets" or asset_tag_info["tag"] == "us-gaap:AssetsNoncurrent":
             continue
         # Add adjustment for PPE
-        elif is_PPE(asset_tag_info["Tag"]):
+        elif is_PPE(asset_tag_info["tag"]):
             PPE_tag_info = asset_tag_info
             continue
 
         if bIsFirstCol: value = 1
         else: value = f"={letters[col-3]}{row}"
         # Don't add adjustment for Total Current Asset Cell
-        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+        if asset_tag_info["tag"] == "us-gaap:AssetsCurrent":
             value = None
         
 
@@ -610,14 +610,14 @@ def NAV_liability_adjustment(wb_NAV, col, liabilities_info, liability_row, bIsFi
     # Adjustments for Liability Data
     for liability_tag_info in liabilities_info:
         # Skip if Total Non-Current Liabilities or Total Liabilities
-        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+        if liability_tag_info["tag"] == "us-gaap:Liabilities" or liability_tag_info["tag"] == "us-gaap:LiabilitiesNoncurrent":
             continue
 
         if bIsFirstCol: value = -1
         else: value = f"={letters[col-3]}{row}"
 
         # Don't add data for Total Current Assets
-        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+        if liability_tag_info["tag"] == "us-gaap:LiabilitiesCurrent":
             value = None
 
         wb_NAV.cell(row=row, column=col, value=value)
@@ -672,14 +672,14 @@ def NAV_asset_adjusted_data(wb_NAV, col, assets_info, asset_row):
         cell.number_format = CUSTOM_FORMAT_CURRENCY_ONE
         
         # Don't add formula for Non-Current Assets cell
-        if asset_tag_info["Tag"] == "us-gaap:AssetsCurrent":
+        if asset_tag_info["tag"] == "us-gaap:AssetsCurrent":
             row += 1
             continue
         # Skip cell if cell is Total Non-Current Assets or Total Assets
-        elif asset_tag_info["Tag"] == "us-gaap:Assets" or asset_tag_info["Tag"] == "us-gaap:AssetsNoncurrent":
+        elif asset_tag_info["tag"] == "us-gaap:Assets" or asset_tag_info["tag"] == "us-gaap:AssetsNoncurrent":
             continue
         # Get the PPE data if PPE
-        elif is_PPE(asset_tag_info["Tag"]):
+        elif is_PPE(asset_tag_info["tag"]):
             PPE_tag_info = asset_tag_info
             continue
         else:
@@ -726,11 +726,11 @@ def NAV_liability_adjusted_data(wb_NAV, col, liabilities_info, liability_row):
 
     for liability_tag_info in liabilities_info:
         # Skip if Total Non-Current Liabilities or Total Liabilities
-        if liability_tag_info["Tag"] == "us-gaap:Liabilities" or liability_tag_info["Tag"] == "us-gaap:LiabilitiesNoncurrent":
+        if liability_tag_info["tag"] == "us-gaap:Liabilities" or liability_tag_info["tag"] == "us-gaap:LiabilitiesNoncurrent":
             continue
 
         # Don't add data for Total Current Laibilities
-        if liability_tag_info["Tag"] == "us-gaap:LiabilitiesCurrent":
+        if liability_tag_info["tag"] == "us-gaap:LiabilitiesCurrent":
             wb_NAV.cell(row=row, column=col, value=None)
         else:
             wb_NAV.cell(row=row, column=col, value=f"={letters[col-2]}{row}*{letters[col-1]}{row}")

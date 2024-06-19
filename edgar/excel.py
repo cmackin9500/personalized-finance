@@ -66,7 +66,7 @@ def get_fs_list(fs_fields, mag, fs, date):
 		i_index = fs_fields[key].date.index(date)
 		text = fs_fields[key].text[0] if fs_fields[key].text else ''
 		if len(fs_fields[key].val) > i_index:
-			d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i_index]/div}
+			d = {'tag': fs_fields[key].tag, 'label':text, date: fs_fields[key].val[i_index]/div}
 			fs_list.append(d)
 
 	return fs_list
@@ -231,7 +231,7 @@ def df_input_fs(FS, dates, div=1000):
 			indexes = [i for i, d in enumerate(tag_info.date) if d == date]
 			val_date_dict = {tag_info.date[i]: tag_info.val[i]/div for i in indexes}
 			#val_date_dict = {tag_info.date[i]: tag_info.val[i]/div for i in range(len(tag_info.date))}
-			push_fact = {"Tag": tag_info.text[0]}
+			push_fact = {"tag": tag_info.text[0]}
 			for key in val_date_dict:
 				push_fact[key] = val_date_dict[key]
 
@@ -251,7 +251,7 @@ def populate_fs_df(fs_list, all_fs_info, cur_year):
 		for j in range(len(fs_list)):
 			for i in range(len(all_fs_info)):
 				next = False
-				if all_fs_info[i]["Tag"] == fs_list[j]["Tag"] or all_fs_info[i]["Text"] == fs_list[j]["Text"]:
+				if all_fs_info[i]["tag"] == fs_list[j]["tag"] or all_fs_info[i]["label"] == fs_list[j]["label"]:
 					all_fs_info[i][cur_year] = fs_list[j][cur_year]
 					index = i+1
 					next = True
@@ -261,7 +261,7 @@ def populate_fs_df(fs_list, all_fs_info, cur_year):
 	return all_fs_info
 
 def get_tags_from_df(fs_df):
-	usgaap_tags = list(fs_df["Tag"])
+	usgaap_tags = list(fs_df["tag"])
 	just_tags = list()
 	for full_tag in usgaap_tags:
 		tag = full_tag.split(':')[1]
@@ -270,10 +270,10 @@ def get_tags_from_df(fs_df):
 
 def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 	for tag_info in fs_list:
-		if ':' in tag_info['Tag']:
-			tag = tag_info['Tag'].split(":")[1]
+		if ':' in tag_info['tag']:
+			tag = tag_info['tag'].split(":")[1]
 		else:
-			tag = tag_info['Tag']
+			tag = tag_info['tag']
 
 		for key in epv_tags:
 			epv_tag = epv_tags[key]
@@ -288,9 +288,9 @@ def get_epv_info_from_fs(epv_info, epv_tags, fs_list, cur_year):
 def get_oldest_prior_year_revenue_from_is(all_is_info, first_10k_year, revenue_tags):
 	oldest_prior_year_revene = 0
 	for tag_info in all_is_info:
-		if tag_info["Tag"].split(':')[1] in revenue_tags:
+		if tag_info["tag"].split(':')[1] in revenue_tags:
 			for key in tag_info:
-				if key == "Tag" or key == "Text":
+				if key == "tag" or key == "label":
 					continue
 				if key == first_10k_year:
 					return oldest_prior_year_revene
@@ -300,7 +300,7 @@ def get_oldest_prior_year_revenue_from_is(all_is_info, first_10k_year, revenue_t
 
 def get_tag_info(all_fs_info, tag):
 	for tag_info in all_fs_info:
-		if tag == tag_info['Tag']:
+		if tag == tag_info['tag']:
 			return tag_info
 	return None
 
@@ -413,7 +413,6 @@ def run_main(ticker, mag, industry, parsing_method):
 
 			# For getting the EPV info
 			if cur_year in directory_cfiles_10K:
-				print(all_bs_info)
 				get_epv_info_from_fs(epv_info, epv_tags, all_bs_info, cur_year)
 
 			# Get Shares Outstanding
@@ -474,13 +473,13 @@ def run_main(ticker, mag, industry, parsing_method):
 
 	iAsset, iLiabilities = None, None
 	for i, info in enumerate(all_bs_info):
-		if info["Tag"] == "us-gaap:Assets":
+		if info["tag"] == "us-gaap:Assets":
 			iAsset = i
 			continue
-		if info["Tag"] == "us-gaap:Liabilities":
+		if info["tag"] == "us-gaap:Liabilities":
 			iLiabilities = i
 			continue
-		if iLiabilities is not None and info["Tag"] == "us-gaap:PreferredStockValue" or info["Tag"] == "us-gaap:CommitmentsAndContingencies" or info["Tag"] == "us-gaap:CommonStockValue":
+		if iLiabilities is not None and info["tag"] == "us-gaap:PreferredStockValue" or info["tag"] == "us-gaap:CommitmentsAndContingencies" or info["tag"] == "us-gaap:CommonStockValue":
 			iLiabilities = i-1
 			continue
 	if iAsset is None:
@@ -526,10 +525,10 @@ def run_main(ticker, mag, industry, parsing_method):
 	df_is.to_excel(writer, sheet_name='Income Statement')
 	df_cf.to_excel(writer, sheet_name='Cash Flow')
 	try:
-		TAGS.to_excel(writer, sheet_name='Tags')
+		TAGS.to_excel(writer, sheet_name='tags')
 		EPV.to_excel(writer, sheet_name='EPV Data')
 	except:
-		print("Tags and EPV tab not complete.")
+		print("tags and EPV tab not complete.")
 	
 	writer.save()
 
@@ -558,9 +557,9 @@ def run_main(ticker, mag, industry, parsing_method):
 	# Get the SG&A values
 	SGA_values = {}
 	for tag_info in all_is_info:
-		if tag_info["Tag"].split(':')[1] in SGA_tags:
+		if tag_info["tag"].split(':')[1] in SGA_tags:
 			for key in tag_info:
-				if key == "Tag" or key == "Text" or key in directory_cfiles_10Q:
+				if key == "tag" or key == "label" or key in directory_cfiles_10Q:
 					continue
 				if key in SGA_values:
 					SGA_values[key] += tag_info[key]
@@ -579,7 +578,7 @@ def run_main(ticker, mag, industry, parsing_method):
 	all_dates = []
 	for tag_info in all_is_info:
 		for key in tag_info:
-			if key == 'Tag' or key == 'Text': continue
+			if key == 'tag' or key == 'label': continue
 			if key not in all_dates:
 				all_dates.append(key)
 	all_dates.sort()
@@ -598,7 +597,7 @@ def run_main(ticker, mag, industry, parsing_method):
 		oldest_prior_year_revenue = 0
 		for tag_info in all_is_info:
 			for tag in revenue_tags:
-				if tag in tag_info['Tag']:
+				if tag in tag_info['tag']:
 					if first_prior_year_revenue_date in tag_info:
 						oldest_prior_year_revenue = tag_info[first_prior_year_revenue_date]
 						break
@@ -644,7 +643,7 @@ def run_main(ticker, mag, industry, parsing_method):
 			interest_expense = abs(interest_tag_info[directory_cfiles_10K[-1]])
 			wb_WACC.cell(row=6, column=9, value=interest_expense)
 		except:
-			print("Tag for interst expense is wrong")
+			print("tag for interst expense is wrong")
 
 	sBasis = "FY"
 	if parsing_method == 'q':

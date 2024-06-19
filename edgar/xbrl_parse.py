@@ -83,11 +83,11 @@ def get_role_path(uri:str) -> str:
 
 # Given the list of URI, we return the URI for balance sheet, income statement, or cash flow
 def statement_URI(statement_roleURI:list, statement:str) -> str:
-	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition']
+	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition', 'combinedbalancesheet']
 	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome',
 	   	  'statementsofoperations','consolidatedoperations', 'statementsofearnings', 'statementofearnings', 
-		  'consolidatedstatementsofcomprehensiveincome']
-	CF = ['statementsofcashflows','statementofcashflows','cashflow']
+		  'consolidatedstatementsofcomprehensiveincome', 'combinedstatementofoperations']
+	CF = ['statementsofcashflows','statementofcashflows','cashflow', 'combinedstatementofcashflow']
 	PPE = ['propertyplantandequipment','propertyandequipment','investmentproperties']
 	skip = ['comprehensive','details']
 	avoid = ['paranthetical']

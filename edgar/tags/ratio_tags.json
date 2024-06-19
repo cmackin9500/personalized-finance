@@ -1,0 +1,160 @@
+{
+  "bs": {
+    "Cash and Cash Equiv.": [
+      "CashAndCashEquivalentsAtCarryingValue",
+      "CashAndDueFromBanks",
+      "CashCashEquivalentsAndFederalFundsSold",
+      "Cash"
+    ],
+    "Accounts Receivable": [
+      "AccountsReceivableNetCurrent",
+      "ReceivablesNetCurrent",
+      "AccountsReceivableGrossCurrent",
+      "OtherLongTermDebtNoncurrent"
+    ],
+    "Inventory": ["InventoryNet", "InventoryFinishedGoodsNetOfReserves"],
+    "Goodwill": ["Goodwill"],
+    "Intangible Assets": [
+      "IntangibleAssetsNetExcludingGoodwill",
+      "FiniteLivedIntangibleAssetsNet"
+    ],
+    "Current Assets": ["AssetsCurrent"],
+    "Accounts Payable": [
+      "AccountsPayableCurrent",
+      "AccountsPayableAndAccruedLiabilitiesCurrent"
+    ],
+    "Short Term Debt": [
+      "LongTermDebtCurrent",
+      "CommercialPaper",
+      "ShortTermBorrowings",
+      "NotesPayableCurrent",
+      "DebtCurrent",
+      "LongTermDebtAndCapitalLeaseObligationsCurrent"
+    ],
+    "Current Liabilities": ["LiabilitiesCurrent"],
+    "Long Term Debt": [
+      "LongTermDebtNoncurrent",
+      "OtherLongTermDebt",
+      "UnsecuredLongTermDebt",
+      "LongTermDebt",
+      "FederalHomeLoanBankAdvancesLongTerm",
+      "JuniorSubordinatedNotes",
+      "JuniorSubordinatedDebentureOwedToUnconsolidatedSubsidiaryTrust",
+      "UnsecuredLongTermDebt",
+      "LongTermDebt",
+      "LongTermDebtAndCapitalLeaseObligations",
+      "SubordinatedDebt",
+      "OtherBorrowings",
+      "DebtAndCapitalLeaseObligations",
+      "SeniorLongTermNotes",
+      "LineOfCredit",
+      "LongTermLineOfCredit",
+      "SeniorNotes",
+      "LongtermDebtExcludingCurrentMaturitiesNet",
+      "LongTermNotesPayable",
+      "UnsecuredDebt",
+      "AdvancesFromFederalHomeLoanBanks",
+      "OtherLongTermDebtNoncurrent"
+    ],
+    "Common Equity": [],
+    "Equity": [
+      "StockholdersEquity",
+      "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+      "PartnersCapitalIncludingPortionAttributableToNoncontrollingInterest"
+    ]
+  },
+  "is": {
+    "Revenue": [
+      "RevenueFromContractWithCustomerExcludingAssessedTax",
+      "Revenues",
+      "SalesRevenueNet",
+      "RevenueFromContractWithCustomerIncludingAssessedTax"
+    ],
+    "SG&A": [
+      "SellingGeneralAndAdministrativeExpense",
+      "GeneralAndAdministrativeExpense",
+      "SellingAndMarketingExpense",
+      "MarketingAndAdvertisingExpense",
+      "LaborAndRelatedExpense",
+      "OccupancyNet",
+      "LegalFees",
+      "MarketingAndAdvertisingExpense",
+      "Communication",
+      "EquipmentExpense",
+      "SellingExpense",
+      "ProfessionalFees",
+      "InformationTechnologyAndDataProcessing",
+      "TravelAndEntertainmentExpense",
+      "OtherSellingGeneralAndAdministrativeExpense",
+      "FuelCosts",
+      "mtn:MountainandLodginggeneralandadministrativeexpense",
+      "OtherGeneralAndAdministrativeExpense"
+    ],
+    "COGS": [
+      "CostOfGoodsAndServicesSold",
+      "CostOfRevenue",
+      "CostofRevenueExcludingDepreciationDepletionandAmortization"
+    ],
+    "Gross Profit": ["GrossProfit"],
+    "Operating Income": ["OperatingIncomeLoss"],
+    "Interest Expense": [
+      "InterestExpense",
+      "InterestIncomeExpenseNet",
+      "InterestIncomeExpenseNonoperatingNet"
+    ],
+    "Pretax Income": [
+      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+      "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+      "IncomeLossFromContinuingOperationsBeforeEarningsFromAffiliatesIncomeTaxesNoncontrollingInterest",
+      "IncomeLossIncludingPortionAttributableToNoncontrollingInterest"
+    ],
+    "Net income": ["NetIncomeLoss", "ProfitLoss"]
+  },
+  "cf": {
+    "Retained Earnings": [],
+    "Depreciation and Amortization": [
+      "DepreciationAndAmortization",
+      "DepreciationDepletionAndAmortization",
+      "Depreciation",
+      "AmortizationOfIntangibleAssets",
+      "OtherDepreciationAndAmortization",
+      "DepreciationAmortizationAndAccretionNet",
+      "DepreciationAndAccretion",
+      "CostDepreciationAmortizationAndDepletion",
+      "DepreciationAmortizationAndOther",
+      "DepreciationandGainLossonDispositionofPropertyPlantEquipment",
+      "DepreciationDepletionAndAmortizationIncludingDiscontinuedOperation",
+      "CostOfGoodsAndServicesSoldDepreciationAndAmortization"
+    ],
+    "Stock-based Compensation": [
+      "ShareBasedCompensation",
+      "AllocatedShareBasedCompensationExpense",
+      "StockOptionPlanExpense",
+      "ShareBasedCompensationExpenseAndNonOperatingPensionCosts",
+      "NoncashEffectOfPensionPostretirementAndPostemploymentPaymentsGreaterLessThanExpense"
+    ],
+    "Operating Cash": [
+      "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations",
+      "NetCashProvidedByUsedInOperatingActivities"
+    ],
+    "CF from Investing Portion": [
+      "NetCashProvidedByUsedInInvestingActivitiesContinuingOperations",
+      "NetCashProvidedByUsedInInvestingActivities"
+    ],
+    "CAPEX": [
+      "PaymentsToAcquirePropertyPlantAndEquipment",
+      "PaymentsToAcquireProductiveAssets",
+      "PaymentsToAcquireRealEstate",
+      "PaymentsToAcquirePropertyPlantAndEquipmentNet",
+      "PaymentsForFlightEquipment",
+      "PaymentsToAcquireOtherProductiveAssets",
+      "PaymentsToAcquireOilAndGasProperty"
+    ],
+    "Dividend": [
+      "PaymentsOfDividends",
+      "PaymentsOfDividendsCommonStock",
+      "PaymentsOfDividendsPreferredStockAndPreferenceStock",
+      "PaymentsOfOrdinaryDividends"
+    ]
+  }
+}

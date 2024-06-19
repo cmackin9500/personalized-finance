@@ -298,14 +298,13 @@ def save_all_facts(ticker, path='./'):
 	re.write_file(facts_dest_path, res.text)
 	return True
 
-def download_forms(ticker, offline=False):
+def download_forms(ticker, offline=False, bDownloadNewOnly=False):
 	# Don't need to download if online
 	if offline: 
 		return
 	
 	CIK = get_company_CIK(ticker)
 	# Retrieve the forms
-	bDownloadNewOnly = True
 	all_inline_10k_forms = get_forms_of_type_xbrl(CIK,'10-K', bDownloadNewOnly)
 	all_inline_10q_forms = get_forms_of_type_xbrl(CIK,'10-Q', bDownloadNewOnly)
 	

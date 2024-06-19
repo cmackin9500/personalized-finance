@@ -29,11 +29,11 @@ def get_fs_list(fs_fields, mag):
 			continue
 		text = fs_fields[key].text[0] if fs_fields[key].text else ''
 		for i,tag in enumerate(fs_fields[key].text):
-			d = {'Tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]/div}
+			d = {'tag': fs_fields[key].tag, 'Text':text, date: fs_fields[key].val[i]/div}
 			fs_list.append(d)
 	return fs_list
 	
-def getTags(ticker,destination):
+def gettags(ticker,destination):
 	div = 1000
 	if mag == 't':
 		div = 1000
@@ -194,7 +194,7 @@ def write_to_csv(ticker,BS,IS,CF,TAGS):
 	BS.to_excel(writer, sheet_name='Balance Sheet')
 	IS.to_excel(writer, sheet_name='Income Statement')
 	CF.to_excel(writer, sheet_name='Cash Flow')
-	TAGS.to_excel(writer, sheet_name='Tags')
+	TAGS.to_excel(writer, sheet_name='tags')
 	writer.save()
 
 def write_to_csv(ticker,BS,IS,CF):
@@ -207,12 +207,12 @@ def write_to_csv(ticker,BS,IS,CF):
 def write_to_csv(ticker,BS,TAGS):
 	writer = pd.ExcelWriter(f"{ticker}.xlsx", engine='xlsxwriter')
 	BS.to_excel(writer, sheet_name='Balance Sheet')
-	TAGS.to_excel(writer, sheet_name='Tags')
+	TAGS.to_excel(writer, sheet_name='tags')
 	writer.save()
 
 def write_to_csv(ticker,TAGS):
 	writer = pd.ExcelWriter(f"{ticker}.xlsx", engine='xlsxwriter')
-	TAGS.to_excel(writer, sheet_name='Tags')
+	TAGS.to_excel(writer, sheet_name='tags')
 	writer.save()
 
 if __name__ == "__main__":
@@ -223,12 +223,12 @@ if __name__ == "__main__":
 	# Retrieve facts json
 	retreieved_facts = save_all_facts(sys.argv[1])
 	if retreieved_facts:
-		TAGS_excel = getTags(ticker,f"./forms/{ticker}/{ticker}.json")
+		TAGS_excel = gettags(ticker,f"./forms/{ticker}/{ticker}.json")
 		#write_to_csv(ticker,TAGS)
 	else:
 		print("I have to work on facts from BS. Facts retreival failed as well. look into why.")
 
 	writer = pd.ExcelWriter(f"./excel/{ticker}.xlsx", engine='xlsxwriter')
-	TAGS_excel.to_excel(writer, sheet_name='Tags')
+	TAGS_excel.to_excel(writer, sheet_name='tags')
 	writer.save()
 	writer.close()
