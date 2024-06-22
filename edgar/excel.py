@@ -348,6 +348,22 @@ def get_parsing_directories(ticker, parsing_method):
 
 	return directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q
 
+def get_SGA_values(SGA_tags, all_is_info, directory_cfiles_10Q):
+	# Get the SG&A values
+	SGA_values = {}
+	for tag_info in all_is_info:
+		if tag_info["tag"].split(':')[1] in SGA_tags:
+			for key in tag_info:
+				if key == "tag" or key == "label" or key in directory_cfiles_10Q:
+					continue
+				if key in SGA_values:
+					SGA_values[key] += tag_info[key]
+				else:
+					SGA_values[key] = tag_info[key]
+	return SGA_values
+	
+
+
 def run_main(ticker, mag, industry, parsing_method):
 	if parsing_method == 'q':
 		print("Parsing all 10-K and 10-Q...")
@@ -364,7 +380,7 @@ def run_main(ticker, mag, industry, parsing_method):
 	if len(sys.argv) > 5:
 		offline = True
 	
-	download_forms(ticker, offline)
+	download_forms(ticker, offline, True)
 	directory_cfiles, directory_cfiles_10K, directory_cfiles_10Q = get_parsing_directories(ticker, parsing_method)
 	
 	if directory_cfiles_10K[-1] > directory_cfiles_10Q[-1]:
@@ -550,21 +566,12 @@ def run_main(ticker, mag, industry, parsing_method):
 	dates = [date for date in epv_info]
 
 	# Load in the SG&A tags
-	SGA_tags = []
+
 	with open('./tags/facts_tags.json') as f:
 		file_contents = f.read()
 		SGA_tags = json.loads(file_contents)["SG&A"]
-	# Get the SG&A values
-	SGA_values = {}
-	for tag_info in all_is_info:
-		if tag_info["tag"].split(':')[1] in SGA_tags:
-			for key in tag_info:
-				if key == "tag" or key == "label" or key in directory_cfiles_10Q:
-					continue
-				if key in SGA_values:
-					SGA_values[key] += tag_info[key]
-				else:
-					SGA_values[key] = tag_info[key]
+
+	SGA_values = get_SGA_values(SGA_tags, all_is_info, directory_cfiles_10Q)
 	for date in dates:
 		if date not in SGA_values:
 			SGA_values[date] = 0

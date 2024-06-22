@@ -1,5 +1,8 @@
 {
-  "Operating Income": ["OperatingIncomeLoss"],
+  "Operating Income": [
+    "OperatingIncomeLoss",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest"
+  ],
   "Option Expense": [
     "ShareBasedCompensation",
     "IncreaseDecreaseInEmployeeRelatedLiabilities",
@@ -10,7 +13,8 @@
     "CashAndCashEquivalentsAtCarryingValue",
     "CashAndDueFromBanks",
     "CashCashEquivalentsAndFederalFundsSold",
-    "Cash"
+    "Cash",
+    "CashCashEquivalentsAndShortTermInvestments"
   ],
   "Debt": [
     "LongTermDebtNoncurrent",

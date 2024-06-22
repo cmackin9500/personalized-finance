@@ -86,7 +86,7 @@ def statement_URI(statement_roleURI:list, statement:str) -> str:
 	BS = ['balancesheet','financialposition','financialcondition','consolidatedbalancesheet', 'statementsofcondition', 'combinedbalancesheet']
 	IS = ['incomestatement','statementsofoperation','statementsofinccome','statementofincome','statementsofincome',
 	   	  'statementsofoperations','consolidatedoperations', 'statementsofearnings', 'statementofearnings', 
-		  'consolidatedstatementsofcomprehensiveincome', 'combinedstatementofoperations']
+		  'consolidatedstatementsofcomprehensiveincome', 'combinedstatementofoperations', 'consolidatedstatementofcomprehensiveincome']
 	CF = ['statementsofcashflows','statementofcashflows','cashflow', 'combinedstatementofcashflow']
 	PPE = ['propertyplantandequipment','propertyandequipment','investmentproperties']
 	skip = ['comprehensive','details']
