@@ -83,7 +83,6 @@ if __name__ == "__main__":
 		financialStatement = financialStatements.get_financial_statement(fs)
 		financialStatement.set_linkRelationshipSet(fs_data["linkRelationshipSet"])
 		fill_statement(financialStatement, conceptFacts)
+		dConceptsInOrder = financialStatement.convert_to_ordered_dict()
 
-		dConceptsInOrder = financialStatement.convert_to_ordered_dict({}, financialStatement.linkRelationshipSet.rootConcepts[0], set(), 0)
-		print(dConceptsInOrder)
 	print()

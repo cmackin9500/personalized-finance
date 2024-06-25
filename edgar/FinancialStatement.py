@@ -74,38 +74,51 @@ class FinancialStatement:
 	ConceptsDict: Dict[str, Concept] = field(default_factory=dict)
 
 	# CLASS FUNCTIONS
-	def convert_to_ordered_dict(self, dConceptsInOrder, curConcept, visited, depth):
-		if curConcept is None or curConcept in visited:
-			return
-		
+	def convert_to_ordered_dict(self):
+		dConceptsInOrder = {}
+
 		relationshipSet = self.linkRelationshipSet
 		modelRelationshipsFrom = relationshipSet.modelRelationshipsFrom
-		visited.add(curConcept)
-		sQname = curConcept.vQname().prefix + ':' + curConcept.name
-		if sQname not in dConceptsInOrder:
-			dConceptsInOrder[sQname] = {}
-			dConceptsInOrder[sQname]["facts"] = {}
-			dConceptsInOrder[sQname]["label"] = curConcept.label()
-			dConceptsInOrder[sQname]["depth"] = depth
-		
-		if sQname in self.ConceptsDict: 
-			for Fact in self.ConceptsDict[sQname].facts:
-				if isinstance(Fact.val, int) or isinstance(Fact.val, float):
-					dConceptsInOrder[sQname]["facts"][Fact.date] = max(dConceptsInOrder[sQname]["facts"].get(Fact.date,0), Fact.val)
-				elif isinstance(Fact.val, str):
-					dConceptsInOrder[sQname]["facts"][Fact.date] = Fact.val
+		rootConcepts = relationshipSet.rootConcepts
 
-		conceptsToAdd = []
-		modelRelationshipsFromList = modelRelationshipsFrom[curConcept]
-		for cur_modelRelationshipsFrom in modelRelationshipsFromList:
-			toConcept = cur_modelRelationshipsFrom.toModelObject
-			# Only add the child concept if it has not been added to the parent yet
-			# TODO: This could pose an issue in the future when we introduce duplicate tags
-			if toConcept not in visited:
-				conceptsToAdd.append(toConcept)		
-		
-		for concept in conceptsToAdd:
-			return self.convert_to_ordered_dict(dConceptsInOrder, concept, visited, depth+1)
+		# Get the first root concept and add the rest in the stack
+		curConcept = (rootConcepts[0], 0)
+		stack = [(rootConcept, 0) for rootConcept in rootConcepts[1:]]
+		# Created visited set to avoid adding the same concept again
+		visited = {curConcept}
+		while curConcept is not None or stack:
+			concept, depth = curConcept
+			sQname = concept.vQname().prefix + ':' + concept.name
+			if sQname not in dConceptsInOrder:
+				dConceptsInOrder[sQname] = {}
+				dConceptsInOrder[sQname]["facts"] = {}
+				dConceptsInOrder[sQname]["label"] = concept.label()
+				dConceptsInOrder[sQname]["depth"] = depth
+			
+			if sQname in self.ConceptsDict: 
+				for Fact in self.ConceptsDict[sQname].facts:
+					if isinstance(Fact.val, int) or isinstance(Fact.val, float):
+						dConceptsInOrder[sQname]["facts"][Fact.date] = max(dConceptsInOrder[sQname]["facts"].get(Fact.date,0), Fact.val)
+					elif isinstance(Fact.val, str):
+						dConceptsInOrder[sQname]["facts"][Fact.date] = Fact.val
+
+			# Add the children of the current concept and add it to the front of the stack
+			conceptsToAdd = []
+			modelRelationshipsFromList = modelRelationshipsFrom[concept]
+			for cur_modelRelationshipsFrom in modelRelationshipsFromList:
+				toConcept = cur_modelRelationshipsFrom.toModelObject
+				# Only add the child concept if it has not been added to the parent yet
+				# TODO: This could pose an issue in the future when we introduce duplicate tags
+				if toConcept not in visited:
+					conceptsToAdd.append((toConcept, depth+1))
+					visited.add(toConcept)
+			stack = conceptsToAdd + stack
+
+			# Get the first concept in the stack
+			if stack:
+				curConcept = stack.pop(0)
+			else:
+				curConcept = None
 
 		return dConceptsInOrder
 
