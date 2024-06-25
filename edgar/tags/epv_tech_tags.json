@@ -10,7 +10,8 @@
     "CashAndCashEquivalentsAtCarryingValue",
     "CashAndDueFromBanks",
     "CashCashEquivalentsAndFederalFundsSold",
-    "Cash"
+    "Cash",
+    "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents"
   ],
   "Debt": [
     "LongTermDebtNoncurrent",
@@ -34,7 +35,8 @@
   "Current Year Revenue": [
     "RevenueFromContractWithCustomerExcludingAssessedTax",
     "Revenues",
-    "SalesRevenueNet"
+    "SalesRevenueNet",
+    "RevenueFromContractWithCustomerIncludingAssessedTax"
   ],
   "Depreciation and Amortization": [
     "DepreciationAndAmortization",

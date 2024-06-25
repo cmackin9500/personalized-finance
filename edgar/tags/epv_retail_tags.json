@@ -30,7 +30,8 @@
     "UnsecuredDebt",
     "LongTermNotesPayable",
     "LongTermLineOfCredit",
-    "ppc:LongtermDebtExcludingCurrentMaturitiesNet"
+    "ppc:LongtermDebtExcludingCurrentMaturitiesNet",
+    "NotePayableFloorPlan"
   ],
   "Premises and Equipment": [
     "PropertyPlantAndEquipmentNet",

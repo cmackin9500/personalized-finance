@@ -1,7 +1,7 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from typing import List, Dict
+from typing import List, Dict, Set
 from enum import Enum
 from datetime import date
 
@@ -50,6 +50,7 @@ class Fact:
 	scale: int					# Denotes the scale of the concept
 	period: List[date, date]	# Shows the starting date and ending date of the fact if Concept's periodType is DURATION else None
 	context: date				# XBRL concept
+	dimension: Set				# From and to dimention info if it exists
 
 @dataclass
 class Concept:
@@ -68,37 +69,86 @@ class Concept:
 
 @dataclass
 class FinancialStatement:
-	Concepts: List[Concept]
-	linkRelationshipSet: ModelRelationshipSet
+	Concepts: List[Concept] = field(default_factory=list)
+	linkRelationshipSet: ModelRelationshipSet = None
+	ConceptsDict: Dict[str, Concept] = field(default_factory=dict)
 
-	def __init__(
-		self,
-		Concepts = list(),
-		linkRelationshipSet = None
-	):
-		self.Concepts = Concepts
-		self.linkRelationshipSet = linkRelationshipSet
+	# CLASS FUNCTIONS
+	def convert_to_ordered_dict(self, dConceptsInOrder, curConcept, visited, depth):
+		if curConcept is None or curConcept in visited:
+			return
+		
+		relationshipSet = self.linkRelationshipSet
+		modelRelationshipsFrom = relationshipSet.modelRelationshipsFrom
+		visited.add(curConcept)
+		sQname = curConcept.vQname().prefix + ':' + curConcept.name
+		if sQname not in dConceptsInOrder:
+			dConceptsInOrder[sQname] = {}
+			dConceptsInOrder[sQname]["facts"] = {}
+			dConceptsInOrder[sQname]["label"] = curConcept.label()
+			dConceptsInOrder[sQname]["depth"] = depth
+		
+		if sQname in self.ConceptsDict: 
+			for Fact in self.ConceptsDict[sQname].facts:
+				if isinstance(Fact.val, int) or isinstance(Fact.val, float):
+					dConceptsInOrder[sQname]["facts"][Fact.date] = max(dConceptsInOrder[sQname]["facts"].get(Fact.date,0), Fact.val)
+				elif isinstance(Fact.val, str):
+					dConceptsInOrder[sQname]["facts"][Fact.date] = Fact.val
 
+		conceptsToAdd = []
+		modelRelationshipsFromList = modelRelationshipsFrom[curConcept]
+		for cur_modelRelationshipsFrom in modelRelationshipsFromList:
+			toConcept = cur_modelRelationshipsFrom.toModelObject
+			# Only add the child concept if it has not been added to the parent yet
+			# TODO: This could pose an issue in the future when we introduce duplicate tags
+			if toConcept not in visited:
+				conceptsToAdd.append(toConcept)		
+		
+		for concept in conceptsToAdd:
+			return self.convert_to_ordered_dict(dConceptsInOrder, concept, visited, depth+1)
+
+		return dConceptsInOrder
+
+	# GET FUNCTIONS
+	def get_concept_from_qname(self, qname: str):
+		return self.ConceptsDict[qname]
+	
+	# SET FUNCTIONS
 	def set_linkRelationshipSet(self, linkRelationshipSet):
 		self.linkRelationshipSet = linkRelationshipSet
+	
+@dataclass
+class BalanceSheet(FinancialStatement):
+	filingDate: date = None
+
+	# CLASS FUNCTIONS
+
+@dataclass
+class IncomeStatement(FinancialStatement):
+	filingDate: date = None
+
+@dataclass
+class CashFlow(FinancialStatement):
+	filingDate: date = None
+
+@dataclass
+class ShareholdersEquity(FinancialStatement):
+	filingDate: date = None
 
 @dataclass
 class FinancialStatements:
-	balanceSheet: FinancialStatement
-	incomeStatement: FinancialStatement
-	cashFlow: FinancialStatement
+	balanceSheet: BalanceSheet = BalanceSheet()
+	incomeStatement: IncomeStatement = IncomeStatement()
+	cashFlow: CashFlow = CashFlow()
+	shareholdersEquity: ShareholdersEquity = ShareholdersEquity()
 
-	def __init__(
-			self,
-			balanceSheet = FinancialStatement(),
-			incomeStatement = FinancialStatement(),
-			cashFlow = FinancialStatement()
-		):
-		self.balanceSheet = balanceSheet
-		self.incomeStatement = incomeStatement
-		self.cashFlow = cashFlow
-	
-	def get_financial_statement(self, fs):
+	# GET FUNCTIONS
+	def get_financial_statement(self, fs: str):
 		if fs == 'bs': return self.balanceSheet
 		elif fs == 'is': return self.incomeStatement
 		elif fs == 'cf': return self.cashFlow
+		elif fs == 'se': return self.shareholdersEquity
+
+@dataclass
+class FilingData:
+	FinancialStatement
