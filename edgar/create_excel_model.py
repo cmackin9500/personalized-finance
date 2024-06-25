@@ -7,7 +7,7 @@ import pandas as pd
 import json
 import openpyxl as xl
 
-from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
+from files import read_forms_from_dir, get_latest_form_dir, find_all_form_dir
 from xbrl_parse import get_fs_fields, get_disclosure_fields, get_diluted_common_shares_outstanding
 from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms
 from html_parse import html_to_facts

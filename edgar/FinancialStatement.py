@@ -74,7 +74,7 @@ class FinancialStatement:
 	ConceptsDict: Dict[str, Concept] = field(default_factory=dict)
 
 	# CLASS FUNCTIONS
-	def convert_to_ordered_dict(self):
+	def convert_to_ordered_dict(self) -> Dict:
 		dConceptsInOrder = {}
 
 		relationshipSet = self.linkRelationshipSet
@@ -123,7 +123,7 @@ class FinancialStatement:
 		return dConceptsInOrder
 
 	# GET FUNCTIONS
-	def get_concept_from_qname(self, qname: str):
+	def get_concept_from_qname(self, qname: str) -> Concept:
 		return self.ConceptsDict[qname]
 	
 	# SET FUNCTIONS
@@ -149,11 +149,11 @@ class ShareholdersEquity(FinancialStatement):
 	filingDate: date = None
 
 @dataclass
-class FinancialStatements:
-	balanceSheet: BalanceSheet = BalanceSheet()
-	incomeStatement: IncomeStatement = IncomeStatement()
-	cashFlow: CashFlow = CashFlow()
-	shareholdersEquity: ShareholdersEquity = ShareholdersEquity()
+class FilingFinancialStatements:
+	balanceSheet: BalanceSheet = field(default_factory=BalanceSheet)
+	incomeStatement: IncomeStatement = field(default_factory=IncomeStatement)
+	cashFlow: CashFlow = field(default_factory=CashFlow)
+	shareholdersEquity: ShareholdersEquity = field(default_factory=ShareholdersEquity)
 
 	# GET FUNCTIONS
 	def get_financial_statement(self, fs: str):
@@ -162,6 +162,49 @@ class FinancialStatements:
 		elif fs == 'cf': return self.cashFlow
 		elif fs == 'se': return self.shareholdersEquity
 
+# Has all of the financial statments divided by filing
 @dataclass
-class FilingData:
-	FinancialStatement
+class ConsolidatedFinancialStatements:
+	filingFinancialStatements: Dict[date, FilingFinancialStatements] = field(default_factory=dict)
+
+	#CLASS FUNCTIONS
+	def get_all_filing_dates(self) -> list:
+		return list(self.filingFinancialStatements.keys())
+	
+	def get_consolidated_fs(self, fs, override=False):
+		liConsolidatedData = list()
+		for date, filingFinancialStatement in self.filingFinancialStatements.items():
+			financialStatement = filingFinancialStatement.get_financial_statement(fs)
+			dConceptsInOrder = financialStatement.convert_to_ordered_dict()
+
+			if liConsolidatedData == []:
+				for sQname in dConceptsInOrder:
+					liConsolidatedData.append(
+						{
+							"Qname": sQname,
+							"facts": dConceptsInOrder[sQname]["facts"],
+							"label": dConceptsInOrder[sQname]["label"],
+							"depth": dConceptsInOrder[sQname]["depth"]
+						}
+					)
+
+			else:
+				index = 0
+				for sQname in dConceptsInOrder:
+					for i in range(len(liConsolidatedData)):
+						next = False
+						if sQname == liConsolidatedData[i]["Qname"]:
+							liConsolidatedData[i]["facts"] = liConsolidatedData[i]["facts"] | dConceptsInOrder[sQname]["facts"]
+							index = i+1
+							next = True
+							break
+					if next: continue
+					liConsolidatedData.insert(index, 
+						{	
+							"Qname": sQname,
+							"facts": dConceptsInOrder[sQname]["facts"],
+							"label": dConceptsInOrder[sQname]["label"],
+							"depth": dConceptsInOrder[sQname]["depth"]
+						})
+		
+		return liConsolidatedData

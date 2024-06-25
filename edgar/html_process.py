@@ -5,7 +5,7 @@ import sys
 import json
 
 from html_parse import html_to_facts, HTMLFact
-from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir, find_index_form_dir
+from files import read_forms_from_dir, get_latest_form_dir, find_all_form_dir, find_index_form_dir
 from xbrl_parse import XBRLNode, get_fs_fields
 import edgar_retrieve as edgar
 from util import retreival as re
@@ -209,7 +209,7 @@ if __name__ == '__main__':
 	forms = edgar.get_forms_of_type_xbrl(CIK, form_type, True)
 	edgar.save_all_forms(ticker, form_type, forms)
 
-	directory = find_latest_form_dir(ticker,form_type)
+	directory = get_latest_form_dir(ticker,form_type)
 	date = directory.split('/')[-1]
 	#ticker_to_json({},ticker,form_type,fs,date)
 

@@ -4,7 +4,7 @@ import sys
 from dataclasses import dataclass
 from typing import List
 
-from files import read_forms_from_dir, find_latest_form_dir
+from files import read_forms_from_dir, get_latest_form_dir
 from util.operations import contains_no_numbers
 
 @dataclass
@@ -446,7 +446,7 @@ def get_diluted_common_shares_outstanding(htm_xml):
 if __name__ == "__main__":
 	ticker = sys.argv[1]
 	form_type = sys.argv[2]
-	directory = find_latest_form_dir(ticker,form_type)
+	directory = get_latest_form_dir(ticker,form_type)
 	cfiles = read_forms_from_dir(directory)
 
 	ppe_URI = get_disclosure_fields("INTC", 'ppe', cfiles)

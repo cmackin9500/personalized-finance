@@ -7,7 +7,7 @@ import pandas as pd
 import json
 import openpyxl as xl
 
-from files import read_forms_from_dir, find_latest_form_dir, find_all_form_dir
+from files import read_forms_from_dir, get_latest_form_dir, find_all_form_dir
 from xbrl_parse import get_fs_fields, get_disclosure_fields, get_diluted_common_shares_outstanding
 from edgar_retrieve import get_company_CIK, get_forms_of_type_xbrl, save_all_facts, save_all_forms, download_forms
 from html_parse import html_to_facts
@@ -19,7 +19,6 @@ from excel_model.cover import *
 from excel_model.gv import *
 from excel_model.wacc import *
 from excel_model.nav import *
-from excel_arelle import run_arelle
 
 def get_fs_list(fs_fields, mag, fs, date):
 	div = 1000
