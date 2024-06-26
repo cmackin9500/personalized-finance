@@ -1,7 +1,10 @@
-from FinancialStatement import Fact, Concept, FilingFinancialStatements
+from FinancialStatement import Fact, Concept, FilingFinancialStatements, LinkRelationshipSet
 from FinancialStatement import ConceptEnumHandle, PeriodType
 
 from xbrl_parse import get_defenition_URI, statement_URI
+
+from dataclasses import dataclass, field
+from typing import Dict
 
 #from Arelle.arelle.CntlrCmdLine import parseAndRun
 import sys
@@ -11,6 +14,11 @@ from arelle.CntlrCmdLine import parseAndRun
 
 # TEMP IMPORTS
 from files import read_forms_from_dir
+
+@dataclass
+class ArelleData:
+	linkRelationshipSet: Dict[str, LinkRelationshipSet]
+	facts: dict
 
 # Returns the data that is extracted with Arelle
 def parse_filing_with_arelle(zip_file):
@@ -68,10 +76,14 @@ def fill_statement(statement, conceptFacts):
 		statement.ConceptsDict[str_qname] = concept
 
 def populate_statement(financialStatement, arelle_data, fs_roleURI):
-	fs_data = arelle_data[fs_roleURI]
+	fs_data = arelle_data[fs_roleURI]['facts']
 	conceptFacts = fs_data["conceptFacts"]
 
-	financialStatement.set_linkRelationshipSet(fs_data["linkRelationshipSet"])
+	cal = arelle_data[fs_roleURI].get('cal', None)
+	pre = arelle_data[fs_roleURI].get('pre', None)
+	dim = arelle_data[fs_roleURI].get('dim', None)
+	linkRelationshipSet = LinkRelationshipSet(cal, pre, dim)
+	financialStatement.set_linkRelationshipSet(linkRelationshipSet)
 	fill_statement(financialStatement, conceptFacts)
 
 def retrieve_FilingFinancialStatements(cfiles):

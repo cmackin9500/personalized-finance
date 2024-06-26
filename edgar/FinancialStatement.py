@@ -68,16 +68,27 @@ class Concept:
 	chilren: List[Concept]		# Child/children Concept(s)
 
 @dataclass
+class LinkRelationshipSet:
+	cal: ModelRelationshipSet = None
+	pre: ModelRelationshipSet = None
+	dim: ModelRelationshipSet = None
+
+@dataclass
+class RoleUriLinkRelationshipSet:
+	roleUri: str
+	linkRelationshipSet: LinkRelationshipSet
+
+@dataclass
 class FinancialStatement:
 	Concepts: List[Concept] = field(default_factory=list)
-	linkRelationshipSet: ModelRelationshipSet = None
+	linkRelationshipSet: LinkRelationshipSet = field(default_factory=LinkRelationshipSet)
 	ConceptsDict: Dict[str, Concept] = field(default_factory=dict)
 
 	# CLASS FUNCTIONS
 	def convert_to_ordered_dict(self) -> Dict:
 		dConceptsInOrder = {}
 
-		relationshipSet = self.linkRelationshipSet
+		relationshipSet = self.linkRelationshipSet.pre
 		modelRelationshipsFrom = relationshipSet.modelRelationshipsFrom
 		rootConcepts = relationshipSet.rootConcepts
 
