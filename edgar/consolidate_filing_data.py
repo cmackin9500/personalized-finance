@@ -10,7 +10,7 @@ import datetime
 
 if __name__ == "__main__":
 	#ticker = input("Enter ticker: ")
-	ticker = "AAPL"
+	ticker = "NVR"
 	directories = files.get_parsing_directories(ticker)
 	
 	consolidatedFinancialStatements = ConsolidatedFinancialStatements()

@@ -4,7 +4,7 @@ from FinancialStatement import ConceptEnumHandle, PeriodType
 from xbrl_parse import get_defenition_URI, statement_URI
 
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Any
 
 #from Arelle.arelle.CntlrCmdLine import parseAndRun
 import sys
@@ -26,7 +26,7 @@ def parse_filing_with_arelle(zip_file):
 	return parseAndRun(arg)
 
 # Fills in the statement concepts and facts
-def fill_statement(statement, conceptFacts):
+def fill_concepts_facts(statement, conceptFacts):
 	for Qname in conceptFacts:
 		modelInlineFacts = conceptFacts[Qname]
 
@@ -44,12 +44,13 @@ def fill_statement(statement, conceptFacts):
 			label = modelInlineFactConcept.label(),
 			abstract = modelInlineFactConcept.isAbstract,
 			dates = list(),
-			facts = list(),
+			facts = dict(),
 			balance = ConceptEnumHandle.isBalanceType(modelInlineFactConcept.balance),
 			periodType = ConceptEnumHandle.isPeriodType(modelInlineFactConcept.periodType),
 			unitRef = ConceptEnumHandle.isCurrency(modelInlineFacts[0].unitID),
 			parent = None,
-			chilren = list()
+			children = list(),
+			modelConcept = modelInlineFactConcept
 		)
 
 		for modelInlineFact in modelInlineFacts:
@@ -68,12 +69,29 @@ def fill_statement(statement, conceptFacts):
 				dimension = tuple(mem.propertyView for dim,mem in sorted(modelInlineFactContext.qnameDims.items()))
 			)
 
-			if fact not in concept.facts:
-				concept.facts.append(fact)
+			if fact.date not in concept.facts:
+				concept.facts[fact.date] = [fact]
+			elif fact not in concept.facts[fact.date]:
+					concept.facts[fact.date].append(fact)
 
 		statement.Concepts.append(concept)
 		str_qname = f"{prefix}:{name}"
 		statement.ConceptsDict[str_qname] = concept
+
+def fill_parent_child(financialStatement):
+	linkRelationshipSet = financialStatement.get_linkRelationshipSet()
+
+	Concepts = financialStatement.get_Concepts()
+	for Concept in Concepts:
+		sQname = Concept.get_sQname()
+		Concept_parent = linkRelationshipSet.get_type_parent('cal', sQname, financialStatement.ConceptsDict)
+		Concept.parent = Concept_parent
+
+		liConceptChildren = linkRelationshipSet.get_type_children('cal', sQname, financialStatement.ConceptsDict)
+		Concept.children = liConceptChildren
+
+	print()
+	return
 
 def populate_statement(financialStatement, arelle_data, fs_roleURI):
 	fs_data = arelle_data[fs_roleURI]['facts']
@@ -84,7 +102,8 @@ def populate_statement(financialStatement, arelle_data, fs_roleURI):
 	dim = arelle_data[fs_roleURI].get('dim', None)
 	linkRelationshipSet = LinkRelationshipSet(cal, pre, dim)
 	financialStatement.set_linkRelationshipSet(linkRelationshipSet)
-	fill_statement(financialStatement, conceptFacts)
+	fill_concepts_facts(financialStatement, conceptFacts)
+	fill_parent_child(financialStatement)
 
 def retrieve_FilingFinancialStatements(cfiles):
 	arelle_data = parse_filing_with_arelle(cfiles.zip)

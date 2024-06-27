@@ -1,14 +1,14 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Any
 from enum import Enum
 from datetime import date
 
 import sys
 mypath = "./Arelle"
 sys.path.insert(0, mypath)
-from arelle import ModelRelationshipSet
+from arelle import ModelRelationshipSet, ModelObject
 #from Arelle.arelle import ModelRelationshipSet
 
 class BalanceType(Enum):
@@ -60,18 +60,76 @@ class Concept:
 	label: str					# How the Concept is presented on the documetn
 	abstract: bool				# Denotes if the concept is an Abstract or not
 	dates: List[date]			# All of the dates that is present in the concept
-	facts: List[Fact]			# All of the Facts associated with the concept
+	facts: Dict[date, Fact]		# All of the Facts associated with the concept
 	balance: BalanceType		# Denotes if the concept is DEBIT or CREDIT
 	periodType: PeriodType		# Denotes if the concept is DURATION or INSTANT
 	unitRef: Currency			# Denotes the currency
-	parent: Concept				# Parent Concept
-	chilren: List[Concept]		# Child/children Concept(s)
+	parent: Concept				# Parent Concept. This will be taken from the Calculation Linkbase.
+	children: List[Concept]		# Child/children Concept(s)
+	modelConcept: ModelObject
+
+	def get_sQname(self):
+		return f"{self.prefix}:{self.name}"
 
 @dataclass
 class LinkRelationshipSet:
 	cal: ModelRelationshipSet = None
 	pre: ModelRelationshipSet = None
 	dim: ModelRelationshipSet = None
+
+	# Return the parent Concept of the specified Conpcet of the type (cal, pre, dim) linkbaseRelationshipSet
+	def get_type_parent(self, type, sQname, ConceptsDict):
+		typeLinkRelationshipSet = self.get_typeLinkRelationshipSet(type)
+		# If there is no parent in the specified linkbase type, return None
+		if typeLinkRelationshipSet is None: return None
+
+		# Look for matching modelConcpet sQname. If matched, take the from object and return the Concept of it.
+		for modelConcept, modelRel in typeLinkRelationshipSet.modelRelationshipsTo.items():
+			sModelConpcetQname = modelConcept.id.split('_')[0]+':'+modelConcept.id.split('_')[1]
+			if sModelConpcetQname != sQname: continue
+
+			fromModelObject = modelRel[0].fromModelObject
+			sFromObjectQname = fromModelObject.id.split('_')[0]+':'+fromModelObject.id.split('_')[1]
+
+			return ConceptsDict.get(sFromObjectQname, None)
+
+		return None
+	
+	def get_type_children(self, type, sQname, ConceptsDict):
+		typeLinkRelationshipSet = self.get_typeLinkRelationshipSet(type)
+		# If there is no parent in the specified linkbase type, return None
+		if typeLinkRelationshipSet is None: return None
+
+		# Look for matching modelConcpet sQname. If matched, take the to objects and return the Concepts.
+		for modelConcept, modelRels in typeLinkRelationshipSet.modelRelationshipsFrom.items():
+			sModelConpcetQname = modelConcept.id.split('_')[0]+':'+modelConcept.id.split('_')[1]
+			if sModelConpcetQname != sQname: continue
+
+			toConcepts = list()
+			for modelRel in modelRels:
+				toModelObject = modelRel.toModelObject
+				sToObjectQname = toModelObject.id.split('_')[0]+':'+toModelObject.id.split('_')[1]
+
+				if sToObjectQname in ConceptsDict:
+					toConcepts.append(ConceptsDict[sToObjectQname])
+			return toConcepts
+		
+		return None
+
+	def get_typeLinkRelationshipSet(self, type):
+		if type == 'cal': return self.get_calLinkRelationshipSet()
+		elif type == 'pre': return self.get_preLinkRelationshipSet()
+		elif type == 'dim': return self.get_dimLinkRelationshipSet()
+
+	def get_preLinkRelationshipSet(self) -> ModelRelationshipSet:
+		return self.pre
+	
+	def get_calLinkRelationshipSet(self) -> ModelRelationshipSet:
+		return self.cal
+	
+	def get_dimLinkRelationshipSet(self) -> ModelRelationshipSet:
+		return self.dim
+		
 
 @dataclass
 class RoleUriLinkRelationshipSet:
@@ -88,7 +146,7 @@ class FinancialStatement:
 	def convert_to_ordered_dict(self) -> Dict:
 		dConceptsInOrder = {}
 
-		relationshipSet = self.linkRelationshipSet.pre
+		relationshipSet = self.linkRelationshipSet.cal
 		modelRelationshipsFrom = relationshipSet.modelRelationshipsFrom
 		rootConcepts = relationshipSet.rootConcepts
 
@@ -107,11 +165,12 @@ class FinancialStatement:
 				dConceptsInOrder[sQname]["depth"] = depth
 			
 			if sQname in self.ConceptsDict: 
-				for Fact in self.ConceptsDict[sQname].facts:
-					if isinstance(Fact.val, int) or isinstance(Fact.val, float):
-						dConceptsInOrder[sQname]["facts"][Fact.date] = max(dConceptsInOrder[sQname]["facts"].get(Fact.date,0), Fact.val)
-					elif isinstance(Fact.val, str):
-						dConceptsInOrder[sQname]["facts"][Fact.date] = Fact.val
+				for date, Facts in self.ConceptsDict[sQname].facts.items():
+					for Fact in Facts:
+						if isinstance(Fact.val, int) or isinstance(Fact.val, float):
+							dConceptsInOrder[sQname]["facts"][date] = max(dConceptsInOrder[sQname]["facts"].get(date,0), Fact.val)
+						elif isinstance(Fact.val, str):
+							dConceptsInOrder[sQname]["facts"][date] = Fact.val
 
 			# Add the children of the current concept and add it to the front of the stack
 			conceptsToAdd = []
@@ -134,8 +193,26 @@ class FinancialStatement:
 		return dConceptsInOrder
 
 	# GET FUNCTIONS
-	def get_concept_from_qname(self, qname: str) -> Concept:
-		return self.ConceptsDict[qname]
+	def get_sQname(self, Concept):
+		return Concept.QName
+
+	def get_Concepts(self) -> List[Concept]:
+		return self.Concepts
+	
+	def get_concept_from_sQname(self, sQname: str) -> Concept:
+		return self.ConceptsDict[sQname]
+
+	def get_linkRelationshipSet(self) -> LinkRelationshipSet:
+		return self.linkRelationshipSet
+		
+	def get_preLinkRelationshipSet(self) -> ModelRelationshipSet:
+		return self.linkRelationshipSet.pre
+	
+	def get_calLinkRelationshipSet(self) -> ModelRelationshipSet:
+		return self.linkRelationshipSet.cal
+	
+	def get_dimLinkRelationshipSet(self) -> ModelRelationshipSet:
+		return self.linkRelationshipSet.dim
 	
 	# SET FUNCTIONS
 	def set_linkRelationshipSet(self, linkRelationshipSet):
