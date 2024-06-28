@@ -51,6 +51,7 @@ class Fact:
 	period: List[date, date]	# Shows the starting date and ending date of the fact if Concept's periodType is DURATION else None
 	context: date				# XBRL concept
 	dimension: Set				# From and to dimention info if it exists
+	isTotal: bool				# Tells us if the Fact is a total fact or not
 
 @dataclass
 class Concept:
@@ -67,6 +68,8 @@ class Concept:
 	parent: Concept				# Parent Concept. This will be taken from the Calculation Linkbase.
 	children: List[Concept]		# Child/children Concept(s)
 	modelConcept: ModelObject
+	hasTotal: bool				# Tells us if the Concept has a total value fact (meaning it is not broken down into Axis/Member without a total value reported)
+	hasAxisMember: bool			# Tells us if the Concept Facts have Axis/Member Breakdown
 
 	def get_sQname(self):
 		return f"{self.prefix}:{self.name}"
@@ -78,7 +81,7 @@ class LinkRelationshipSet:
 	dim: ModelRelationshipSet = None
 
 	# Return the parent Concept of the specified Conpcet of the type (cal, pre, dim) linkbaseRelationshipSet
-	def get_type_parent(self, type, sQname, ConceptsDict):
+	def get_type_parent(self, type, sQname, dConcepts):
 		typeLinkRelationshipSet = self.get_typeLinkRelationshipSet(type)
 		# If there is no parent in the specified linkbase type, return None
 		if typeLinkRelationshipSet is None: return None
@@ -91,11 +94,11 @@ class LinkRelationshipSet:
 			fromModelObject = modelRel[0].fromModelObject
 			sFromObjectQname = fromModelObject.id.split('_')[0]+':'+fromModelObject.id.split('_')[1]
 
-			return ConceptsDict.get(sFromObjectQname, None)
+			return dConcepts.get(sFromObjectQname, None)
 
 		return None
 	
-	def get_type_children(self, type, sQname, ConceptsDict):
+	def get_type_children(self, type, sQname, dConcepts):
 		typeLinkRelationshipSet = self.get_typeLinkRelationshipSet(type)
 		# If there is no parent in the specified linkbase type, return None
 		if typeLinkRelationshipSet is None: return None
@@ -110,8 +113,8 @@ class LinkRelationshipSet:
 				toModelObject = modelRel.toModelObject
 				sToObjectQname = toModelObject.id.split('_')[0]+':'+toModelObject.id.split('_')[1]
 
-				if sToObjectQname in ConceptsDict:
-					toConcepts.append(ConceptsDict[sToObjectQname])
+				if sToObjectQname in dConcepts:
+					toConcepts.append(dConcepts[sToObjectQname])
 			return toConcepts
 		
 		return None
@@ -140,7 +143,9 @@ class RoleUriLinkRelationshipSet:
 class FinancialStatement:
 	Concepts: List[Concept] = field(default_factory=list)
 	linkRelationshipSet: LinkRelationshipSet = field(default_factory=LinkRelationshipSet)
-	ConceptsDict: Dict[str, Concept] = field(default_factory=dict)
+	dConcepts: Dict[str, Concept] = field(default_factory=dict)
+	dAxisMemberRelationship: Dict = field(default_factory=dict)
+	dAxisMemberFacts: Dict = field(default_factory=dict)
 
 	# CLASS FUNCTIONS
 	def convert_to_ordered_dict(self) -> Dict:
@@ -164,8 +169,8 @@ class FinancialStatement:
 				dConceptsInOrder[sQname]["label"] = concept.label()
 				dConceptsInOrder[sQname]["depth"] = depth
 			
-			if sQname in self.ConceptsDict: 
-				for date, Facts in self.ConceptsDict[sQname].facts.items():
+			if sQname in self.dConcepts: 
+				for date, Facts in self.dConcepts[sQname].facts.items():
 					for Fact in Facts:
 						if isinstance(Fact.val, int) or isinstance(Fact.val, float):
 							dConceptsInOrder[sQname]["facts"][date] = max(dConceptsInOrder[sQname]["facts"].get(date,0), Fact.val)
@@ -200,7 +205,7 @@ class FinancialStatement:
 		return self.Concepts
 	
 	def get_concept_from_sQname(self, sQname: str) -> Concept:
-		return self.ConceptsDict[sQname]
+		return self.dConcepts[sQname]
 
 	def get_linkRelationshipSet(self) -> LinkRelationshipSet:
 		return self.linkRelationshipSet

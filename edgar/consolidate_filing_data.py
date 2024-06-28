@@ -6,11 +6,9 @@ import files
 
 import datetime
 
-#def consolidate_filing_data(filing_date, )
-
 if __name__ == "__main__":
 	#ticker = input("Enter ticker: ")
-	ticker = "NVR"
+	ticker = "AAPL"
 	directories = files.get_parsing_directories(ticker)
 	
 	consolidatedFinancialStatements = ConsolidatedFinancialStatements()

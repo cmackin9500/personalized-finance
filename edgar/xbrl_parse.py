@@ -89,7 +89,7 @@ def statement_URI(statement_roleURI:list, statement:str) -> str:
 		  'consolidatedstatementsofcomprehensiveincome', 'combinedstatementofoperations', 'consolidatedstatementofcomprehensiveincome']
 	CF = ['statementsofcashflows','statementofcashflows','cashflow', 'combinedstatementofcashflow']
 	SE = ['consolidatedstatementsofshareholdersequity', 'statementconsolidatedstatementsofstockholdersequitydeficit', 
-	   	  'consolidatedstatementofchangesinstockholdersequity']
+	   	  'consolidatedstatementofchangesinstockholdersequity', 'statementofshareholdersequityandothercomprehensiveincome']
 	PPE = ['propertyplantandequipment','propertyandequipment','investmentproperties']
 	skip = ['comprehensive','details']
 	avoid = ['paranthetical']
