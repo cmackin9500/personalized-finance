@@ -5,6 +5,7 @@ from xbrl_parse import get_defenition_URI, statement_URI
 
 from dataclasses import dataclass, field
 from typing import Dict, Any
+import datetime
 
 #from Arelle.arelle.CntlrCmdLine import parseAndRun
 import sys
@@ -58,8 +59,10 @@ def fill_concepts_facts(statement, conceptFacts):
 		for modelInlineFact in modelInlineFacts:
 			modelInlineFactContext = modelInlineFact.context
 			fact = Fact(
+				sConceptQname = f"{concept.prefix}:{concept.name}",
 				date = getattr(modelInlineFactContext, 'endDate', None),
 				val = getattr(modelInlineFact, 'sValue', None),
+				balance = concept.balance,
 				sign = getattr(modelInlineFact, 'sign', None),
 				decimals = getattr(modelInlineFact, 'decimals', None),
 				scale = getattr(modelInlineFact, 'scale', None),
@@ -69,8 +72,12 @@ def fill_concepts_facts(statement, conceptFacts):
 				},
 				context = modelInlineFact.context,
 				dimension = tuple(mem.propertyView for dim,mem in sorted(modelInlineFactContext.qnameDims.items())),
-				isTotal = True
-			)
+				isTotal = True,
+				calParentFact = None,
+				calChildrenFacts = list()			)
+			
+			if fact.date not in concept.dates:
+				concept.dates.append(fact.date)
 			# Change isTotal to False if Fact dimention is not empty (means it is an Axis/Member breakdown)
 			# It also means that the concept has a Axis/Member breakdown amongst the Facts
 			if len(fact.dimension) != 0: 
@@ -88,6 +95,7 @@ def fill_concepts_facts(statement, conceptFacts):
 		statement.Concepts.append(concept)
 		str_qname = f"{prefix}:{name}"
 		statement.dConcepts[str_qname] = concept
+		
 
 def fill_parent_child(financialStatement):
 	linkRelationshipSet = financialStatement.get_linkRelationshipSet()
@@ -164,6 +172,108 @@ def fill_AxisMemberRelationship(financialStatement):
 
 	return 
 
+def fill_calRelationship(financialStatement):
+	calLinkRelationshipSet = financialStatement.get_calLinkRelationshipSet()
+	if calLinkRelationshipSet is None: 
+		return
+	rootConcepts = calLinkRelationshipSet.rootConcepts
+	for rootConcept in rootConcepts:
+		name = rootConcept.vQname().localName
+		prefix = rootConcept.vQname().prefix
+		financialStatement.calRootConcepts.append(f"{prefix}:{name}")
+	
+	modelRelationshipsFrom = calLinkRelationshipSet.modelRelationshipsFrom
+
+	# Get the first root concept and add the rest in the stack
+	curConcept = rootConcepts[0]
+	stack = [rootConcept for rootConcept in rootConcepts[1:]]
+	# Created visited set to avoid adding the same concept again
+	visited = {curConcept}
+	while curConcept is not None or stack:
+		sQname = f"{curConcept.vQname().prefix}:{curConcept.vQname().localName}"
+
+		financialStatement.dCalRelationship[sQname] = list()
+		# Add the children of the current concept and add it to the front of the stack
+		conceptsToAdd = []
+		modelRelationshipsFromList = modelRelationshipsFrom[curConcept]
+		for cur_modelRelationshipsFrom in modelRelationshipsFromList:
+			toConcept = cur_modelRelationshipsFrom.toModelObject
+			name = toConcept.vQname().localName
+			prefix = toConcept.vQname().prefix
+			financialStatement.dCalRelationship[sQname].append(f"{prefix}:{name}")
+			if toConcept not in visited:
+				conceptsToAdd.append(toConcept)
+				visited.add(toConcept)
+		stack = conceptsToAdd + stack
+
+		# Get the first concept in the stack
+		if stack:
+			curConcept = stack.pop(0)
+		else:
+			curConcept = None
+
+	return 
+
+def get_Facts_tree(financialStatement):
+	Concepts = financialStatement.get_Concepts()
+	if financialStatement.get_calLinkRelationshipSet():
+		rootConcepts = financialStatement.get_calLinkRelationshipSet().rootConcepts
+	elif financialStatement.get_dimLinkRelationshipSet():
+		rootConcepts = financialStatement.get_dimLinkRelationshipSet().rootConcepts
+	else:
+		print("dim and cal linkRelationshipSet does not exist.")
+		return None
+
+	for Concept in Concepts:
+		for date in Concept.facts:
+			TotalFact = Concept.get_total_Fact(date, True)
+			print()
+
+def dfs(financialStatement, date, parentFact, curFact, curConcept, sMemberQname, visited):
+	if curConcept is None or curFact in visited or curFact is None:
+		return
+	
+	visited.append(curFact)
+	sCurQname = f"{curConcept.prefix}:{curConcept.name}"
+	curFact.calParentFact = parentFact
+
+	# If the current concept has a total Fact but not Axis-Member breakdown, we will just set the children to curFact.children and dfs
+	if curConcept.hasTotal and not curConcept.hasAxisMember:
+		for sChildQname in financialStatement.dCalRelationship[sCurQname]:
+			childConcept = financialStatement.dConcepts[sChildQname]
+			childTotalFact = childConcept.get_total_Fact(date)
+
+			if childTotalFact is not None:
+				curFact.calChildrenFacts.append(childTotalFact)
+
+			dfs(financialStatement, date, curFact, childTotalFact, childConcept, None, visited)
+	
+	# If current concept has a total AND axis memebrs, split them by the different axis members
+	elif curConcept.hasTotal and curConcept.hasAxisMember:
+		if not sMemberQname:
+			liNonTotalFacts = curConcept.get_not_isTotal_facts(date)
+			for nonTotalFact in liNonTotalFacts:
+				curFact.calChildrenFacts.append(nonTotalFact)
+				
+				dfs(financialStatement, date, curFact, nonTotalFact, curConcept, nonTotalFact.get_member_Qname(), visited)
+		
+		elif sMemberQname:
+			if financialStatement.dCalRelationship[sCurQname] != []:
+				for sChildQname in financialStatement.dCalRelationship[sCurQname]:
+					childConcept = financialStatement.dConcepts.get(sChildQname, None)
+					if childConcept is None:
+						continue
+					childMemberFact = childConcept.get_member_fact(date, sMemberQname)
+
+					if childMemberFact is None:
+						continue
+
+					curFact.calChildrenFacts.append(childMemberFact)
+					if curFact.get_member_Qname() == sMemberQname and financialStatement.dCalRelationship[childMemberFact.sConceptQname] != []:
+						dfs(financialStatement, date, curFact, childMemberFact, childConcept, sMemberQname, visited)
+
+	return
+
 def populate_statement(financialStatement, arelle_data, fs_roleURI):
 	fs_data = arelle_data[fs_roleURI]['facts']
 	conceptFacts = fs_data["conceptFacts"]
@@ -173,10 +283,32 @@ def populate_statement(financialStatement, arelle_data, fs_roleURI):
 	dim = arelle_data[fs_roleURI].get('dim', None)
 	linkRelationshipSet = LinkRelationshipSet(cal, pre, dim)
 	financialStatement.set_linkRelationshipSet(linkRelationshipSet)
+	fill_AxisMemberRelationship(financialStatement)
 	fill_concepts_facts(financialStatement, conceptFacts)
 	fill_parent_child(financialStatement)
 	fill_AxisMemberFact(financialStatement)
-	fill_AxisMemberRelationship(financialStatement)
+
+	fill_calRelationship(financialStatement)
+
+	for sRootConceptQname in financialStatement.calRootConcepts:
+		curConcept = financialStatement.dConcepts[sRootConceptQname]
+		for date in curConcept.dates:
+			rootTotalFact = curConcept.get_total_Fact(date)
+			if rootTotalFact is None:
+				rootTotalFact = curConcept.get_total_Fact(date, True)
+				if rootTotalFact is not None:
+					curConcept.facts[date].append(rootTotalFact)
+					curConcept.hasTotal = True
+				else:
+					print('rootTotalFact failure.')
+
+			if date not in financialStatement.calRootFacts:
+				financialStatement.calRootFacts[date] = [rootTotalFact]
+			else:
+				financialStatement.calRootFacts[date].append(rootTotalFact)
+			dfs(financialStatement, date, None, rootTotalFact, curConcept, None, list())
+			print()
+	#fill_Fact_parent_child(financialStatement)
 
 def retrieve_FilingFinancialStatements(cfiles):
 	arelle_data = parse_filing_with_arelle(cfiles.zip)
@@ -186,11 +318,8 @@ def retrieve_FilingFinancialStatements(cfiles):
 	financialStatements = FilingFinancialStatements()
 	for fs in ('bs', 'is', 'cf', 'se'):
 		financialStatement = financialStatements.get_financial_statement(fs)
-		try:
-			fs_roleURI = statement_URI(roleURIs, fs)
-			populate_statement(financialStatement, arelle_data, fs_roleURI)
-		except BaseException as error:
-			print(f"{fs} not populated: {error}")
+		fs_roleURI = statement_URI(roleURIs, fs)
+		populate_statement(financialStatement, arelle_data, fs_roleURI)
 
 	return financialStatements
 

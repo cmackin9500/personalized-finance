@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Set, Any
 from enum import Enum
 from datetime import date
+from copy import copy
 
 import sys
 mypath = "./Arelle"
@@ -43,36 +44,86 @@ class ConceptEnumHandle:
 
 @dataclass
 class Fact:
-	date: date					# As-of-date of the fact Instant date or period ending date
-	val: float					# Value of the fact
-	sign: Sign					# Denotes if concept is positive or negative
-	decimals: int				# Denotes the number of decminals it is in
-	scale: int					# Denotes the scale of the concept
-	period: List[date, date]	# Shows the starting date and ending date of the fact if Concept's periodType is DURATION else None
-	context: date				# XBRL concept
-	dimension: Set				# From and to dimention info if it exists
-	isTotal: bool				# Tells us if the Fact is a total fact or not
+	sConceptQname: str
+	date: date						# As-of-date of the fact Instant date or period ending date
+	val: float						# Value of the fact
+	balance: BalanceType			# Denotes if the concept is DEBIT or CREDIT
+	sign: Sign						# Denotes if concept is positive or negative
+	decimals: int					# Denotes the number of decminals it is in
+	scale: int						# Denotes the scale of the concept
+	period: List[date, date]		# Shows the starting date and ending date of the fact if Concept's periodType is DURATION else None
+	context: date					# XBRL concept
+	dimension: tuple				# From and to dimention info if it exists
+	isTotal: bool					# Tells us if the Fact is a total fact or not
+	calParentFact: Fact				# The parent of the Fact self.Fact adds up to
+	calChildrenFacts: List[Fact]	# The children of the Fact that self.Fact is a sum of		
+
+	def get_member_Qname(self):
+		if len(self.dimension) != 0:
+			return self.dimension[0][1]
+
+		return None
 
 @dataclass
 class Concept:
-	name: str					# Name of the concept
-	prefix: str					# Prefix of the concept. Either "us-gaap" or ticker
-	QName: str					# name + prefix
-	label: str					# How the Concept is presented on the documetn
-	abstract: bool				# Denotes if the concept is an Abstract or not
-	dates: List[date]			# All of the dates that is present in the concept
-	facts: Dict[date, Fact]		# All of the Facts associated with the concept
-	balance: BalanceType		# Denotes if the concept is DEBIT or CREDIT
-	periodType: PeriodType		# Denotes if the concept is DURATION or INSTANT
-	unitRef: Currency			# Denotes the currency
-	parent: Concept				# Parent Concept. This will be taken from the Calculation Linkbase.
-	children: List[Concept]		# Child/children Concept(s)
+	name: str						# Name of the concept
+	prefix: str						# Prefix of the concept. Either "us-gaap" or ticker
+	QName: str						# name + prefix
+	label: str						# How the Concept is presented on the documetn
+	abstract: bool					# Denotes if the concept is an Abstract or not
+	dates: List[date]				# All of the dates that is present in the concept
+	facts: Dict[date, Fact]			# All of the Facts associated with the concept
+	balance: BalanceType			# Denotes if the concept is DEBIT or CREDIT
+	periodType: PeriodType			# Denotes if the concept is DURATION or INSTANT
+	unitRef: Currency				# Denotes the currency
+	parent: Concept					# Parent Concept. This will be taken from the Calculation Linkbase.
+	children: List[Concept]			# Child/children Concept(s)
 	modelConcept: ModelObject
-	hasTotal: bool				# Tells us if the Concept has a total value fact (meaning it is not broken down into Axis/Member without a total value reported)
-	hasAxisMember: bool			# Tells us if the Concept Facts have Axis/Member Breakdown
+	hasTotal: bool					# Tells us if the Concept has a total value fact (meaning it is not broken down into Axis/Member without a total value reported)
+	hasAxisMember: bool				# Tells us if the Concept Facts have Axis/Member Breakdown
 
 	def get_sQname(self):
 		return f"{self.prefix}:{self.name}"
+	
+	def get_not_isTotal_facts(self, date):
+		facts = self.facts[date]
+		
+		liNotIsTotalFacts = list()
+		for Fact in facts:
+			if Fact.isTotal: continue
+			liNotIsTotalFacts.append(Fact)
+		
+		return liNotIsTotalFacts
+	
+	def get_total_Fact(self, date, bCreateIsTotalFact=False):
+		facts = self.facts[date]
+		
+		# First loop through and see if any of the Facts are isTotal
+		for Fact in facts:
+			if Fact.isTotal:
+				return Fact
+		
+		if bCreateIsTotalFact:
+			fact = copy(facts[0])
+			fact.val = 0
+			fact.dimension = tuple()
+			fact.isTotal = True
+			fact.calChildrenFacts = list()
+			for Fact in facts:
+				fact.val += Fact.val
+			return fact
+		
+		return None
+	
+	def get_member_fact(self, date, sMemberQname):
+		facts = self.facts[date]
+		
+		# First loop through and see if any of the Facts are isTotal
+		for Fact in facts:
+			if Fact.get_member_Qname() == sMemberQname:
+				return Fact
+		
+		return None
 
 @dataclass
 class LinkRelationshipSet:
@@ -146,6 +197,9 @@ class FinancialStatement:
 	dConcepts: Dict[str, Concept] = field(default_factory=dict)
 	dAxisMemberRelationship: Dict = field(default_factory=dict)
 	dAxisMemberFacts: Dict = field(default_factory=dict)
+	dCalRelationship: Dict = field(default_factory=dict)
+	calRootFacts: Dict[date, Fact] = field(default_factory=dict)
+	calRootConcepts: List = field(default_factory=list)
 
 	# CLASS FUNCTIONS
 	def convert_to_ordered_dict(self) -> Dict:
